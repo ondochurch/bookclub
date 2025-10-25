@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>온도교회 사명자반 북클럽</title>
+  <title>북클럽 내용 정리 - 온도교회 사명자반 북클럽</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
   <style>
     * {
@@ -28,11 +28,11 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background-image: url('https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=1920&q=80');
+      background-image: url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=1920&q=80');
       background-size: cover;
       background-position: center;
       background-attachment: fixed;
-      opacity: 0.15;
+      opacity: 0.1;
       pointer-events: none;
       z-index: 0;
     }
@@ -83,15 +83,38 @@
       opacity: 0.95;
     }
 
+    .nav-back {
+      display: inline-block;
+      margin: 2rem 0 1rem 2rem;
+      padding: 0.5rem 1rem;
+      background: white;
+      color: #667eea;
+      text-decoration: none;
+      border-radius: 0.5rem;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .nav-back:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+
     .container {
       max-width: 1200px;
       margin: 0 auto;
-      padding: 3rem 2rem;
+      padding: 2rem 2rem 3rem 2rem;
     }
 
     .intro {
       text-align: center;
       margin-bottom: 3rem;
+    }
+
+    .intro .book-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
     }
 
     .intro h2 {
@@ -101,11 +124,6 @@
       font-weight: 500;
     }
 
-    .intro .welcome-icon {
-      font-size: 3rem;
-      margin-bottom: 1rem;
-    }
-
     .intro p {
       font-size: 1.1rem;
       color: #666;
@@ -113,34 +131,14 @@
       margin: 0 auto;
     }
 
-    .intro .features {
-      display: flex;
-      justify-content: center;
+    .books-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
       gap: 2rem;
       margin-top: 2rem;
-      flex-wrap: wrap;
     }
 
-    .intro .feature-item {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      color: #667eea;
-      font-weight: 500;
-    }
-
-    .intro .feature-item span {
-      font-size: 1.5rem;
-    }
-
-    .cards-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 2rem;
-      margin-top: 3rem;
-    }
-
-    .card {
+    .book-card {
       background: white;
       border-radius: 12px;
       padding: 2rem;
@@ -148,47 +146,46 @@
       transition: all 0.3s ease;
       text-decoration: none;
       color: inherit;
-      display: block;
+      display: flex;
+      flex-direction: column;
       border: 2px solid transparent;
     }
 
-    .card:hover {
+    .book-card:hover {
       transform: translateY(-8px);
       box-shadow: 0 12px 24px rgba(0,0,0,0.15);
       border-color: #667eea;
     }
 
-    .card-icon {
-      font-size: 3rem;
-      margin-bottom: 1rem;
-      display: block;
-    }
-
-    .card h3 {
+    .book-card h3 {
       font-size: 1.5rem;
-      margin-bottom: 1rem;
       color: #2c3e50;
+      margin-bottom: 0.5rem;
       font-weight: 500;
     }
 
-    .card p {
+    .book-card .author {
+      font-size: 0.9rem;
+      color: #888;
+      margin-bottom: 1rem;
+    }
+
+    .book-card p {
       color: #666;
       font-size: 1rem;
       line-height: 1.6;
+      flex-grow: 1;
     }
 
-    .card.primary {
+    .book-card .status {
+      display: inline-block;
+      margin-top: 1rem;
+      padding: 0.3rem 0.8rem;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
-    }
-
-    .card.primary h3,
-    .card.primary p {
-      color: white;
-    }
-
-    .card.primary:hover {
-      border-color: #764ba2;
+      border-radius: 0.3rem;
+      font-size: 0.85rem;
+      font-weight: 500;
     }
 
     footer {
@@ -240,17 +237,17 @@
         font-size: 1rem;
       }
 
-      .intro .features {
-        gap: 1rem;
-      }
-
-      .cards-grid {
+      .books-grid {
         grid-template-columns: 1fr;
         gap: 1.5rem;
       }
 
       .container {
         padding: 2rem 1rem;
+      }
+
+      .nav-back {
+        margin: 1rem 0 0.5rem 1rem;
       }
     }
   </style>
@@ -261,54 +258,32 @@
     <a href="https://www.ondochurch.org/" target="_blank" class="church-link">
       🏛️ 온도교회 홈페이지
     </a>
-    <h1>온도교회 사명자반<br>북클럽</h1>
-    <p>함께 읽고, 함께 나누며, 함께 성장하는 공동체</p>
+    <h1>북클럽 내용 정리</h1>
+    <p>지난 북클럽 모임의 토론 내용과 인사이트</p>
   </header>
+
+  <a href="index.html" class="nav-back">← 홈으로</a>
 
   <div class="container">
     <div class="intro">
-      <div class="welcome-icon">📚</div>
-      <h2>환영합니다</h2>
-      <p>온도교회 사명자반 북클럽은 말씀과 신앙 서적을 통해 함께 배우고 성장하는 모임입니다.</p>
-      <div class="features">
-        <div class="feature-item">
-          <span>📖</span>
-          <div>함께 읽기</div>
-        </div>
-        <div class="feature-item">
-          <span>💬</span>
-          <div>함께 나누기</div>
-        </div>
-        <div class="feature-item">
-          <span>🌱</span>
-          <div>함께 성장하기</div>
-        </div>
-      </div>
+      <div class="book-icon">📚</div>
+      <h2>읽은 책들</h2>
+      <p>온도교회 사명자반 북클럽에서 함께 읽고 나눈 책들입니다.</p>
     </div>
 
-    <div class="cards-grid">
-      <a href="register.html" class="card primary">
-        <span class="card-icon">📖</span>
-        <h3>북클럽 신청</h3>
-        <p>현재 진행 중인 북클럽에 참여 신청을 하실 수 있습니다.</p>
+    <div class="books-grid">
+      <a href="book-cosmos.html" class="book-card">
+        <h3>코스모스</h3>
+        <div class="author">칼 세이건</div>
+        <p>우주에 대한 경이로움과 과학적 사고를 통해 하나님의 창조를 더 깊이 이해하는 시간을 가졌습니다.</p>
+        <span class="status">토론 완료</span>
       </a>
 
-      <a href="https://docs.google.com/spreadsheets/d/1Blk7ikG3jJzcUDCgnmClkbPqZo2u6NDg6lX8xCIB_20/edit?gid=0#gid=0" class="card" target="_blank">
-        <span class="card-icon">💡</span>
-        <h3>새로운 책 제안</h3>
-        <p>북클럽에서 함께 읽고 싶은 책을 제안해 주세요.</p>
-      </a>
-
-      <a href="summary.html" class="card">
-        <span class="card-icon">📝</span>
-        <h3>북클럽 내용 정리</h3>
-        <p>지난 북클럽 모임의 토론 내용과 인사이트를 확인하세요.</p>
-      </a>
-
-      <a href="#" class="card" onclick="alert('Airtable 링크를 설정해 주세요.'); return false;">
-        <span class="card-icon">👥</span>
-        <h3>참여자 현황</h3>
-        <p>현재 북클럽 참여자 명단과 진행 현황을 확인하세요.</p>
+      <a href="book-today-worship.html" class="book-card">
+        <h3>오늘이라는 예배</h3>
+        <div class="author">박제욱</div>
+        <p>일상 속에서 드리는 예배와 삶으로 드리는 예배에 대해 함께 나누었습니다.</p>
+        <span class="status">토론 완료</span>
       </a>
     </div>
   </div>
