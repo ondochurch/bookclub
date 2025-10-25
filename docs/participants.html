@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>참여자 현황 - 온도교회 사명자반 북클럽</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Noto Sans KR', 'Nanum Gothic', sans-serif;
+      background: #f8f9fa;
+      color: #333;
+      line-height: 1.6;
+      position: relative;
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: url('https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1920&q=80');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      opacity: 0.08;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 3rem 2rem 2rem 2rem;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      color: white;
+      position: relative;
+    }
+
+    .church-link {
+      position: absolute;
+      top: 1rem;
+      right: 2rem;
+      color: white;
+      text-decoration: none;
+      font-size: 0.9rem;
+      opacity: 0.9;
+      transition: opacity 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .church-link:hover {
+      opacity: 1;
+      text-decoration: underline;
+    }
+
+    header h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    }
+
+    header p {
+      font-size: 1.1rem;
+      font-weight: 300;
+      opacity: 0.95;
+    }
+
+    .nav-back {
+      display: inline-block;
+      margin: 2rem 0 1rem 2rem;
+      padding: 0.5rem 1rem;
+      background: white;
+      color: #667eea;
+      text-decoration: none;
+      border-radius: 0.5rem;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .nav-back:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem 2rem 3rem 2rem;
+    }
+
+    .info-box {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+
+    .info-box h2 {
+      font-size: 1.8rem;
+      color: #2c3e50;
+      margin-bottom: 1rem;
+      font-weight: 500;
+    }
+
+    .info-box p {
+      color: #666;
+      font-size: 1rem;
+      line-height: 1.8;
+    }
+
+    .airtable-embed {
+      background: white;
+      border-radius: 12px;
+      padding: 0;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+
+    .airtable-embed iframe {
+      width: 100%;
+      height: 80vh;
+      border: none;
+      border-radius: 12px;
+    }
+
+    .setup-instructions {
+      background: white;
+      border-radius: 12px;
+      padding: 2.5rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+    }
+
+    .setup-instructions h3 {
+      font-size: 1.5rem;
+      color: #2c3e50;
+      margin-bottom: 1.5rem;
+      font-weight: 500;
+      border-bottom: 2px solid #667eea;
+      padding-bottom: 0.5rem;
+    }
+
+    .setup-instructions .step {
+      margin-bottom: 2rem;
+      padding: 1.5rem;
+      background: #f8f9fa;
+      border-radius: 8px;
+      border-left: 4px solid #667eea;
+    }
+
+    .setup-instructions .step h4 {
+      color: #667eea;
+      margin-bottom: 0.8rem;
+      font-size: 1.1rem;
+    }
+
+    .setup-instructions .step p {
+      color: #666;
+      line-height: 1.8;
+      margin-bottom: 0.5rem;
+    }
+
+    .setup-instructions .step code {
+      background: #e9ecef;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9rem;
+      color: #d63384;
+    }
+
+    .setup-instructions .note {
+      background: #fff3cd;
+      border-left: 4px solid #ffc107;
+      padding: 1rem;
+      border-radius: 4px;
+      margin-top: 1rem;
+    }
+
+    .setup-instructions .note p {
+      color: #856404;
+      margin: 0;
+    }
+
+    footer {
+      text-align: center;
+      padding: 2rem;
+      margin-top: 3rem;
+      color: #999;
+      font-size: 0.9rem;
+      border-top: 1px solid #e0e0e0;
+      background: white;
+    }
+
+    footer a {
+      color: #667eea;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    footer a:hover {
+      color: #764ba2;
+      text-decoration: underline;
+    }
+
+    @media (max-width: 768px) {
+      .church-link {
+        position: static;
+        display: inline-block;
+        margin-top: 1rem;
+        font-size: 0.85rem;
+      }
+
+      header {
+        padding: 2rem 1rem;
+      }
+
+      header h1 {
+        font-size: 2rem;
+      }
+
+      .container {
+        padding: 2rem 1rem;
+      }
+
+      .setup-instructions,
+      .info-box {
+        padding: 1.5rem;
+      }
+
+      .nav-back {
+        margin: 1rem 0 0.5rem 1rem;
+      }
+
+      .airtable-embed iframe {
+        height: 70vh;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a href="https://www.ondochurch.org/" target="_blank" class="church-link">
+      🏛️ 온도교회 홈페이지
+    </a>
+    <h1>👥 참여자 현황</h1>
+    <p>북클럽 참여자 명단과 진행 현황</p>
+  </header>
+
+  <a href="index.html" class="nav-back">← 홈으로</a>
+
+  <div class="container">
+    <div class="info-box">
+      <h2>📊 북클럽 참여 현황</h2>
+      <p>현재 진행 중인 북클럽의 참여자 명단과 출석 현황을 확인할 수 있습니다.</p>
+    </div>
+
+    <!-- Airtable Embed Section -->
+    <!--
+    <div class="airtable-embed">
+      <iframe
+        src="YOUR_AIRTABLE_SHARE_LINK_HERE"
+        frameborder="0"
+        onmousewheel="">
+      </iframe>
+    </div>
+    -->
+
+    <!-- Setup Instructions (Remove this section after setting up Airtable) -->
+    <div class="setup-instructions">
+      <h3>🔧 Airtable 설정 방법</h3>
+
+      <div class="step">
+        <h4>1단계: Airtable 계정 만들기</h4>
+        <p>1. <a href="https://airtable.com/signup" target="_blank" style="color: #667eea;">airtable.com/signup</a> 방문</p>
+        <p>2. 이메일로 무료 계정 생성 (Google 계정 연동 가능)</p>
+        <p>3. 계정 생성 완료 후 로그인</p>
+      </div>
+
+      <div class="step">
+        <h4>2단계: Base 만들기</h4>
+        <p>1. "Start from scratch" 또는 "북클럽 참여자" 템플릿 선택</p>
+        <p>2. Base 이름: "온도교회 북클럽 참여자"</p>
+        <p>3. 필드 추가:</p>
+        <ul style="margin-left: 2rem; color: #666; margin-top: 0.5rem;">
+          <li>이름 (Single line text)</li>
+          <li>연락처 (Phone number)</li>
+          <li>참여 회차 (Multiple select)</li>
+          <li>출석 현황 (Checkbox)</li>
+          <li>비고 (Long text)</li>
+        </ul>
+      </div>
+
+      <div class="step">
+        <h4>3단계: 공유 링크 가져오기</h4>
+        <p>1. Airtable Base 우측 상단 "Share" 클릭</p>
+        <p>2. "Create a shareable link" 토글 활성화</p>
+        <p>3. "Embed this base" 클릭</p>
+        <p>4. iframe 코드 복사</p>
+      </div>
+
+      <div class="step">
+        <h4>4단계: 웹사이트에 추가</h4>
+        <p>1. <code>participants.html</code> 파일 열기</p>
+        <p>2. 79-86번째 줄의 주석 제거 (<code>&lt;!--</code>와 <code>--&gt;</code> 삭제)</p>
+        <p>3. <code>YOUR_AIRTABLE_SHARE_LINK_HERE</code>를 복사한 링크로 교체</p>
+        <p>4. 88-176번째 줄 (이 설정 안내) 삭제</p>
+        <p>5. 변경사항 저장 및 커밋</p>
+      </div>
+
+      <div class="note">
+        <p><strong>💡 팁:</strong> Airtable의 "Form" 기능을 사용하면 참여자들이 직접 정보를 입력할 수 있습니다. Forms → "Create form" → 링크 공유</p>
+      </div>
+
+      <div class="note" style="margin-top: 1rem; background: #d1ecf1; border-left-color: #0c5460;">
+        <p style="color: #0c5460;"><strong>🔒 개인정보 보호:</strong> 민감한 정보는 공개 공유 대신 "Restricted view"를 사용하세요.</p>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>온도교회 사명자반 북클럽 © 2025</p>
+    <p style="margin-top: 0.5rem;">
+      <a href="https://www.ondochurch.org/" target="_blank">온도교회 웹사이트 방문하기 →</a>
+    </p>
+  </footer>
+
+</body>
+</html>

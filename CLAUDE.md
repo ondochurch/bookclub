@@ -15,8 +15,10 @@ bookclub/
 │   ├── register.html           # Book club registration page
 │   ├── summary.html            # Book club content summary list
 │   ├── questions.html          # Theological questions submission page
+│   ├── participants.html       # Participant tracking (Airtable integration)
 │   ├── book-cosmos.html        # 코스모스 discussion page
 │   └── book-today-worship.html # 오늘이라는 예배 discussion page
+├── AIRTABLE_SETUP.md           # Detailed Airtable setup guide
 └── README.md
 ```
 
@@ -55,6 +57,12 @@ This is a multi-page static website with no build process, dependencies, or fram
   - Can be configured with Google Form URL or embedded iframe
   - Note: GitHub Pages doesn't support databases; uses Google Forms for data collection
 
+- **docs/participants.html**: Participant tracking page with Airtable integration. Features:
+  - Embedded Airtable view (ready for iframe integration)
+  - Detailed setup instructions included in the page
+  - Can display participant lists, attendance, and progress
+  - See AIRTABLE_SETUP.md for complete integration guide
+
 - **docs/book-cosmos.html** & **docs/book-today-worship.html**: Individual book discussion pages. Features:
   - Book information section
   - Placeholder sections for discussion content, insights, and Q&A
@@ -92,7 +100,7 @@ When updating the site content, note:
   - 북클럽 신청 (Book club registration) - links to register.html
   - 새로운 책 제안 (New book suggestion) - links to Google Spreadsheet
   - 북클럽 내용 정리 (Book club content summary) - links to summary.html
-  - 참여자 현황 (Participant status) - needs Airtable link to be added (placeholder)
+  - 참여자 현황 (Participant status) - links to participants.html (Airtable setup required)
   - 신학 질문 (Theological questions) - links to questions.html
 - The summary page lists books with individual discussion pages:
   - 코스모스 (Cosmos) by 칼 세이건 - book-cosmos.html
@@ -101,7 +109,18 @@ When updating the site content, note:
 - **Important**: GitHub Pages is static-only and cannot run databases. External services used:
   - Google Forms for collecting registrations and questions
   - Google Spreadsheet for book suggestions
-  - Airtable (optional) for participant tracking
+  - Airtable for participant tracking (requires manual setup - see AIRTABLE_SETUP.md)
+
+## Airtable Integration
+
+To set up Airtable for participant tracking:
+1. Create a free account at [airtable.com/signup](https://airtable.com/signup)
+2. Follow the detailed guide in `AIRTABLE_SETUP.md`
+3. Create a Base for "북클럽 참여자 현황"
+4. Get the shareable embed link
+5. Update `docs/participants.html` with your Airtable iframe code
+
+The participants page includes step-by-step instructions and is ready for integration.
 - Book cover images in register.html are linked from external CDN (Kyobobook)
 - The Google Form link in register.html should be updated when creating new book club sessions
 - Current registration is for "5월 (요한복음 뒷조사)" (May - John's Gospel)
