@@ -14,6 +14,7 @@ bookclub/
 │   ├── index.html              # Main landing page with navigation
 │   ├── register.html           # Book club registration page
 │   ├── summary.html            # Book club content summary list
+│   ├── questions.html          # Theological questions submission page
 │   ├── book-cosmos.html        # 코스모스 discussion page
 │   └── book-today-worship.html # 오늘이라는 예배 discussion page
 └── README.md
@@ -46,6 +47,13 @@ This is a multi-page static website with no build process, dependencies, or fram
   - Card-based grid layout for book entries
   - Links to individual book discussion pages
   - Back navigation to home page
+
+- **docs/questions.html**: Theological questions submission page. Features:
+  - Placeholder for Google Forms integration
+  - Instructions for setting up the form
+  - Information about question types
+  - Can be configured with Google Form URL or embedded iframe
+  - Note: GitHub Pages doesn't support databases; uses Google Forms for data collection
 
 - **docs/book-cosmos.html** & **docs/book-today-worship.html**: Individual book discussion pages. Features:
   - Book information section
@@ -85,10 +93,15 @@ When updating the site content, note:
   - 새로운 책 제안 (New book suggestion) - links to Google Spreadsheet
   - 북클럽 내용 정리 (Book club content summary) - links to summary.html
   - 참여자 현황 (Participant status) - needs Airtable link to be added (placeholder)
+  - 신학 질문 (Theological questions) - links to questions.html
 - The summary page lists books with individual discussion pages:
   - 코스모스 (Cosmos) by 칼 세이건 - book-cosmos.html
   - 오늘이라는 예배 (Today's Worship) by 박제욱 - book-today-worship.html
 - To add discussion content, edit the individual book pages and replace the placeholder sections
+- **Important**: GitHub Pages is static-only and cannot run databases. External services used:
+  - Google Forms for collecting registrations and questions
+  - Google Spreadsheet for book suggestions
+  - Airtable (optional) for participant tracking
 - Book cover images in register.html are linked from external CDN (Kyobobook)
 - The Google Form link in register.html should be updated when creating new book club sessions
 - Current registration is for "5월 (요한복음 뒷조사)" (May - John's Gospel)

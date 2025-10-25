@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>신학 질문 - 온도교회 사명자반 북클럽</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Noto Sans KR', 'Nanum Gothic', sans-serif;
+      background: #f8f9fa;
+      color: #333;
+      line-height: 1.6;
+      position: relative;
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: url('https://images.unsplash.com/photo-1505664194779-8beaceb93744?w=1920&q=80');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      opacity: 0.1;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 3rem 2rem 2rem 2rem;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      color: white;
+      position: relative;
+    }
+
+    .church-link {
+      position: absolute;
+      top: 1rem;
+      right: 2rem;
+      color: white;
+      text-decoration: none;
+      font-size: 0.9rem;
+      opacity: 0.9;
+      transition: opacity 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .church-link:hover {
+      opacity: 1;
+      text-decoration: underline;
+    }
+
+    header h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    }
+
+    header p {
+      font-size: 1.1rem;
+      font-weight: 300;
+      opacity: 0.95;
+    }
+
+    .nav-back {
+      display: inline-block;
+      margin: 2rem 0 1rem 2rem;
+      padding: 0.5rem 1rem;
+      background: white;
+      color: #667eea;
+      text-decoration: none;
+      border-radius: 0.5rem;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .nav-back:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem 2rem 3rem 2rem;
+    }
+
+    .intro-box {
+      background: white;
+      border-radius: 12px;
+      padding: 2.5rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+
+    .intro-box h2 {
+      font-size: 1.8rem;
+      color: #2c3e50;
+      margin-bottom: 1rem;
+      font-weight: 500;
+    }
+
+    .intro-box .icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+    }
+
+    .intro-box p {
+      color: #666;
+      font-size: 1.1rem;
+      line-height: 1.8;
+      margin-bottom: 1rem;
+    }
+
+    .intro-box .highlight {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 0.3rem 0.8rem;
+      border-radius: 0.3rem;
+      font-weight: 500;
+    }
+
+    .form-section {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+    }
+
+    .form-section h3 {
+      font-size: 1.5rem;
+      color: #2c3e50;
+      margin-bottom: 1.5rem;
+      font-weight: 500;
+      text-align: center;
+      border-bottom: 2px solid #667eea;
+      padding-bottom: 0.5rem;
+    }
+
+    .form-placeholder {
+      text-align: center;
+      padding: 3rem 2rem;
+      background: #f8f9fa;
+      border-radius: 8px;
+      border: 2px dashed #ddd;
+    }
+
+    .form-placeholder p {
+      color: #666;
+      font-size: 1rem;
+      line-height: 1.8;
+      margin-bottom: 1.5rem;
+    }
+
+    .form-placeholder .steps {
+      text-align: left;
+      max-width: 500px;
+      margin: 0 auto 2rem auto;
+      background: white;
+      padding: 1.5rem;
+      border-radius: 8px;
+    }
+
+    .form-placeholder .steps ol {
+      padding-left: 1.5rem;
+      color: #666;
+    }
+
+    .form-placeholder .steps li {
+      margin-bottom: 0.5rem;
+      line-height: 1.6;
+    }
+
+    .form-button {
+      display: inline-block;
+      padding: 1rem 2rem;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      text-decoration: none;
+      border-radius: 0.5rem;
+      font-weight: 500;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      border: none;
+      cursor: pointer;
+    }
+
+    .form-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+    }
+
+    .info-section {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .info-section h3 {
+      font-size: 1.3rem;
+      color: #2c3e50;
+      margin-bottom: 1rem;
+      font-weight: 500;
+    }
+
+    .info-section ul {
+      padding-left: 1.5rem;
+      color: #666;
+    }
+
+    .info-section li {
+      margin-bottom: 0.8rem;
+      line-height: 1.8;
+    }
+
+    footer {
+      text-align: center;
+      padding: 2rem;
+      margin-top: 3rem;
+      color: #999;
+      font-size: 0.9rem;
+      border-top: 1px solid #e0e0e0;
+      background: white;
+    }
+
+    footer a {
+      color: #667eea;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    footer a:hover {
+      color: #764ba2;
+      text-decoration: underline;
+    }
+
+    @media (max-width: 768px) {
+      .church-link {
+        position: static;
+        display: inline-block;
+        margin-top: 1rem;
+        font-size: 0.85rem;
+      }
+
+      header {
+        padding: 2rem 1rem;
+      }
+
+      header h1 {
+        font-size: 2rem;
+      }
+
+      header p {
+        font-size: 1rem;
+      }
+
+      .container {
+        padding: 2rem 1rem;
+      }
+
+      .intro-box,
+      .form-section,
+      .info-section {
+        padding: 1.5rem;
+      }
+
+      .nav-back {
+        margin: 1rem 0 0.5rem 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a href="https://www.ondochurch.org/" target="_blank" class="church-link">
+      🏛️ 온도교회 홈페이지
+    </a>
+    <h1>❓ 신학 질문</h1>
+    <p>궁금한 신학적 질문을 자유롭게 나눠주세요</p>
+  </header>
+
+  <a href="index.html" class="nav-back">← 홈으로</a>
+
+  <div class="container">
+    <div class="intro-box">
+      <div class="icon">💭</div>
+      <h2>함께 고민하고 답을 찾아가요</h2>
+      <p>
+        성경이나 신앙생활 중 궁금한 점이 있으신가요?<br>
+        <span class="highlight">신학적 질문</span>을 통해 함께 배우고 성장할 수 있습니다.
+      </p>
+      <p style="font-size: 0.95rem; color: #888; margin-top: 1.5rem;">
+        모든 질문은 익명으로 제출되며, 목회자와 성도들이 함께 답변을 나눕니다.
+      </p>
+    </div>
+
+    <div class="form-section">
+      <h3>📝 질문 제출하기</h3>
+      <div class="form-placeholder">
+        <p><strong>Google Form을 사용하여 질문을 수집합니다.</strong></p>
+
+        <div class="steps">
+          <p><strong>설정 방법:</strong></p>
+          <ol>
+            <li>Google Forms에서 새 양식 만들기</li>
+            <li>질문 항목 추가 (이름, 질문 내용 등)</li>
+            <li>양식 URL 복사</li>
+            <li>아래 버튼의 href 속성에 URL 추가</li>
+          </ol>
+        </div>
+
+        <button class="form-button" onclick="alert('Google Form 링크를 설정해 주세요.\n\nquestions.html 파일의 254번째 줄을 수정하세요.')">
+          📖 질문 제출하기
+        </button>
+
+        <p style="margin-top: 2rem; font-size: 0.9rem; color: #999;">
+          또는 Google Form을 iframe으로 직접 삽입할 수 있습니다.
+        </p>
+      </div>
+    </div>
+
+    <div class="info-section">
+      <h3>💡 이런 질문들을 해보세요</h3>
+      <ul>
+        <li>성경 구절의 해석이나 의미에 대한 질문</li>
+        <li>교리나 신학적 개념에 대한 궁금증</li>
+        <li>신앙생활 중 겪는 실제적인 고민</li>
+        <li>기독교 역사나 교회 전통에 관한 질문</li>
+        <li>현대 사회 이슈에 대한 기독교적 관점</li>
+      </ul>
+    </div>
+  </div>
+
+  <footer>
+    <p>온도교회 사명자반 북클럽 © 2025</p>
+    <p style="margin-top: 0.5rem;">
+      <a href="https://www.ondochurch.org/" target="_blank">온도교회 웹사이트 방문하기 →</a>
+    </p>
+  </footer>
+
+</body>
+</html>
