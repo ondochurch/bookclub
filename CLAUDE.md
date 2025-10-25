@@ -51,11 +51,12 @@ This is a multi-page static website with no build process, dependencies, or fram
   - Back navigation to home page
 
 - **docs/questions.html**: Theological questions submission page. Features:
-  - Placeholder for Google Forms integration
-  - Instructions for setting up the form
+  - Support for both Airtable Forms (recommended) and Google Forms
+  - Detailed setup instructions for both options
   - Information about question types
-  - Can be configured with Google Form URL or embedded iframe
-  - Note: GitHub Pages doesn't support databases; uses Google Forms for data collection
+  - Airtable option provides better question management and tracking
+  - Can be configured with Airtable Form iframe or Google Form URL
+  - Note: GitHub Pages doesn't support databases; uses external services
 
 - **docs/participants.html**: Participant tracking page with Airtable integration. Features:
   - Embedded Airtable view (ready for iframe integration)
@@ -113,14 +114,31 @@ When updating the site content, note:
 
 ## Airtable Integration
 
-To set up Airtable for participant tracking:
+Airtable can be used for two purposes in this website:
+
+### 1. Participant Tracking (participants.html)
 1. Create a free account at [airtable.com/signup](https://airtable.com/signup)
 2. Follow the detailed guide in `AIRTABLE_SETUP.md`
 3. Create a Base for "북클럽 참여자 현황"
 4. Get the shareable embed link
 5. Update `docs/participants.html` with your Airtable iframe code
 
-The participants page includes step-by-step instructions and is ready for integration.
+### 2. Theological Questions (questions.html) - Recommended
+1. Use the same Airtable account
+2. Create a new Base for "신학 질문"
+3. Set up fields for questions, categories, answers, status
+4. Create an Airtable Form (Forms tab)
+5. Get the form share link
+6. Update `docs/questions.html` with the Airtable form iframe
+
+**Why Airtable for questions?**
+- Better organization and categorization
+- Track answer status
+- Assign responders
+- Build FAQ database
+- More powerful than Google Forms
+
+Both pages include step-by-step instructions and are ready for integration.
 - Book cover images in register.html are linked from external CDN (Kyobobook)
 - The Google Form link in register.html should be updated when creating new book club sessions
 - Current registration is for "5월 (요한복음 뒷조사)" (May - John's Gospel)

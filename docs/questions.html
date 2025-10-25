@@ -161,6 +161,22 @@
       padding-bottom: 0.5rem;
     }
 
+    .airtable-embed {
+      background: white;
+      border-radius: 12px;
+      padding: 0;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      overflow: hidden;
+      margin-bottom: 2rem;
+    }
+
+    .airtable-embed iframe {
+      width: 100%;
+      height: 80vh;
+      border: none;
+      border-radius: 12px;
+    }
+
     .form-placeholder {
       text-align: center;
       padding: 3rem 2rem;
@@ -178,7 +194,7 @@
 
     .form-placeholder .steps {
       text-align: left;
-      max-width: 500px;
+      max-width: 600px;
       margin: 0 auto 2rem auto;
       background: white;
       padding: 1.5rem;
@@ -191,8 +207,76 @@
     }
 
     .form-placeholder .steps li {
-      margin-bottom: 0.5rem;
-      line-height: 1.6;
+      margin-bottom: 0.8rem;
+      line-height: 1.8;
+    }
+
+    .form-placeholder .step h4 {
+      color: #667eea;
+      margin-bottom: 0.8rem;
+      font-size: 1.1rem;
+    }
+
+    .form-placeholder .step {
+      margin-bottom: 1.5rem;
+      padding: 1.5rem;
+      background: white;
+      border-radius: 8px;
+      border-left: 4px solid #667eea;
+      text-align: left;
+    }
+
+    .form-placeholder .step code {
+      background: #e9ecef;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9rem;
+      color: #d63384;
+    }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin: 2rem 0;
+    }
+
+    .option-card {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 8px;
+      border: 2px solid #e0e0e0;
+      transition: all 0.3s ease;
+    }
+
+    .option-card:hover {
+      border-color: #667eea;
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+    }
+
+    .option-card h4 {
+      color: #667eea;
+      margin-bottom: 0.8rem;
+      font-size: 1.2rem;
+    }
+
+    .option-card ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .option-card li {
+      padding: 0.3rem 0;
+      color: #666;
+      font-size: 0.95rem;
+    }
+
+    .option-card li:before {
+      content: "✓ ";
+      color: #667eea;
+      font-weight: bold;
+      margin-right: 0.5rem;
     }
 
     .form-button {
@@ -321,28 +405,87 @@
       </p>
     </div>
 
-    <div class="form-section">
-      <h3>📝 질문 제출하기</h3>
-      <div class="form-placeholder">
-        <p><strong>Google Form을 사용하여 질문을 수집합니다.</strong></p>
+    <!-- Option 1: Airtable Embedded Form (Recommended) -->
+    
+    <!-- <div class="airtable-embed">
+      <iframe
+        src="https://airtable.com/appxRgGEofXXhauGg/pagifVa52SXhG8tnm/form"
+        frameborder="0"
+        onmousewheel="">
+      </iframe>
+    </div>
+     -->
+    <iframe class="airtable-embed" src="https://airtable.com/embed/appxRgGEofXXhauGg/pagifVa52SXhG8tnm/form" frameborder="0" onmousewheel="" width="100%" height="533" style="background: transparent; border: 1px solid #ccc;"></iframe>
+    
+    
+    <!-- Setup Instructions (Remove after setup) -->
+    
+    <!-- <div class="form-section">
+      <h3>📝 질문 제출 방법 선택</h3>
 
-        <div class="steps">
-          <p><strong>설정 방법:</strong></p>
-          <ol>
-            <li>Google Forms에서 새 양식 만들기</li>
-            <li>질문 항목 추가 (이름, 질문 내용 등)</li>
-            <li>양식 URL 복사</li>
-            <li>아래 버튼의 href 속성에 URL 추가</li>
-          </ol>
+      <div class="options-grid">
+        <div class="option-card">
+          <h4>🎯 Airtable (추천)</h4>
+          <ul>
+            <li>무료 사용 가능</li>
+            <li>질문 관리 용이</li>
+            <li>카테고리별 정리</li>
+            <li>답변 상태 추적</li>
+            <li>실시간 협업</li>
+          </ul>
         </div>
 
-        <button class="form-button" onclick="alert('Google Form 링크를 설정해 주세요.\n\nquestions.html 파일의 254번째 줄을 수정하세요.')">
+        <div class="option-card">
+          <h4>📋 Google Forms</h4>
+          <ul>
+            <li>간단한 설정</li>
+            <li>익숙한 인터페이스</li>
+            <li>Google Sheets 연동</li>
+            <li>빠른 구축</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="form-placeholder">
+        <p><strong>아직 설정되지 않았습니다. 아래 방법 중 하나를 선택하세요.</strong></p>
+
+        <div class="step">
+          <h4>방법 1: Airtable 사용 (추천) 🌟</h4>
+          <p><strong>1단계:</strong> <a href="https://airtable.com/signup" target="_blank" style="color: #667eea;">Airtable 계정 생성</a> (무료)</p>
+          <p><strong>2단계:</strong> 새 Base 만들기: "신학 질문"</p>
+          <p><strong>3단계:</strong> 필드 추가:</p>
+          <ul style="margin-left: 2rem; margin-top: 0.5rem;">
+            <li>질문 제목 (Single line text)</li>
+            <li>질문 내용 (Long text)</li>
+            <li>카테고리 (Single select: 성경해석, 교리, 신앙생활, 기타)</li>
+            <li>질문자 (Single line text - optional/anonymous)</li>
+            <li>답변 상태 (Single select: 대기중, 답변완료)</li>
+            <li>답변 내용 (Long text)</li>
+          </ul>
+          <p style="margin-top: 1rem;"><strong>4단계:</strong> Forms 탭에서 "Create form" 클릭</p>
+          <p><strong>5단계:</strong> 폼 공유 링크 복사</p>
+          <p><strong>6단계:</strong> 이 파일 (<code>questions.html</code>) 편집:</p>
+          <ul style="margin-left: 2rem; margin-top: 0.5rem;">
+            <li>106-113번째 줄 주석 제거 (<code>&lt;!--</code>와 <code>--&gt;</code> 삭제)</li>
+            <li><code>YOUR_AIRTABLE_FORM_LINK_HERE</code>를 복사한 링크로 교체</li>
+            <li>115-214번째 줄 (이 안내 섹션) 삭제</li>
+          </ul>
+          <p style="margin-top: 1rem;"><strong>📖 자세한 가이드:</strong> <code>AIRTABLE_SETUP.md</code> 파일 참조</p>
+        </div>
+
+        <div class="step" style="margin-top: 2rem;">
+          <h4>방법 2: Google Forms 사용</h4>
+          <p><strong>1단계:</strong> <a href="https://forms.google.com" target="_blank" style="color: #667eea;">Google Forms</a> 접속</p>
+          <p><strong>2단계:</strong> 새 양식 만들기</p>
+          <p><strong>3단계:</strong> 질문 항목 추가</p>
+          <p><strong>4단계:</strong> 양식 링크 복사</p>
+          <p><strong>5단계:</strong> 아래 버튼 코드 수정:</p>
+          <p style="margin-top: 0.5rem;">216번째 줄의 <code>onclick</code>을 <code>href="YOUR_FORM_URL" target="_blank"</code>로 변경</p>
+        </div>
+
+        <button class="form-button" onclick="alert('먼저 위의 방법 중 하나를 선택하여 설정해 주세요.\n\n추천: Airtable 사용 (더 강력한 기능)')">
           📖 질문 제출하기
         </button>
-
-        <p style="margin-top: 2rem; font-size: 0.9rem; color: #999;">
-          또는 Google Form을 iframe으로 직접 삽입할 수 있습니다.
-        </p>
       </div>
     </div>
 
@@ -356,7 +499,7 @@
         <li>현대 사회 이슈에 대한 기독교적 관점</li>
       </ul>
     </div>
-  </div>
+  </div> -->
 
   <footer>
     <p>온도교회 사명자반 북클럽 © 2025</p>
