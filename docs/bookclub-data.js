@@ -4,16 +4,28 @@
 // ========================================
 // 설정: Google Spreadsheet 정보
 // ========================================
-const SPREADSHEET_CONFIG = {
+
+// 스프레드시트 1: 책 메타데이터 (summary.html에서 사용)
+// 필드: 책ID, 제목, 저자, 설명, 표지, 상태, 페이지
+// Fields: book_id, title, author, description, cover_url, status, page
+const BOOK_METADATA_CONFIG = {
   // 방법 1 (추천): "Publish to web" URL 사용
   // File → Share → Publish to web → CSV format
-  // 이 방법이 쉼표와 따옴표를 더 안정적으로 처리합니다
-  csvUrl: 'https://docs.google.com/spreadsheets/d/1dY9WeDEuBINQX5WngAOLrP3Rx-NOp-xpVRXDX_0Bz6w/pub?output=csv', // 여기에 Publish to web URL 입력 (예: https://docs.google.com/spreadsheets/d/e/2PACX-.../pub?output=csv)
+  csvUrl: 'https://docs.google.com/spreadsheets/d/1dY9WeDEuBINQX5WngAOLrP3Rx-NOp-xpVRXDX_0Bz6w/pub?output=csv', // 여기에 책 메타데이터 스프레드시트의 Publish to web URL 입력
 
-  // 방법 2: Export URL 사용 (쉼표 처리가 불안정할 수 있음)
-  // csvUrl: 'https://docs.google.com/spreadsheets/d/1skCDbZakZp7smLo7MP9kiN1HeYNgYhqhNi7zq020hNY/export?format=csv&gid=0',
+  // 방법 2: 스프레드시트 ID와 GID 사용
+  sheetId: '', // 책 메타데이터 스프레드시트 ID
+  gid: '0'      // 시트 GID (기본값: 0)
+};
 
-  // 또는 직접 스프레드시트 ID와 GID를 사용
+// 스프레드시트 2: 토론 내용 (book-*.html 페이지에서 사용)
+// 필드: 책ID, 섹션, 내용
+// Fields: book_id, section, content
+const DISCUSSION_CONTENT_CONFIG = {
+  // 방법 1 (추천): "Publish to web" URL 사용
+  csvUrl: '',
+
+  // 방법 2: 스프레드시트 ID와 GID 사용
   sheetId: '1skCDbZakZp7smLo7MP9kiN1HeYNgYhqhNi7zq020hNY',
   gid: '0'
 };
@@ -56,15 +68,15 @@ function parseCSV(csvText) {
 // ========================================
 async function loadBookData(bookId) {
   try {
-    // CSV URL 생성
-    let csvUrl = SPREADSHEET_CONFIG.csvUrl;
+    // CSV URL 생성 (토론 내용 스프레드시트)
+    let csvUrl = DISCUSSION_CONTENT_CONFIG.csvUrl;
 
-    if (!csvUrl && SPREADSHEET_CONFIG.sheetId) {
-      csvUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_CONFIG.sheetId}/export?format=csv&gid=${SPREADSHEET_CONFIG.gid}`;
+    if (!csvUrl && DISCUSSION_CONTENT_CONFIG.sheetId) {
+      csvUrl = `https://docs.google.com/spreadsheets/d/${DISCUSSION_CONTENT_CONFIG.sheetId}/export?format=csv&gid=${DISCUSSION_CONTENT_CONFIG.gid}`;
     }
 
     if (!csvUrl) {
-      console.warn('⚠️ 스프레드시트 URL이 설정되지 않았습니다.');
+      console.warn('⚠️ 토론 내용 스프레드시트 URL이 설정되지 않았습니다.');
       return null;
     }
 
@@ -244,15 +256,15 @@ async function loadBookList() {
   try {
     console.log('📚 책 목록 로딩 중...');
 
-    // CSV URL 생성
-    let csvUrl = SPREADSHEET_CONFIG.csvUrl;
+    // CSV URL 생성 (책 메타데이터 스프레드시트)
+    let csvUrl = BOOK_METADATA_CONFIG.csvUrl;
 
-    if (!csvUrl && SPREADSHEET_CONFIG.sheetId) {
-      csvUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_CONFIG.sheetId}/export?format=csv&gid=${SPREADSHEET_CONFIG.gid}`;
+    if (!csvUrl && BOOK_METADATA_CONFIG.sheetId) {
+      csvUrl = `https://docs.google.com/spreadsheets/d/${BOOK_METADATA_CONFIG.sheetId}/export?format=csv&gid=${BOOK_METADATA_CONFIG.gid}`;
     }
 
     if (!csvUrl) {
-      console.warn('⚠️ 스프레드시트 URL이 설정되지 않았습니다.');
+      console.warn('⚠️ 책 메타데이터 스프레드시트 URL이 설정되지 않았습니다.');
       return;
     }
 
