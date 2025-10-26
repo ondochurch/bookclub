@@ -8,7 +8,7 @@ const SPREADSHEET_CONFIG = {
   // 방법 1 (추천): "Publish to web" URL 사용
   // File → Share → Publish to web → CSV format
   // 이 방법이 쉼표와 따옴표를 더 안정적으로 처리합니다
-  csvUrl: '', // 여기에 Publish to web URL 입력 (예: https://docs.google.com/spreadsheets/d/e/2PACX-.../pub?output=csv)
+  csvUrl: 'https://docs.google.com/spreadsheets/d/1dY9WeDEuBINQX5WngAOLrP3Rx-NOp-xpVRXDX_0Bz6w/pub?output=csv', // 여기에 Publish to web URL 입력 (예: https://docs.google.com/spreadsheets/d/e/2PACX-.../pub?output=csv)
 
   // 방법 2: Export URL 사용 (쉼표 처리가 불안정할 수 있음)
   // csvUrl: 'https://docs.google.com/spreadsheets/d/1skCDbZakZp7smLo7MP9kiN1HeYNgYhqhNi7zq020hNY/export?format=csv&gid=0',
@@ -238,6 +238,110 @@ async function initializeBookPage(bookId) {
 window.loadBookClubData = initializeBookPage;
 
 // ========================================
+// 요약 페이지: 책 목록 로딩
+// ========================================
+async function loadBookList() {
+  try {
+    console.log('📚 책 목록 로딩 중...');
+
+    // CSV URL 생성
+    let csvUrl = SPREADSHEET_CONFIG.csvUrl;
+
+    if (!csvUrl && SPREADSHEET_CONFIG.sheetId) {
+      csvUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_CONFIG.sheetId}/export?format=csv&gid=${SPREADSHEET_CONFIG.gid}`;
+    }
+
+    if (!csvUrl) {
+      console.warn('⚠️ 스프레드시트 URL이 설정되지 않았습니다.');
+      return;
+    }
+
+    // 데이터 가져오기
+    const response = await fetch(csvUrl, {
+      method: 'GET',
+      mode: 'cors',
+      credentials: 'omit',
+      headers: {
+        'Accept': 'text/csv,text/plain,*/*'
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const csvText = await response.text();
+    console.log('✅ 책 목록 CSV 데이터 로드 완료');
+
+    const books = parseCSV(csvText);
+    console.log(`📖 총 ${books.length}권의 책 발견`);
+
+    // 책 목록 렌더링
+    renderBookList(books);
+
+  } catch (error) {
+    console.error('❌ 책 목록 로딩 실패:', error);
+  }
+}
+
+function renderBookList(books) {
+  const container = document.getElementById('books-container');
+
+  if (!container) {
+    console.warn('⚠️ books-container 요소를 찾을 수 없습니다.');
+    return;
+  }
+
+  // 컨테이너 비우기
+  container.innerHTML = '';
+
+  books.forEach(book => {
+    const bookId = book['책ID'] || book['book_id'] || '';
+    const title = book['제목'] || book['title'] || '';
+    const author = book['저자'] || book['author'] || '';
+    const description = book['설명'] || book['description'] || '';
+    const coverUrl = book['표지'] || book['cover'] || book['cover_url'] || '';
+    const status = book['상태'] || book['status'] || '토론 완료';
+    const pageUrl = book['페이지'] || book['page'] || `book-${bookId}.html`;
+
+    // 필수 필드 확인
+    if (!bookId || !title) {
+      console.warn('⚠️ 책ID 또는 제목이 없는 항목 무시:', book);
+      return;
+    }
+
+    // 책 카드 HTML 생성
+    const bookCard = document.createElement('a');
+    bookCard.href = pageUrl;
+    bookCard.className = 'book-card';
+
+    let coverHTML = '';
+    if (coverUrl) {
+      coverHTML = `
+        <div class="book-cover">
+          <img src="${coverUrl}" alt="${title}">
+        </div>
+      `;
+    }
+
+    bookCard.innerHTML = `
+      ${coverHTML}
+      <h3>${title}</h3>
+      <div class="author">${author}</div>
+      <p>${description}</p>
+      <span class="status">${status}</span>
+    `;
+
+    container.appendChild(bookCard);
+  });
+
+  console.log(`✅ ${books.length}권의 책 카드 렌더링 완료`);
+}
+
+// 전역 함수로 노출
+window.loadBookList = loadBookList;
+
+// ========================================
 // 자동 초기화 (페이지 로드 시)
 // ========================================
 document.addEventListener('DOMContentLoaded', function() {
@@ -247,7 +351,10 @@ document.addEventListener('DOMContentLoaded', function() {
   if (bookId) {
     console.log(`🚀 자동 초기화: "${bookId}" 페이지 감지됨`);
     initializeBookPage(bookId);
+  } else if (document.body.getAttribute('data-page-type') === 'summary') {
+    console.log('🚀 자동 초기화: 요약 페이지 감지됨');
+    loadBookList();
   } else {
-    console.log('ℹ️ data-book-id 속성이 없습니다. 수동 초기화를 사용하세요.');
+    console.log('ℹ️ data-book-id 또는 data-page-type 속성이 없습니다.');
   }
 });

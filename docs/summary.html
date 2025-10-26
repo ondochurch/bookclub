@@ -268,8 +268,12 @@
       }
     }
   </style>
+  <!-- PapaParse CSV 파싱 라이브러리 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+  <!-- 북클럽 데이터 로더 -->
+  <script src="bookclub-data.js"></script>
 </head>
-<body>
+<body data-page-type="summary">
 
   <header>
     <a href="https://www.ondochurch.org/" target="_blank" class="church-link">
@@ -288,26 +292,8 @@
       <p>온도교회 사명자반 북클럽에서 함께 읽고 나눈 책들입니다.</p>
     </div>
 
-    <div class="books-grid">
-      <a href="book-cosmos.html" class="book-card">
-        <div class="book-cover">
-          <img src="https://contents.kyobobook.co.kr/sih/fit-in/458x0/pdt/9788983711892.jpg" alt="코스모스">
-        </div>
-        <h3>코스모스</h3>
-        <div class="author">칼 세이건</div>
-        <p>우주에 대한 경이로움과 과학적 사고를 통해 하나님의 창조를 더 깊이 이해하는 시간을 가졌습니다.</p>
-        <span class="status">토론 완료</span>
-      </a>
-
-      <a href="book-today-worship.html" class="book-card">
-        <div class="book-cover">
-          <img src="https://image.yes24.com/goods/73166183/XL" alt="오늘이라는 예배">
-        </div>
-        <h3>오늘이라는 예배</h3>
-        <div class="author">티시 해리슨 워런 (Tish Harrison Warren)</div>
-        <p>일상 속에서 드리는 예배와 삶으로 드리는 예배에 대해 함께 나누었습니다.</p>
-        <span class="status">토론 완료</span>
-      </a>
+    <div id="books-container" class="books-grid">
+      <!-- 책 목록이 Google Spreadsheet에서 자동으로 로드됩니다 -->
     </div>
   </div>
 
