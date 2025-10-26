@@ -6,8 +6,8 @@
 // ========================================
 
 // 스프레드시트 1: 책 메타데이터 (summary.html에서 사용)
-// 필드: 책ID, 제목, 저자, 설명, 표지, 상태, 페이지
-// Fields: book_id, title, author, description, cover_url, status, page
+// 필드: 책ID, 제목, 저자, 설명, 표지, 상태, 날짜, 페이지
+// Fields: book_id, title, author, description, cover_url, status, date, page
 const BOOK_METADATA_CONFIG = {
   // 방법 1 (추천): "Publish to web" URL 사용
   // File → Share → Publish to web → CSV format
@@ -314,6 +314,7 @@ function renderBookList(books) {
     const description = book['설명'] || book['description'] || '';
     const coverUrl = book['표지'] || book['cover'] || book['cover_url'] || '';
     const status = book['상태'] || book['status'] || '토론 완료';
+    const date = book['날짜'] || book['date'] || '';
 
     // 필수 필드 확인
     if (!bookId || !title) {
@@ -335,10 +336,16 @@ function renderBookList(books) {
       `;
     }
 
+    let dateHTML = '';
+    if (date) {
+      dateHTML = `<div class="date">${date}</div>`;
+    }
+
     bookCard.innerHTML = `
       ${coverHTML}
       <h3>${title}</h3>
       <div class="author">${author}</div>
+      ${dateHTML}
       <p>${description}</p>
       <span class="status">${status}</span>
     `;
@@ -429,6 +436,7 @@ function populateBookPage(bookMetadata) {
   const author = bookMetadata['저자'] || bookMetadata['author'] || '';
   const description = bookMetadata['설명'] || bookMetadata['description'] || '';
   const coverUrl = bookMetadata['표지'] || bookMetadata['cover'] || bookMetadata['cover_url'] || '';
+  const date = bookMetadata['날짜'] || bookMetadata['date'] || '';
 
   // 페이지 제목 업데이트
   document.title = `${title} - 온도교회 사명자반 북클럽`;
@@ -443,6 +451,15 @@ function populateBookPage(bookMetadata) {
   const authorElement = document.getElementById('book-author');
   if (authorElement && author) {
     authorElement.textContent = `저자: ${author}`;
+  }
+
+  // 날짜 정보 업데이트
+  const dateElement = document.getElementById('book-date');
+  if (dateElement && date) {
+    dateElement.textContent = `토론일: ${date}`;
+    dateElement.style.display = 'block';
+  } else if (dateElement) {
+    dateElement.style.display = 'none';
   }
 
   // 책 설명 업데이트
