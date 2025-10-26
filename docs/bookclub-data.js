@@ -15,7 +15,7 @@ const BOOK_METADATA_CONFIG = {
 
   // 방법 2: 스프레드시트 ID와 GID 사용
   sheetId: '1skCDbZakZp7smLo7MP9kiN1HeYNgYhqhNi7zq020hNY', // 책 메타데이터 스프레드시트 ID
-  gid: '1'      // 시트 GID (기본값: 0)
+  gid: '573247402'      // 시트 GID (기본값: 0)
 };
 
 // 스프레드시트 2: 토론 내용 (book-*.html 페이지에서 사용)
