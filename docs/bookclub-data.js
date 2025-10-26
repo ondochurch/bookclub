@@ -163,60 +163,35 @@ function updateSection(sectionId, content) {
 }
 
 function formatContent(content) {
-  // HTML 특수 문자 이스케이프 (보안)
-  function escapeHtml(text) {
+  // marked.js가 로드되어 있는지 확인
+  if (typeof marked === 'undefined') {
+    console.warn('⚠️ marked.js 라이브러리가 로드되지 않았습니다. 일반 텍스트로 표시됩니다.');
+    // 폴백: HTML 특수 문자만 이스케이프
     const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
+    div.textContent = content;
+    return `<p>${div.innerHTML.replace(/\n/g, '<br>')}</p>`;
   }
 
-  // 줄바꿈을 <br> 또는 <p>로 변환
-  const paragraphs = content.split('\n').filter(p => p.trim() !== '');
-
-  if (paragraphs.length === 0) {
-    return '';
-  }
-
-  if (paragraphs.length === 1) {
-    return `<p>${escapeHtml(paragraphs[0])}</p>`;
-  }
-
-  // 여러 문단 처리
-  let html = '';
-  let inList = false;
-  let listItems = [];
-
-  paragraphs.forEach((p, index) => {
-    const trimmed = p.trim();
-
-    // 리스트 항목 감지 (-, *, •, 숫자. 로 시작)
-    const listMatch = trimmed.match(/^([-*•]|\d+\.)\s+(.+)$/);
-
-    if (listMatch) {
-      // 리스트 항목
-      const content = listMatch[2];
-      listItems.push(`<li>${escapeHtml(content)}</li>`);
-      inList = true;
-    } else {
-      // 일반 문단
-      // 이전에 리스트가 있었다면 먼저 닫기
-      if (inList && listItems.length > 0) {
-        html += '<ul>' + listItems.join('') + '</ul>';
-        listItems = [];
-        inList = false;
-      }
-
-      // 문단 추가
-      html += `<p>${escapeHtml(trimmed)}</p>`;
-    }
+  // marked.js 옵션 설정
+  marked.setOptions({
+    gfm: true,              // GitHub Flavored Markdown 사용
+    breaks: true,           // 줄바꿈을 <br>로 변환
+    headerIds: false,       // 헤더 ID 자동 생성 비활성화
+    mangle: false,          // 이메일 주소 난독화 비활성화
+    sanitize: false         // HTML 허용 (XSS 주의 - 신뢰할 수 있는 소스만)
   });
 
-  // 마지막에 남은 리스트 항목 처리
-  if (inList && listItems.length > 0) {
-    html += '<ul>' + listItems.join('') + '</ul>';
+  try {
+    // Markdown을 HTML로 변환
+    const html = marked.parse(content);
+    return html;
+  } catch (error) {
+    console.error('❌ Markdown 파싱 오류:', error);
+    // 오류 발생 시 원본 텍스트 반환
+    const div = document.createElement('div');
+    div.textContent = content;
+    return `<p>${div.innerHTML}</p>`;
   }
-
-  return html;
 }
 
 // ========================================

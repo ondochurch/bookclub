@@ -79,19 +79,35 @@ This is a multi-page static website with no build process, dependencies, or fram
 - **docs/bookclub-data.js**: JavaScript module for loading book discussion content. Features:
   - Fetches data from Google Spreadsheet (published as CSV)
   - Uses **PapaParse** library for robust CSV parsing (handles commas, quotes, newlines)
+  - Uses **marked.js** library for Markdown rendering (supports GitHub Flavored Markdown)
   - **Automatic initialization** - reads `data-book-id` attribute from `<body>` tag
   - Automatically populates book page sections (#discussion, #insights, #qa)
   - Configurable spreadsheet URL
   - See SPREADSHEET_SETUP.md for setup instructions
 
-  **Dependencies**: PapaParse 5.4.1 (loaded via CDN in book pages)
+  **Dependencies**:
+  - PapaParse 5.4.1 (CSV parsing)
+  - marked.js 11.1.1 (Markdown rendering)
+  - Both loaded via CDN in book pages
 
   **Usage in HTML**:
   ```html
+  <head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
+    <script src="bookclub-data.js"></script>
+  </head>
   <body data-book-id="cosmos">
     <!-- No manual initialization needed! -->
   </body>
   ```
+
+  **Markdown Support**:
+  Content in Google Spreadsheet can use Markdown syntax:
+  - `**bold**`, `*italic*`, `~~strikethrough~~`
+  - Lists, links, headings, blockquotes
+  - GitHub Flavored Markdown features
+  - Falls back to plain text if marked.js not loaded
 
 ## Development
 
