@@ -18,6 +18,9 @@ const SPREADSHEET_CONFIG = {
 // CSV 파싱 함수 (RFC 4180 호환)
 // ========================================
 function parseCSV(csv) {
+  // Windows 스타일 줄바꿈(\r\n)을 Unix 스타일(\n)로 정규화
+  csv = csv.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+
   const lines = [];
   let currentLine = '';
   let inQuotes = false;
@@ -35,13 +38,17 @@ function parseCSV(csv) {
       } else {
         // 따옴표 영역 시작/종료
         inQuotes = !inQuotes;
+        // 따옴표 자체는 제거 (내용에만 포함하지 않음)
       }
     } else if (char === '\n' && !inQuotes) {
-      // 줄바꿈 (따옴표 밖에서만)
+      // 줄바꿈 (따옴표 밖에서만) - 실제 행 구분
       if (currentLine.trim() !== '') {
         lines.push(currentLine);
       }
       currentLine = '';
+    } else if (char === '\n' && inQuotes) {
+      // 따옴표 안의 줄바꿈 - 필드 내용의 일부로 유지
+      currentLine += char;
     } else {
       currentLine += char;
     }
@@ -52,15 +59,29 @@ function parseCSV(csv) {
     lines.push(currentLine);
   }
 
-  if (lines.length === 0) return [];
+  if (lines.length === 0) {
+    console.warn('⚠️ CSV 파일이 비어있거나 파싱할 수 없습니다.');
+    return [];
+  }
+
+  console.log(`📄 CSV 총 ${lines.length}개 행 파싱 완료`);
 
   // 헤더 파싱
   const headers = parseCSVLine(lines[0]);
+  console.log('📋 헤더:', headers);
+
   const data = [];
 
   // 데이터 행 파싱
   for (let i = 1; i < lines.length; i++) {
     const values = parseCSVLine(lines[i]);
+
+    // 디버깅: 컬럼 수 불일치 체크
+    if (values.length !== headers.length) {
+      console.warn(`⚠️ ${i}번째 행 컬럼 수 불일치: 예상 ${headers.length}, 실제 ${values.length}`);
+      console.warn('행 내용:', lines[i].substring(0, 100) + '...');
+    }
+
     const row = {};
     headers.forEach((header, index) => {
       row[header] = values[index] || '';
@@ -83,18 +104,20 @@ function parseCSVLine(line) {
 
     if (char === '"') {
       if (inQuotes && nextChar === '"') {
-        // 이스케이프된 따옴표
+        // 이스케이프된 따옴표 ("" -> ")
         current += '"';
-        i++;
+        i++; // 다음 따옴표 건너뛰기
       } else {
         // 따옴표 영역 시작/종료
         inQuotes = !inQuotes;
+        // 따옴표 자체는 결과에 포함하지 않음
       }
     } else if (char === ',' && !inQuotes) {
-      // 필드 구분
+      // 쉼표로 필드 구분 (따옴표 밖에서만)
       result.push(current.trim());
       current = '';
     } else {
+      // 일반 문자 (따옴표 안의 쉼표 포함)
       current += char;
     }
   }
