@@ -264,3 +264,18 @@ async function initializeBookPage(bookId) {
 // 전역 함수로 노출 (HTML에서 호출 가능)
 // ========================================
 window.loadBookClubData = initializeBookPage;
+
+// ========================================
+// 자동 초기화 (페이지 로드 시)
+// ========================================
+document.addEventListener('DOMContentLoaded', function() {
+  // body 태그에서 data-book-id 속성 읽기
+  const bookId = document.body.getAttribute('data-book-id');
+
+  if (bookId) {
+    console.log(`🚀 자동 초기화: "${bookId}" 페이지 감지됨`);
+    initializeBookPage(bookId);
+  } else {
+    console.log('ℹ️ data-book-id 속성이 없습니다. 수동 초기화를 사용하세요.');
+  }
+});

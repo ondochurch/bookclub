@@ -490,10 +490,24 @@ Google Sheets의 버전 기록 활용:
 
 ### 새 책 추가 시
 
-1. 책ID 결정 (예: `new-book`)
-2. 해당 책의 HTML 파일 생성 또는 복사
-3. HTML 파일에서 `window.loadBookClubData('new-book')` 설정
-4. 스프레드시트에 데이터 추가
+1. **책ID 결정** (예: `new-book`)
+2. **HTML 파일 생성** - 기존 책 페이지를 복사
+3. **필수 스크립트 추가** (`<head>` 섹션):
+   ```html
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+   <script src="bookclub-data.js"></script>
+   ```
+4. **Book ID 설정** - `<body>` 태그에 추가:
+   ```html
+   <body data-book-id="new-book">
+   ```
+5. **섹션 ID 확인** - 다음 ID가 있는지 확인:
+   - `<div class="section" id="discussion">`
+   - `<div class="section" id="insights">`
+   - `<div class="section" id="qa">`
+6. **스프레드시트에 데이터 추가**
+
+**자동 초기화**: `bookclub-data.js`가 `data-book-id` 속성을 읽고 자동으로 데이터를 로드합니다!
 
 ---
 

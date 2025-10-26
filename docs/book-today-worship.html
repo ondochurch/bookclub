@@ -254,7 +254,7 @@
   <!-- 북클럽 데이터 로더 -->
   <script src="bookclub-data.js"></script>
 </head>
-<body>
+<body data-book-id="today-worship">
 
   <header>
     <a href="https://www.ondochurch.org/" target="_blank" class="church-link">
@@ -309,13 +309,6 @@
       <a href="https://www.ondochurch.org/" target="_blank">온도교회 웹사이트 방문하기 →</a>
     </p>
   </footer>
-
-  <script>
-    // 페이지 로드 시 스프레드시트에서 데이터 자동 로딩
-    document.addEventListener('DOMContentLoaded', function() {
-      window.loadBookClubData('today-worship');
-    });
-  </script>
 
 </body>
 </html>
