@@ -51,10 +51,16 @@
       position: relative;
     }
 
-    .church-link {
+    .header-links {
       position: absolute;
       top: 1rem;
       right: 2rem;
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+    }
+
+    .church-link {
       color: white;
       text-decoration: none;
       font-size: 0.9rem;
@@ -213,10 +219,14 @@
     }
 
     @media (max-width: 768px) {
-      .church-link {
+      .header-links {
         position: static;
-        display: inline-block;
+        justify-content: center;
         margin-top: 1rem;
+        gap: 1rem;
+      }
+
+      .church-link {
         font-size: 0.85rem;
       }
 
@@ -258,9 +268,14 @@
 <body>
 
   <header>
-    <a href="https://www.ondochurch.org/" target="_blank" class="church-link">
-      🏛️ 온도교회 홈페이지
-    </a>
+    <div class="header-links">
+      <a href="https://www.ondochurch.org/" target="_blank" class="church-link">
+        🏛️ 온도교회 홈페이지
+      </a>
+      <a href="https://www.youtube.com/@ONDOChurch" target="_blank" class="church-link">
+        ▶️ YouTube
+      </a>
+    </div>
     <h1>온도교회 사명자반<br>북클럽</h1>
     <p>함께 읽고, 함께 나누며, 함께 성장하는 공동체</p>
   </header>
