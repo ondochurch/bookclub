@@ -5,13 +5,17 @@
 // 설정: Google Spreadsheet 정보
 // ========================================
 const SPREADSHEET_CONFIG = {
-  // 여기에 Google Spreadsheet의 공개 CSV 링크를 입력하세요
-  // 예시: 'https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/export?format=csv&gid=0'
-  csvUrl: 'https://docs.google.com/spreadsheets/d/1skCDbZakZp7smLo7MP9kiN1HeYNgYhqhNi7zq020hNY/export?format=csv&gid=0', // TODO: Google Spreadsheet CSV URL을 여기에 입력
+  // 방법 1 (추천): "Publish to web" URL 사용
+  // File → Share → Publish to web → CSV format
+  // 이 방법이 쉼표와 따옴표를 더 안정적으로 처리합니다
+  csvUrl: '', // 여기에 Publish to web URL 입력 (예: https://docs.google.com/spreadsheets/d/e/2PACX-.../pub?output=csv)
+
+  // 방법 2: Export URL 사용 (쉼표 처리가 불안정할 수 있음)
+  // csvUrl: 'https://docs.google.com/spreadsheets/d/1skCDbZakZp7smLo7MP9kiN1HeYNgYhqhNi7zq020hNY/export?format=csv&gid=0',
 
   // 또는 직접 스프레드시트 ID와 GID를 사용
-  sheetId: '1skCDbZakZp7smLo7MP9kiN1HeYNgYhqhNi7zq020hNY', // TODO: Spreadsheet ID (URL에서 /d/ 다음 부분)
-  gid: '0'     // Sheet GID (여러 시트가 있을 경우)
+  sheetId: '1skCDbZakZp7smLo7MP9kiN1HeYNgYhqhNi7zq020hNY',
+  gid: '0'
 };
 
 // ========================================
