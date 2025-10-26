@@ -314,7 +314,6 @@ function renderBookList(books) {
     const description = book['설명'] || book['description'] || '';
     const coverUrl = book['표지'] || book['cover'] || book['cover_url'] || '';
     const status = book['상태'] || book['status'] || '토론 완료';
-    const pageUrl = book['페이지'] || book['page'] || `book-${bookId}.html`;
 
     // 필수 필드 확인
     if (!bookId || !title) {
@@ -322,9 +321,9 @@ function renderBookList(books) {
       return;
     }
 
-    // 책 카드 HTML 생성
+    // 책 카드 HTML 생성 (동적 페이지 링크 사용)
     const bookCard = document.createElement('a');
-    bookCard.href = pageUrl;
+    bookCard.href = `book.html?id=${bookId}`;
     bookCard.className = 'book-card';
 
     let coverHTML = '';
@@ -354,10 +353,152 @@ function renderBookList(books) {
 window.loadBookList = loadBookList;
 
 // ========================================
+// 동적 책 페이지: URL에서 책 ID 가져오기
+// ========================================
+function getBookIdFromURL() {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get('id');
+}
+
+// ========================================
+// 동적 책 페이지: 단일 책 메타데이터 로딩
+// ========================================
+async function loadSingleBookMetadata(bookId) {
+  try {
+    console.log(`📖 책 메타데이터 로딩 중: "${bookId}"`);
+
+    // CSV URL 생성 (책 메타데이터 스프레드시트)
+    let csvUrl = BOOK_METADATA_CONFIG.csvUrl;
+
+    if (!csvUrl && BOOK_METADATA_CONFIG.sheetId) {
+      csvUrl = `https://docs.google.com/spreadsheets/d/${BOOK_METADATA_CONFIG.sheetId}/export?format=csv&gid=${BOOK_METADATA_CONFIG.gid}`;
+    }
+
+    if (!csvUrl) {
+      console.warn('⚠️ 책 메타데이터 스프레드시트 URL이 설정되지 않았습니다.');
+      return null;
+    }
+
+    // 데이터 가져오기
+    const response = await fetch(csvUrl, {
+      method: 'GET',
+      mode: 'cors',
+      credentials: 'omit',
+      headers: {
+        'Accept': 'text/csv,text/plain,*/*'
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const csvText = await response.text();
+    const books = parseCSV(csvText);
+
+    // 해당 책 찾기
+    const book = books.find(row => {
+      const rowBookId = row['책ID'] || row['book_id'] || '';
+      return rowBookId.toLowerCase() === bookId.toLowerCase();
+    });
+
+    if (book) {
+      console.log(`✅ 책 메타데이터 찾음: "${book['제목'] || book['title']}"`);
+      return book;
+    } else {
+      console.warn(`⚠️ 책ID "${bookId}"에 해당하는 메타데이터를 찾을 수 없습니다.`);
+      return null;
+    }
+
+  } catch (error) {
+    console.error('❌ 책 메타데이터 로딩 실패:', error);
+    return null;
+  }
+}
+
+// ========================================
+// 동적 책 페이지: 페이지 내용 채우기
+// ========================================
+function populateBookPage(bookMetadata) {
+  if (!bookMetadata) {
+    console.warn('⚠️ 메타데이터가 없어 기본값을 사용합니다.');
+    return;
+  }
+
+  const title = bookMetadata['제목'] || bookMetadata['title'] || '북클럽';
+  const author = bookMetadata['저자'] || bookMetadata['author'] || '';
+  const description = bookMetadata['설명'] || bookMetadata['description'] || '';
+  const coverUrl = bookMetadata['표지'] || bookMetadata['cover'] || bookMetadata['cover_url'] || '';
+
+  // 페이지 제목 업데이트
+  document.title = `${title} - 온도교회 사명자반 북클럽`;
+
+  // 헤더 업데이트
+  const pageTitle = document.getElementById('page-title');
+  const pageSubtitle = document.getElementById('page-subtitle');
+  if (pageTitle) pageTitle.textContent = title;
+  if (pageSubtitle) pageSubtitle.textContent = author || '';
+
+  // 저자 정보 업데이트
+  const authorElement = document.getElementById('book-author');
+  if (authorElement && author) {
+    authorElement.textContent = `저자: ${author}`;
+  }
+
+  // 책 설명 업데이트
+  const descriptionElement = document.getElementById('book-description');
+  if (descriptionElement && description) {
+    descriptionElement.textContent = description;
+  }
+
+  // 책 표지 업데이트
+  const coverContainer = document.getElementById('book-cover-container');
+  if (coverContainer && coverUrl) {
+    coverContainer.innerHTML = `<img src="${coverUrl}" alt="${title}">`;
+  }
+
+  console.log('✅ 페이지 메타데이터 업데이트 완료');
+}
+
+// ========================================
+// 동적 책 페이지: 초기화
+// ========================================
+async function initializeDynamicBookPage() {
+  const bookId = getBookIdFromURL();
+
+  if (!bookId) {
+    console.error('❌ URL에 책 ID가 없습니다. 예: book.html?id=cosmos');
+    document.getElementById('page-subtitle').textContent = 'URL에 책 ID가 필요합니다 (예: ?id=cosmos)';
+    return;
+  }
+
+  console.log(`🚀 동적 책 페이지 초기화: "${bookId}"`);
+
+  // 책 메타데이터 로드 및 페이지 채우기
+  const bookMetadata = await loadSingleBookMetadata(bookId);
+  populateBookPage(bookMetadata);
+
+  // 토론 내용 로드
+  await initializeBookPage(bookId);
+}
+
+// 전역 함수로 노출
+window.initializeDynamicBookPage = initializeDynamicBookPage;
+
+// ========================================
 // 자동 초기화 (페이지 로드 시)
 // ========================================
 document.addEventListener('DOMContentLoaded', function() {
-  // body 태그에서 data-book-id 속성 읽기
+  // URL 파라미터에서 책 ID 확인 (동적 페이지)
+  const urlBookId = getBookIdFromURL();
+
+  if (urlBookId) {
+    console.log(`🚀 자동 초기화: 동적 책 페이지 감지됨 (ID: "${urlBookId}")`);
+    initializeDynamicBookPage();
+    return;
+  }
+
+  // body 태그에서 data-book-id 속성 읽기 (정적 페이지)
   const bookId = document.body.getAttribute('data-book-id');
 
   if (bookId) {
