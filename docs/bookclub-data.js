@@ -19,117 +19,36 @@ const SPREADSHEET_CONFIG = {
 };
 
 // ========================================
-// CSV 파싱 함수 (RFC 4180 호환)
+// CSV 파싱 함수 (PapaParse 사용)
 // ========================================
-function parseCSV(csv) {
-  // Windows 스타일 줄바꿈(\r\n)을 Unix 스타일(\n)로 정규화
-  csv = csv.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-
-  const lines = [];
-  let currentLine = '';
-  let inQuotes = false;
-
-  // CSV를 올바르게 파싱 (따옴표 안의 쉼표와 줄바꿈 처리)
-  for (let i = 0; i < csv.length; i++) {
-    const char = csv[i];
-    const nextChar = csv[i + 1];
-
-    if (char === '"') {
-      if (inQuotes && nextChar === '"') {
-        // 이스케이프된 따옴표 ("")
-        currentLine += '"';
-        i++; // 다음 따옴표 건너뛰기
-      } else {
-        // 따옴표 영역 시작/종료
-        inQuotes = !inQuotes;
-        // 따옴표 자체는 제거 (내용에만 포함하지 않음)
-      }
-    } else if (char === '\n' && !inQuotes) {
-      // 줄바꿈 (따옴표 밖에서만) - 실제 행 구분
-      if (currentLine.trim() !== '') {
-        lines.push(currentLine);
-      }
-      currentLine = '';
-    } else if (char === '\n' && inQuotes) {
-      // 따옴표 안의 줄바꿈 - 필드 내용의 일부로 유지
-      currentLine += char;
-    } else {
-      currentLine += char;
-    }
-  }
-
-  // 마지막 줄 추가
-  if (currentLine.trim() !== '') {
-    lines.push(currentLine);
-  }
-
-  if (lines.length === 0) {
-    console.warn('⚠️ CSV 파일이 비어있거나 파싱할 수 없습니다.');
+function parseCSV(csvText) {
+  // PapaParse가 로드되지 않은 경우 에러
+  if (typeof Papa === 'undefined') {
+    console.error('❌ PapaParse 라이브러리가 로드되지 않았습니다.');
+    console.error('HTML 파일에 다음 스크립트를 추가하세요:');
+    console.error('<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>');
     return [];
   }
 
-  console.log(`📄 CSV 총 ${lines.length}개 행 파싱 완료`);
+  // PapaParse로 CSV 파싱
+  const result = Papa.parse(csvText, {
+    header: true,           // 첫 행을 헤더로 사용
+    skipEmptyLines: true,   // 빈 줄 무시
+    trimHeaders: true,      // 헤더 공백 제거
+    dynamicTyping: false    // 모든 값을 문자열로 유지
+  });
 
-  // 헤더 파싱
-  const headers = parseCSVLine(lines[0]);
-  console.log('📋 헤더:', headers);
-
-  const data = [];
-
-  // 데이터 행 파싱
-  for (let i = 1; i < lines.length; i++) {
-    const values = parseCSVLine(lines[i]);
-
-    // 디버깅: 컬럼 수 불일치 체크
-    if (values.length !== headers.length) {
-      console.warn(`⚠️ ${i}번째 행 컬럼 수 불일치: 예상 ${headers.length}, 실제 ${values.length}`);
-      console.warn('행 내용:', lines[i].substring(0, 100) + '...');
-    }
-
-    const row = {};
-    headers.forEach((header, index) => {
-      row[header] = values[index] || '';
+  if (result.errors.length > 0) {
+    console.warn('⚠️ CSV 파싱 중 경고:');
+    result.errors.forEach(error => {
+      console.warn(`  - 행 ${error.row}: ${error.message}`);
     });
-    data.push(row);
   }
 
-  return data;
-}
+  console.log(`📄 CSV 총 ${result.data.length}개 행 파싱 완료`);
+  console.log('📋 헤더:', result.meta.fields);
 
-// CSV 한 줄 파싱 (쉼표로 구분, 따옴표 처리)
-function parseCSVLine(line) {
-  const result = [];
-  let current = '';
-  let inQuotes = false;
-
-  for (let i = 0; i < line.length; i++) {
-    const char = line[i];
-    const nextChar = line[i + 1];
-
-    if (char === '"') {
-      if (inQuotes && nextChar === '"') {
-        // 이스케이프된 따옴표 ("" -> ")
-        current += '"';
-        i++; // 다음 따옴표 건너뛰기
-      } else {
-        // 따옴표 영역 시작/종료
-        inQuotes = !inQuotes;
-        // 따옴표 자체는 결과에 포함하지 않음
-      }
-    } else if (char === ',' && !inQuotes) {
-      // 쉼표로 필드 구분 (따옴표 밖에서만)
-      result.push(current.trim());
-      current = '';
-    } else {
-      // 일반 문자 (따옴표 안의 쉼표 포함)
-      current += char;
-    }
-  }
-
-  // 마지막 필드 추가
-  result.push(current.trim());
-
-  return result;
+  return result.data;
 }
 
 // ========================================

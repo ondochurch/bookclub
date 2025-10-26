@@ -178,6 +178,8 @@ URL 끝의 `gid=0` 부분이 시트 ID입니다.
 
 `docs/bookclub-data.js` 파일을 열고 다음 부분을 수정하세요:
 
+**참고**: 이 시스템은 **PapaParse** 라이브러리를 사용하여 CSV를 파싱합니다. PapaParse는 업계 표준 CSV 파서로, 쉼표, 따옴표, 줄바꿈 등 모든 특수 문자를 완벽하게 처리합니다.
+
 #### 방법 1: CSV URL 직접 입력 (추천)
 
 ```javascript

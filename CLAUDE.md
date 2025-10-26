@@ -78,9 +78,12 @@ This is a multi-page static website with no build process, dependencies, or fram
 
 - **docs/bookclub-data.js**: JavaScript module for loading book discussion content. Features:
   - Fetches data from Google Spreadsheet (published as CSV)
+  - Uses **PapaParse** library for robust CSV parsing (handles commas, quotes, newlines)
   - Automatically populates book page sections
   - Configurable spreadsheet URL
   - See SPREADSHEET_SETUP.md for setup instructions
+
+  **Dependencies**: PapaParse 5.4.1 (loaded via CDN in book pages)
 
 ## Development
 
