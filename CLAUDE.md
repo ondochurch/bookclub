@@ -17,8 +17,10 @@ bookclub/
 │   ├── questions.html          # Theological questions submission page
 │   ├── participants.html       # Participant tracking (Airtable integration)
 │   ├── book-cosmos.html        # 코스모스 discussion page
-│   └── book-today-worship.html # 오늘이라는 예배 discussion page
+│   ├── book-today-worship.html # 오늘이라는 예배 discussion page
+│   └── bookclub-data.js        # Google Spreadsheet data loader script
 ├── AIRTABLE_SETUP.md           # Detailed Airtable setup guide
+├── SPREADSHEET_SETUP.md        # Google Spreadsheet integration guide
 └── README.md
 ```
 
@@ -66,9 +68,19 @@ This is a multi-page static website with no build process, dependencies, or fram
 
 - **docs/book-cosmos.html** & **docs/book-today-worship.html**: Individual book discussion pages. Features:
   - Book information section
-  - Placeholder sections for discussion content, insights, and Q&A
-  - Ready for content to be added later
+  - Three main content sections with IDs:
+    - `#discussion` - 주요 토론 내용 (Main Discussion)
+    - `#insights` - 인사이트 및 적용점 (Insights and Applications)
+    - `#qa` - 질문과 답변 (Q&A)
+  - Automatic content loading from Google Spreadsheet via `bookclub-data.js`
+  - Placeholder sections shown if no data available
   - Back navigation to summary page
+
+- **docs/bookclub-data.js**: JavaScript module for loading book discussion content. Features:
+  - Fetches data from Google Spreadsheet (published as CSV)
+  - Automatically populates book page sections
+  - Configurable spreadsheet URL
+  - See SPREADSHEET_SETUP.md for setup instructions
 
 ## Development
 
@@ -105,12 +117,14 @@ When updating the site content, note:
   - 신학 질문 (Theological questions) - links to questions.html
 - The summary page lists books with individual discussion pages:
   - 코스모스 (Cosmos) by 칼 세이건 - book-cosmos.html
-  - 오늘이라는 예배 (Today's Worship) by 박제욱 - book-today-worship.html
-- To add discussion content, edit the individual book pages and replace the placeholder sections
+  - 오늘이라는 예배 (Today's Worship) by 티시 해리슨 워런 - book-today-worship.html
+- To add discussion content:
+  - **Option 1 (Recommended)**: Update the Google Spreadsheet - content automatically loads on page refresh
+  - **Option 2**: Directly edit the individual book pages and replace the placeholder sections
 - **Important**: GitHub Pages is static-only and cannot run databases. External services used:
   - Google Forms for collecting registrations and questions
-  - Google Spreadsheet for book suggestions
-  - Airtable for participant tracking (requires manual setup - see AIRTABLE_SETUP.md)
+  - Google Spreadsheet for book suggestions AND book discussion content (auto-loaded via JavaScript)
+  - Airtable for participant tracking and theological questions (requires manual setup - see AIRTABLE_SETUP.md)
 
 ## Airtable Integration
 
@@ -139,9 +153,60 @@ Airtable can be used for two purposes in this website:
 - More powerful than Google Forms
 
 Both pages include step-by-step instructions and are ready for integration.
+
+## Google Spreadsheet Integration
+
+The website uses Google Spreadsheet as a simple database for managing book discussion content. This allows non-technical users to easily update the book summaries without editing HTML files.
+
+### How It Works
+
+1. **Data Source**: Google Spreadsheet (published as CSV or with public access)
+2. **Data Loader**: `docs/bookclub-data.js` fetches and parses the spreadsheet
+3. **Auto-Population**: Content is automatically injected into book pages on load
+4. **Fallback**: If no data found, placeholder text remains visible
+
+### Setup Process
+
+1. Create a Google Spreadsheet with the following structure:
+   - Column A: `책ID` (book ID) - e.g., "cosmos", "today-worship"
+   - Column B: `섹션` (section) - "주요토론", "인사이트", "질문답변"
+   - Column C: `내용` (content) - the actual discussion text
+
+2. Publish the spreadsheet:
+   - **Option 1**: File → Share → Publish to web → CSV format
+   - **Option 2**: Share → Anyone with the link → Viewer
+
+3. Update `docs/bookclub-data.js`:
+   ```javascript
+   const SPREADSHEET_CONFIG = {
+     csvUrl: 'https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/export?format=csv&gid=0',
+     sheetId: 'YOUR_SHEET_ID',
+     gid: '0'
+   };
+   ```
+
+4. The script automatically loads data when book pages are visited
+
+### Adding New Books
+
+To add a new book with spreadsheet integration:
+
+1. Create the book page HTML (copy from existing book page)
+2. Add script tag: `<script src="bookclub-data.js"></script>`
+3. Add section IDs: `#discussion`, `#insights`, `#qa`
+4. Add initialization script:
+   ```javascript
+   document.addEventListener('DOMContentLoaded', function() {
+     window.loadBookClubData('new-book-id');
+   });
+   ```
+5. Add data to spreadsheet with the new book ID
+
+**See SPREADSHEET_SETUP.md for complete step-by-step instructions.**
+
 - Book cover images in register.html are linked from external CDN (Kyobobook)
 - The Google Form link in register.html should be updated when creating new book club sessions
-- Current registration is for "5월 (요한복음 뒷조사)" (May - John's Gospel)
+- Current registration is for "9월 (코스모스)" (September - Cosmos)
 
 ## Styling Notes
 
