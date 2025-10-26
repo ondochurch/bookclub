@@ -180,17 +180,48 @@ git push
 
 ## 테스트
 
-### 10단계: 웹사이트에서 확인
+### 10단계: 로컬 웹 서버 실행 (중요!)
 
-1. 웹사이트의 책 페이지 방문:
-   - https://YOUR-USERNAME.github.io/bookclub/book-cosmos.html
-   - https://YOUR-USERNAME.github.io/bookclub/book-today-worship.html
+**⚠️ 중요**: HTML 파일을 더블클릭해서 열면 CORS 오류가 발생합니다!
+
+반드시 로컬 웹 서버를 실행해야 합니다:
+
+#### Python 사용 (추천):
+```bash
+cd docs
+python3 -m http.server 8000
+```
+
+브라우저에서 http://localhost:8000 접속
+
+#### Node.js 사용:
+```bash
+cd docs
+npx http-server -p 8000
+```
+
+#### VS Code Live Server 확장:
+1. VS Code에서 "Live Server" 확장 설치
+2. HTML 파일 우클릭 → "Open with Live Server"
+
+### 11단계: 웹사이트에서 확인
+
+1. 로컬 서버에서 책 페이지 방문:
+   - http://localhost:8000/book-cosmos.html
+   - http://localhost:8000/book-today-worship.html
 
 2. 페이지가 로드되면 자동으로 스프레드시트에서 데이터를 가져옵니다.
 
-3. **브라우저 콘솔**에서 오류 확인:
+3. **브라우저 콘솔**에서 로그 확인:
    - 크롬: F12 → Console 탭
    - 사파리: 개발자 → JavaScript 콘솔
+   - 다음과 같은 메시지가 표시되어야 합니다:
+     ```
+     📊 데이터 로딩 중: https://docs.google.com/...
+     ✅ CSV 데이터 로드 완료
+     📋 파싱된 데이터: X 행
+     📖 "cosmos" 책 데이터: X 개 섹션
+     ```
 
 ### 예상되는 동작:
 
@@ -200,6 +231,7 @@ git push
 - 콘솔에서 오류 메시지 확인
 - 스프레드시트 공개 설정 확인
 - CSV URL이 올바른지 확인
+- 로컬 웹 서버로 실행하고 있는지 확인 (file:// 아님!)
 
 ---
 
@@ -214,13 +246,69 @@ git push
 2. CSV URL 브라우저에서 직접 열어보기
 3. 브라우저 콘솔에서 오류 메시지 확인
 
-### 문제 2: CORS 오류
+### 문제 2: CORS 오류 ⚠️ (가장 흔한 문제)
 
-**증상**: 브라우저 콘솔에 "CORS policy" 오류
+**증상**: 브라우저 콘솔에 다음과 같은 오류:
+```
+Cross-Origin Resource Sharing policy: Origin null is not allowed
+```
+또는
+```
+CORS policy: No 'Access-Control-Allow-Origin' header
+```
 
-**해결**:
-- **웹에 게시** 방법 사용 (방법 2)
-- CSV export URL 사용
+**원인**:
+1. HTML 파일을 더블클릭으로 열었을 때 (`file://` 프로토콜)
+2. Google Sheets가 다른 도메인으로 리다이렉트할 때
+
+**해결 방법** (아래 순서대로 시도):
+
+#### ✅ 방법 1: 로컬 웹 서버 실행 (가장 권장)
+
+로컬에서 테스트 시 반드시 웹 서버 사용:
+
+**Python 사용**:
+```bash
+cd docs
+python3 -m http.server 8000
+# http://localhost:8000 에서 접속
+```
+
+**또는 Node.js 사용**:
+```bash
+npx http-server docs -p 8000
+```
+
+**또는 VS Code Live Server**:
+- VS Code에서 Live Server 확장 설치
+- HTML 파일 우클릭 → "Open with Live Server"
+
+#### ✅ 방법 2: GitHub Pages에 배포 (프로덕션)
+
+로컬 개발이 아닌 실제 사용 시:
+```bash
+git add .
+git commit -m "Update spreadsheet config"
+git push
+```
+
+GitHub Pages URL에서 접속:
+- `https://ondochurch.github.io/bookclub/book-cosmos.html`
+
+**GitHub Pages에서는 CORS 문제가 발생하지 않습니다!**
+
+#### ✅ 방법 3: 스프레드시트 "웹에 게시" 확인
+
+1. Google Sheets → **파일** → **공유** → **웹에 게시**
+2. **전체 문서** 선택
+3. **쉼표로 구분된 값(.csv)** 선택
+4. **게시** 클릭
+5. 생성된 URL 사용
+
+#### ❌ 작동하지 않는 방법:
+- HTML 파일 더블클릭 (file:// 프로토콜)
+- 로컬 파일 시스템에서 직접 열기
+- 웹 서버 없이 브라우저에서 파일 열기
 
 ### 문제 3: 데이터가 일부만 표시됨
 

@@ -7,33 +7,102 @@
 const SPREADSHEET_CONFIG = {
   // 여기에 Google Spreadsheet의 공개 CSV 링크를 입력하세요
   // 예시: 'https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/export?format=csv&gid=0'
-  csvUrl: '', // TODO: Google Spreadsheet CSV URL을 여기에 입력
+  csvUrl: 'https://docs.google.com/spreadsheets/d/1skCDbZakZp7smLo7MP9kiN1HeYNgYhqhNi7zq020hNY/export?format=csv&gid=0', // TODO: Google Spreadsheet CSV URL을 여기에 입력
 
   // 또는 직접 스프레드시트 ID와 GID를 사용
-  sheetId: '', // TODO: Spreadsheet ID (URL에서 /d/ 다음 부분)
+  sheetId: '1skCDbZakZp7smLo7MP9kiN1HeYNgYhqhNi7zq020hNY', // TODO: Spreadsheet ID (URL에서 /d/ 다음 부분)
   gid: '0'     // Sheet GID (여러 시트가 있을 경우)
 };
 
 // ========================================
-// CSV 파싱 함수
+// CSV 파싱 함수 (RFC 4180 호환)
 // ========================================
 function parseCSV(csv) {
-  const lines = csv.split('\n');
-  const headers = lines[0].split(',').map(h => h.trim());
+  const lines = [];
+  let currentLine = '';
+  let inQuotes = false;
+
+  // CSV를 올바르게 파싱 (따옴표 안의 쉼표와 줄바꿈 처리)
+  for (let i = 0; i < csv.length; i++) {
+    const char = csv[i];
+    const nextChar = csv[i + 1];
+
+    if (char === '"') {
+      if (inQuotes && nextChar === '"') {
+        // 이스케이프된 따옴표 ("")
+        currentLine += '"';
+        i++; // 다음 따옴표 건너뛰기
+      } else {
+        // 따옴표 영역 시작/종료
+        inQuotes = !inQuotes;
+      }
+    } else if (char === '\n' && !inQuotes) {
+      // 줄바꿈 (따옴표 밖에서만)
+      if (currentLine.trim() !== '') {
+        lines.push(currentLine);
+      }
+      currentLine = '';
+    } else {
+      currentLine += char;
+    }
+  }
+
+  // 마지막 줄 추가
+  if (currentLine.trim() !== '') {
+    lines.push(currentLine);
+  }
+
+  if (lines.length === 0) return [];
+
+  // 헤더 파싱
+  const headers = parseCSVLine(lines[0]);
   const data = [];
 
+  // 데이터 행 파싱
   for (let i = 1; i < lines.length; i++) {
-    if (lines[i].trim() === '') continue;
-
-    const values = lines[i].split(',');
+    const values = parseCSVLine(lines[i]);
     const row = {};
     headers.forEach((header, index) => {
-      row[header] = values[index] ? values[index].trim() : '';
+      row[header] = values[index] || '';
     });
     data.push(row);
   }
 
   return data;
+}
+
+// CSV 한 줄 파싱 (쉼표로 구분, 따옴표 처리)
+function parseCSVLine(line) {
+  const result = [];
+  let current = '';
+  let inQuotes = false;
+
+  for (let i = 0; i < line.length; i++) {
+    const char = line[i];
+    const nextChar = line[i + 1];
+
+    if (char === '"') {
+      if (inQuotes && nextChar === '"') {
+        // 이스케이프된 따옴표
+        current += '"';
+        i++;
+      } else {
+        // 따옴표 영역 시작/종료
+        inQuotes = !inQuotes;
+      }
+    } else if (char === ',' && !inQuotes) {
+      // 필드 구분
+      result.push(current.trim());
+      current = '';
+    } else {
+      current += char;
+    }
+  }
+
+  // 마지막 필드 추가
+  result.push(current.trim());
+
+  return result;
 }
 
 // ========================================
@@ -49,24 +118,66 @@ async function loadBookData(bookId) {
     }
 
     if (!csvUrl) {
-      console.warn('스프레드시트 URL이 설정되지 않았습니다.');
+      console.warn('⚠️ 스프레드시트 URL이 설정되지 않았습니다.');
       return null;
     }
 
-    // 데이터 가져오기
-    const response = await fetch(csvUrl);
+    console.log('📊 데이터 로딩 중:', csvUrl);
+
+    // CORS 문제 해결을 위한 fetch 옵션
+    const response = await fetch(csvUrl, {
+      method: 'GET',
+      mode: 'cors',
+      credentials: 'omit',
+      headers: {
+        'Accept': 'text/csv,text/plain,*/*'
+      }
+    });
+
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
     const csvText = await response.text();
+    console.log('✅ CSV 데이터 로드 완료');
+
     const data = parseCSV(csvText);
+    console.log('📋 파싱된 데이터:', data.length, '행');
 
     // 해당 책의 데이터 필터링
-    return data.filter(row => row['책ID'] === bookId || row['book_id'] === bookId);
+    const filteredData = data.filter(row => {
+      const rowBookId = row['책ID'] || row['book_id'] || '';
+      return rowBookId.toLowerCase() === bookId.toLowerCase();
+    });
+
+    console.log(`📖 "${bookId}" 책 데이터:`, filteredData.length, '개 섹션');
+    return filteredData;
 
   } catch (error) {
-    console.error('데이터 로딩 실패:', error);
+    console.error('❌ 데이터 로딩 실패:', error);
+
+    // CORS 오류인 경우 도움말 표시
+    if (error.message.includes('CORS') || error.message.includes('fetch')) {
+      console.error(`
+⚠️ CORS 오류 해결 방법:
+
+1. 로컬 웹 서버 사용 (file:// 대신):
+   cd docs
+   python3 -m http.server 8000
+   # 브라우저에서 http://localhost:8000 접속
+
+2. 스프레드시트 공개 설정 확인:
+   - Google Sheets에서 파일 → 공유 → "링크가 있는 모든 사용자" 선택
+   - 또는 파일 → 공유 → 웹에 게시 → CSV 형식으로 게시
+
+3. GitHub Pages에 배포:
+   - git push 후 GitHub Pages URL에서 접속
+   - https://YOUR-USERNAME.github.io/bookclub/
+
+자세한 내용은 SPREADSHEET_SETUP.md 파일을 참조하세요.
+      `);
+    }
+
     return null;
   }
 }
