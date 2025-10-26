@@ -184,18 +184,14 @@ function formatContent(content) {
     return `<p>${div.innerHTML.replace(/\n/g, '<br>')}</p>`;
   }
 
-  // marked.js 옵션 설정
-  marked.setOptions({
-    gfm: true,              // GitHub Flavored Markdown 사용
-    breaks: true,           // 줄바꿈을 <br>로 변환
-    headerIds: false,       // 헤더 ID 자동 생성 비활성화
-    mangle: false,          // 이메일 주소 난독화 비활성화
-    sanitize: false         // HTML 허용 (XSS 주의 - 신뢰할 수 있는 소스만)
-  });
-
   try {
-    // Markdown을 HTML로 변환
-    const html = marked.parse(content);
+    // Markdown을 HTML로 변환 (marked.js v11+ API)
+    const html = marked.parse(content, {
+      gfm: true,              // GitHub Flavored Markdown 사용
+      breaks: true,           // 줄바꿈을 <br>로 변환
+      headerIds: false,       // 헤더 ID 자동 생성 비활성화
+      mangle: false           // 이메일 주소 난독화 비활성화
+    });
     return html;
   } catch (error) {
     console.error('❌ Markdown 파싱 오류:', error);
