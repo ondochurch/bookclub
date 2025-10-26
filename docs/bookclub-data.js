@@ -221,9 +221,6 @@ async function initializeBookPage(bookId) {
     if (section === '주요토론' || section === 'discussion') {
       updateSection('discussion', content);
       console.log('✅ 주요토론 내용 업데이트 완료');
-    } else if (section === '인사이트' || section === 'insights') {
-      updateSection('insights', content);
-      console.log('✅ 인사이트 내용 업데이트 완료');
     } else if (section === '질문답변' || section === 'qa') {
       updateSection('qa', content);
       console.log('✅ 질문답변 내용 업데이트 완료');

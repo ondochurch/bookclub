@@ -157,6 +157,23 @@
       border-color: #667eea;
     }
 
+    .book-card .book-cover {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .book-card .book-cover img {
+      width: 100%;
+      max-width: 180px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      transition: transform 0.3s ease;
+    }
+
+    .book-card:hover .book-cover img {
+      transform: scale(1.05);
+    }
+
     .book-card h3 {
       font-size: 1.5rem;
       color: #2c3e50;
@@ -273,6 +290,9 @@
 
     <div class="books-grid">
       <a href="book-cosmos.html" class="book-card">
+        <div class="book-cover">
+          <img src="https://contents.kyobobook.co.kr/sih/fit-in/458x0/pdt/9788983711892.jpg" alt="코스모스">
+        </div>
         <h3>코스모스</h3>
         <div class="author">칼 세이건</div>
         <p>우주에 대한 경이로움과 과학적 사고를 통해 하나님의 창조를 더 깊이 이해하는 시간을 가졌습니다.</p>
@@ -280,6 +300,9 @@
       </a>
 
       <a href="book-today-worship.html" class="book-card">
+        <div class="book-cover">
+          <img src="https://image.yes24.com/goods/73166183/XL" alt="오늘이라는 예배">
+        </div>
         <h3>오늘이라는 예배</h3>
         <div class="author">티시 해리슨 워런 (Tish Harrison Warren)</div>
         <p>일상 속에서 드리는 예배와 삶으로 드리는 예배에 대해 함께 나누었습니다.</p>

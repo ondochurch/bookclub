@@ -49,6 +49,7 @@ This is a multi-page static website with no build process, dependencies, or fram
 
 - **docs/summary.html**: Book club content summary page listing all books. Features:
   - Card-based grid layout for book entries
+  - Book cover images with hover effects
   - Links to individual book discussion pages
   - Back navigation to home page
 
@@ -67,10 +68,9 @@ This is a multi-page static website with no build process, dependencies, or fram
   - See AIRTABLE_SETUP.md for complete integration guide
 
 - **docs/book-cosmos.html** & **docs/book-today-worship.html**: Individual book discussion pages. Features:
-  - Book information section
-  - Three main content sections with IDs:
+  - Book information section with cover image
+  - Two main content sections with IDs:
     - `#discussion` - 주요 토론 내용 (Main Discussion)
-    - `#insights` - 인사이트 및 적용점 (Insights and Applications)
     - `#qa` - 질문과 답변 (Q&A)
   - Automatic content loading from Google Spreadsheet via `bookclub-data.js`
   - Placeholder sections shown if no data available
