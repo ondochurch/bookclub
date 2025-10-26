@@ -207,20 +207,60 @@ function updateSection(sectionId, content) {
 }
 
 function formatContent(content) {
+  // HTML 특수 문자 이스케이프 (보안)
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
   // 줄바꿈을 <br> 또는 <p>로 변환
   const paragraphs = content.split('\n').filter(p => p.trim() !== '');
 
-  if (paragraphs.length === 1) {
-    return `<p>${paragraphs[0]}</p>`;
+  if (paragraphs.length === 0) {
+    return '';
   }
 
-  return paragraphs.map(p => {
-    // 리스트 항목 감지 (-, *, 숫자. 로 시작)
-    if (p.trim().match(/^[-*•]\s/) || p.trim().match(/^\d+\.\s/)) {
-      return `<li>${p.replace(/^[-*•]\s/, '').replace(/^\d+\.\s/, '')}</li>`;
+  if (paragraphs.length === 1) {
+    return `<p>${escapeHtml(paragraphs[0])}</p>`;
+  }
+
+  // 여러 문단 처리
+  let html = '';
+  let inList = false;
+  let listItems = [];
+
+  paragraphs.forEach((p, index) => {
+    const trimmed = p.trim();
+
+    // 리스트 항목 감지 (-, *, •, 숫자. 로 시작)
+    const listMatch = trimmed.match(/^([-*•]|\d+\.)\s+(.+)$/);
+
+    if (listMatch) {
+      // 리스트 항목
+      const content = listMatch[2];
+      listItems.push(`<li>${escapeHtml(content)}</li>`);
+      inList = true;
+    } else {
+      // 일반 문단
+      // 이전에 리스트가 있었다면 먼저 닫기
+      if (inList && listItems.length > 0) {
+        html += '<ul>' + listItems.join('') + '</ul>';
+        listItems = [];
+        inList = false;
+      }
+
+      // 문단 추가
+      html += `<p>${escapeHtml(trimmed)}</p>`;
     }
-    return `<p>${p}</p>`;
-  }).join('');
+  });
+
+  // 마지막에 남은 리스트 항목 처리
+  if (inList && listItems.length > 0) {
+    html += '<ul>' + listItems.join('') + '</ul>';
+  }
+
+  return html;
 }
 
 // ========================================
@@ -245,14 +285,23 @@ async function initializeBookPage(bookId) {
     const section = row['섹션'] || row['section'];
     const content = row['내용'] || row['content'];
 
+    console.log(`📝 섹션: "${section}", 내용 길이: ${content ? content.length : 0}자`);
+
     if (section === '주요토론' || section === 'discussion') {
       updateSection('discussion', content);
+      console.log('✅ 주요토론 내용 업데이트 완료');
     } else if (section === '인사이트' || section === 'insights') {
       updateSection('insights', content);
+      console.log('✅ 인사이트 내용 업데이트 완료');
     } else if (section === '질문답변' || section === 'qa') {
       updateSection('qa', content);
+      console.log('✅ 질문답변 내용 업데이트 완료');
+    } else {
+      console.warn(`⚠️ 알 수 없는 섹션: "${section}"`);
     }
   });
+
+  console.log('🎉 모든 섹션 업데이트 완료!');
 }
 
 // ========================================
