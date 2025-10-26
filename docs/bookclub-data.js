@@ -163,9 +163,19 @@ async function loadBookData(bookId) {
 
     const csvText = await response.text();
     console.log('✅ CSV 데이터 로드 완료');
+    console.log('📄 원본 CSV (처음 500자):', csvText.substring(0, 500));
 
     const data = parseCSV(csvText);
     console.log('📋 파싱된 데이터:', data.length, '행');
+
+    // 각 행의 내용 미리보기
+    data.forEach((row, index) => {
+      console.log(`행 ${index + 1}:`, {
+        '책ID': row['책ID'] || row['book_id'],
+        '섹션': row['섹션'] || row['section'],
+        '내용 미리보기': (row['내용'] || row['content'] || '').substring(0, 100) + '...'
+      });
+    });
 
     // 해당 책의 데이터 필터링
     const filteredData = data.filter(row => {
