@@ -11,11 +11,11 @@
 const BOOK_METADATA_CONFIG = {
   // 방법 1 (추천): "Publish to web" URL 사용
   // File → Share → Publish to web → CSV format
-  csvUrl: 'https://docs.google.com/spreadsheets/d/1dY9WeDEuBINQX5WngAOLrP3Rx-NOp-xpVRXDX_0Bz6w/pub?output=csv', // 여기에 책 메타데이터 스프레드시트의 Publish to web URL 입력
+  csvUrl: '', // 여기에 책 메타데이터 스프레드시트의 Publish to web URL 입력
 
   // 방법 2: 스프레드시트 ID와 GID 사용
-  sheetId: '', // 책 메타데이터 스프레드시트 ID
-  gid: '0'      // 시트 GID (기본값: 0)
+  sheetId: '1skCDbZakZp7smLo7MP9kiN1HeYNgYhqhNi7zq020hNY', // 책 메타데이터 스프레드시트 ID
+  gid: '1'      // 시트 GID (기본값: 0)
 };
 
 // 스프레드시트 2: 토론 내용 (book-*.html 페이지에서 사용)
