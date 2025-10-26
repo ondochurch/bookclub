@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>온도교회 사명자반 북클럽</title>
+  <title>기타 자료 - 온도교회 사명자반 북클럽</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
   <style>
     * {
@@ -28,11 +28,11 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background-image: url('https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=1920&q=80');
+      background-image: url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=1920&q=80');
       background-size: cover;
       background-position: center;
       background-attachment: fixed;
-      opacity: 0.15;
+      opacity: 0.1;
       pointer-events: none;
       z-index: 0;
     }
@@ -83,15 +83,38 @@
       opacity: 0.95;
     }
 
+    .nav-back {
+      display: inline-block;
+      margin: 2rem 0 1rem 2rem;
+      padding: 0.5rem 1rem;
+      background: white;
+      color: #667eea;
+      text-decoration: none;
+      border-radius: 0.5rem;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .nav-back:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+
     .container {
       max-width: 1200px;
       margin: 0 auto;
-      padding: 3rem 2rem;
+      padding: 2rem 2rem 3rem 2rem;
     }
 
     .intro {
       text-align: center;
       margin-bottom: 3rem;
+    }
+
+    .intro .icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
     }
 
     .intro h2 {
@@ -101,11 +124,6 @@
       font-weight: 500;
     }
 
-    .intro .welcome-icon {
-      font-size: 3rem;
-      margin-bottom: 1rem;
-    }
-
     .intro p {
       font-size: 1.1rem;
       color: #666;
@@ -113,34 +131,14 @@
       margin: 0 auto;
     }
 
-    .intro .features {
-      display: flex;
-      justify-content: center;
+    .resources-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
       gap: 2rem;
       margin-top: 2rem;
-      flex-wrap: wrap;
     }
 
-    .intro .feature-item {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      color: #667eea;
-      font-weight: 500;
-    }
-
-    .intro .feature-item span {
-      font-size: 1.5rem;
-    }
-
-    .cards-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 2rem;
-      margin-top: 3rem;
-    }
-
-    .card {
+    .resource-card {
       background: white;
       border-radius: 12px;
       padding: 2rem;
@@ -148,47 +146,67 @@
       transition: all 0.3s ease;
       text-decoration: none;
       color: inherit;
-      display: block;
+      display: flex;
+      flex-direction: column;
       border: 2px solid transparent;
     }
 
-    .card:hover {
+    .resource-card:hover {
       transform: translateY(-8px);
       box-shadow: 0 12px 24px rgba(0,0,0,0.15);
       border-color: #667eea;
     }
 
-    .card-icon {
-      font-size: 3rem;
+    .resource-card .icon {
+      font-size: 2.5rem;
       margin-bottom: 1rem;
-      display: block;
     }
 
-    .card h3 {
+    .resource-card h3 {
       font-size: 1.5rem;
-      margin-bottom: 1rem;
       color: #2c3e50;
+      margin-bottom: 0.5rem;
       font-weight: 500;
     }
 
-    .card p {
+    .resource-card .type {
+      font-size: 0.85rem;
+      color: #999;
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .resource-card p {
       color: #666;
       font-size: 1rem;
       line-height: 1.6;
+      flex-grow: 1;
+      margin-bottom: 1rem;
     }
 
-    .card.primary {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
+    .resource-card .meta {
+      display: flex;
+      gap: 1rem;
+      font-size: 0.9rem;
+      color: #888;
+      margin-top: auto;
     }
 
-    .card.primary h3,
-    .card.primary p {
-      color: white;
+    .resource-card .meta span {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
     }
 
-    .card.primary:hover {
-      border-color: #764ba2;
+    .placeholder-message {
+      text-align: center;
+      padding: 3rem;
+      color: #999;
+      font-style: italic;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.07);
     }
 
     footer {
@@ -240,17 +258,17 @@
         font-size: 1rem;
       }
 
-      .intro .features {
-        gap: 1rem;
-      }
-
-      .cards-grid {
+      .resources-grid {
         grid-template-columns: 1fr;
         gap: 1.5rem;
       }
 
       .container {
         padding: 2rem 1rem;
+      }
+
+      .nav-back {
+        margin: 1rem 0 0.5rem 1rem;
       }
     }
   </style>
@@ -261,67 +279,25 @@
     <a href="https://www.ondochurch.org/" target="_blank" class="church-link">
       🏛️ 온도교회 홈페이지
     </a>
-    <h1>온도교회 사명자반<br>북클럽</h1>
-    <p>함께 읽고, 함께 나누며, 함께 성장하는 공동체</p>
+    <h1>📚 기타 자료</h1>
+    <p>북클럽과 관련된 유용한 자료들</p>
   </header>
+
+  <a href="index.html" class="nav-back">← 홈으로</a>
 
   <div class="container">
     <div class="intro">
-      <div class="welcome-icon">📚</div>
-      <h2>환영합니다</h2>
-      <p>온도교회 사명자반 북클럽은 말씀과 독서를 통해 함께 배우고 성장하는 모임입니다.</p>
-      <div class="features">
-        <div class="feature-item">
-          <span>📖</span>
-          <div>함께 읽기</div>
-        </div>
-        <div class="feature-item">
-          <span>💬</span>
-          <div>함께 나누기</div>
-        </div>
-        <div class="feature-item">
-          <span>🌱</span>
-          <div>함께 성장하기</div>
-        </div>
-      </div>
+      <div class="icon">📑</div>
+      <h2>학습 자료 모음</h2>
+      <p>북클럽 활동에 도움이 되는 기사, 영상, 문서 등 다양한 자료를 모아두었습니다.</p>
     </div>
 
-    <div class="cards-grid">
-      <a href="register.html" class="card primary">
-        <span class="card-icon">📖</span>
-        <h3>북클럽 신청</h3>
-        <p>현재 진행 중인 북클럽에 참여 신청을 하실 수 있습니다.</p>
-      </a>
-
-      <a href="https://docs.google.com/spreadsheets/d/1Blk7ikG3jJzcUDCgnmClkbPqZo2u6NDg6lX8xCIB_20/edit?gid=0#gid=0" class="card" target="_blank">
-        <span class="card-icon">💡</span>
-        <h3>새로운 책 제안</h3>
-        <p>북클럽에서 함께 읽고 싶은 책을 제안해 주세요.</p>
-      </a>
-
-      <a href="summary.html" class="card">
-        <span class="card-icon">📝</span>
-        <h3>북클럽 내용 정리</h3>
-        <p>지난 북클럽 모임의 토론 내용과 인사이트를 확인하세요.</p>
-      </a>
-
-      <a href="resources.html" class="card">
-        <span class="card-icon">📚</span>
-        <h3>기타 자료</h3>
-        <p>북클럽 활동에 도움이 되는 다양한 학습 자료를 확인하세요.</p>
-      </a>
-
-      <a href="" class="card">
-        <span class="card-icon">👥</span>
-        <h3>참여자 현황</h3>
-        <p>현재 북클럽 참여자 명단과 진행 현황을 확인하세요.</p>
-      </a>
-
-      <a href="questions.html" class="card">
-        <span class="card-icon">❓</span>
-        <h3>신학 질문</h3>
-        <p>궁금한 신학적 질문을 자유롭게 제출하고 함께 답을 찾아가세요.</p>
-      </a>
+    <div class="resources-grid" id="resources-container">
+      <!-- 자료 카드들이 여기에 표시됩니다 -->
+      <div class="placeholder-message">
+        현재 등록된 자료가 없습니다.<br>
+        곧 유용한 자료들을 추가할 예정입니다.
+      </div>
     </div>
   </div>
 
