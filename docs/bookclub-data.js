@@ -175,23 +175,26 @@ function updateSection(sectionId, content) {
 }
 
 function formatContent(content) {
-  // marked.js가 로드되어 있는지 확인
-  if (typeof marked === 'undefined') {
-    console.warn('⚠️ marked.js 라이브러리가 로드되지 않았습니다. 일반 텍스트로 표시됩니다.');
-    // 폴백: HTML 특수 문자만 이스케이프
+  // markdown-it가 로드되어 있는지 확인
+  if (typeof markdownit === 'undefined') {
+    console.warn('⚠️ markdown-it 라이브러리가 로드되지 않았습니다. 일반 텍스트로 표시됩니다.');
+    // 폴백: HTML 특수 문자만 이스케이프하고 줄바꿈 처리
     const div = document.createElement('div');
     div.textContent = content;
     return `<p>${div.innerHTML.replace(/\n/g, '<br>')}</p>`;
   }
 
   try {
-    // Markdown을 HTML로 변환 (marked.js v11+ API)
-    const html = marked.parse(content, {
-      gfm: true,              // GitHub Flavored Markdown 사용
+    // markdown-it 인스턴스 생성 및 설정
+    const md = markdownit({
+      html: false,            // HTML 태그 허용 안 함 (보안)
       breaks: true,           // 줄바꿈을 <br>로 변환
-      headerIds: false,       // 헤더 ID 자동 생성 비활성화
-      mangle: false           // 이메일 주소 난독화 비활성화
+      linkify: true,          // URL을 자동으로 링크로 변환
+      typographer: true       // 더 나은 타이포그래피
     });
+
+    // Markdown을 HTML로 변환
+    const html = md.render(content);
     return html;
   } catch (error) {
     console.error('❌ Markdown 파싱 오류:', error);
