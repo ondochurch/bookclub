@@ -131,6 +131,55 @@
       margin: 0 auto;
     }
 
+    .tabs-container {
+      margin: 2rem 0;
+      border-bottom: 2px solid #e0e0e0;
+    }
+
+    .tabs {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: -2px;
+    }
+
+    .tab-button {
+      padding: 0.75rem 1.5rem;
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: #666;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: 'Noto Sans KR', sans-serif;
+    }
+
+    .tab-button:hover {
+      color: #667eea;
+      background: rgba(102, 126, 234, 0.05);
+    }
+
+    .tab-button.active {
+      color: #667eea;
+      border-bottom-color: #667eea;
+      font-weight: 700;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .year-section {
+      margin-bottom: 2rem;
+    }
+
     .books-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -298,8 +347,14 @@
       <p>온도교회 사명자반 북클럽에서 함께 읽고 나눈 책들입니다.</p>
     </div>
 
-    <div id="books-container" class="books-grid">
-      <!-- 책 목록이 Google Spreadsheet에서 자동으로 로드됩니다 -->
+    <div class="tabs-container">
+      <div id="year-tabs" class="tabs">
+        <!-- 연도별 탭이 자동으로 생성됩니다 -->
+      </div>
+    </div>
+
+    <div id="tab-contents">
+      <!-- 연도별 책 목록이 Google Spreadsheet에서 자동으로 로드됩니다 -->
     </div>
   </div>
 

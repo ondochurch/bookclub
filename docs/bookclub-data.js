@@ -295,64 +295,155 @@ async function loadBookList() {
   }
 }
 
-function renderBookList(books) {
-  const container = document.getElementById('books-container');
+function extractYear(dateString) {
+  if (!dateString) return '기타';
 
-  if (!container) {
-    console.warn('⚠️ books-container 요소를 찾을 수 없습니다.');
+  // 날짜 형식에서 연도 추출 (예: "2024-09", "2024.09", "2024년 9월", "2024/09/15")
+  const yearMatch = dateString.match(/(\d{4})/);
+  if (yearMatch) {
+    return yearMatch[1];
+  }
+
+  return '기타';
+}
+
+function renderBookList(books) {
+  const tabsContainer = document.getElementById('year-tabs');
+  const contentsContainer = document.getElementById('tab-contents');
+
+  if (!tabsContainer || !contentsContainer) {
+    console.warn('⚠️ year-tabs 또는 tab-contents 요소를 찾을 수 없습니다.');
     return;
   }
 
   // 컨테이너 비우기
-  container.innerHTML = '';
+  tabsContainer.innerHTML = '';
+  contentsContainer.innerHTML = '';
 
+  // 연도별로 책 그룹화
+  const booksByYear = {};
   books.forEach(book => {
-    const bookId = book['책ID'] || book['book_id'] || '';
-    const title = book['제목'] || book['title'] || '';
-    const author = book['저자'] || book['author'] || '';
-    const description = book['설명'] || book['description'] || '';
-    const coverUrl = book['표지'] || book['cover'] || book['cover_url'] || '';
-    const status = book['상태'] || book['status'] || '토론 완료';
     const date = book['날짜'] || book['date'] || '';
+    const year = extractYear(date);
 
-    // 필수 필드 확인
-    if (!bookId || !title) {
-      console.warn('⚠️ 책ID 또는 제목이 없는 항목 무시:', book);
-      return;
+    if (!booksByYear[year]) {
+      booksByYear[year] = [];
     }
-
-    // 책 카드 HTML 생성 (동적 페이지 링크 사용)
-    const bookCard = document.createElement('a');
-    bookCard.href = `book.html?id=${bookId}`;
-    bookCard.className = 'book-card';
-
-    let coverHTML = '';
-    if (coverUrl) {
-      coverHTML = `
-        <div class="book-cover">
-          <img src="${coverUrl}" alt="${title}">
-        </div>
-      `;
-    }
-
-    let dateHTML = '';
-    if (date) {
-      dateHTML = `<div class="date">${date}</div>`;
-    }
-
-    bookCard.innerHTML = `
-      ${coverHTML}
-      <h3>${title}</h3>
-      <div class="author">${author}</div>
-      ${dateHTML}
-      <p>${description}</p>
-      <span class="status">${status}</span>
-    `;
-
-    container.appendChild(bookCard);
+    booksByYear[year].push(book);
   });
 
-  console.log(`✅ ${books.length}권의 책 카드 렌더링 완료`);
+  // 연도를 정렬 (최신순)
+  const years = Object.keys(booksByYear).sort((a, b) => {
+    if (a === '기타') return 1;
+    if (b === '기타') return -1;
+    return b.localeCompare(a); // 내림차순 정렬
+  });
+
+  console.log(`📅 발견된 연도: ${years.join(', ')}`);
+
+  // 각 연도별로 탭과 콘텐츠 생성
+  years.forEach((year, index) => {
+    // 탭 버튼 생성
+    const tabButton = document.createElement('button');
+    tabButton.className = 'tab-button';
+    tabButton.setAttribute('data-year', year);
+    tabButton.textContent = year === '기타' ? year : `${year}년`;
+    if (index === 0) {
+      tabButton.classList.add('active');
+    }
+    tabButton.addEventListener('click', () => switchTab(year));
+    tabsContainer.appendChild(tabButton);
+
+    // 탭 콘텐츠 생성
+    const tabContent = document.createElement('div');
+    tabContent.className = 'tab-content year-section';
+    tabContent.setAttribute('data-year', year);
+    if (index === 0) {
+      tabContent.classList.add('active');
+    }
+
+    // 책 그리드 생성
+    const booksGrid = document.createElement('div');
+    booksGrid.className = 'books-grid';
+
+    // 해당 연도의 책들 렌더링
+    booksByYear[year].forEach(book => {
+      const bookId = book['책ID'] || book['book_id'] || '';
+      const title = book['제목'] || book['title'] || '';
+      const author = book['저자'] || book['author'] || '';
+      const description = book['설명'] || book['description'] || '';
+      const coverUrl = book['표지'] || book['cover'] || book['cover_url'] || '';
+      const status = book['상태'] || book['status'] || '토론 완료';
+      const date = book['날짜'] || book['date'] || '';
+
+      // 필수 필드 확인
+      if (!bookId || !title) {
+        console.warn('⚠️ 책ID 또는 제목이 없는 항목 무시:', book);
+        return;
+      }
+
+      // 책 카드 HTML 생성 (동적 페이지 링크 사용)
+      const bookCard = document.createElement('a');
+      bookCard.href = `book.html?id=${bookId}`;
+      bookCard.className = 'book-card';
+
+      let coverHTML = '';
+      if (coverUrl) {
+        coverHTML = `
+          <div class="book-cover">
+            <img src="${coverUrl}" alt="${title}">
+          </div>
+        `;
+      }
+
+      let dateHTML = '';
+      if (date) {
+        dateHTML = `<div class="date">${date}</div>`;
+      }
+
+      bookCard.innerHTML = `
+        ${coverHTML}
+        <h3>${title}</h3>
+        <div class="author">${author}</div>
+        ${dateHTML}
+        <p>${description}</p>
+        <span class="status">${status}</span>
+      `;
+
+      booksGrid.appendChild(bookCard);
+    });
+
+    tabContent.appendChild(booksGrid);
+    contentsContainer.appendChild(tabContent);
+  });
+
+  console.log(`✅ ${books.length}권의 책을 ${years.length}개 연도로 분류하여 렌더링 완료`);
+}
+
+function switchTab(year) {
+  // 모든 탭 버튼의 active 클래스 제거
+  document.querySelectorAll('.tab-button').forEach(button => {
+    button.classList.remove('active');
+  });
+
+  // 모든 탭 콘텐츠 숨기기
+  document.querySelectorAll('.tab-content').forEach(content => {
+    content.classList.remove('active');
+  });
+
+  // 선택된 탭 활성화
+  const selectedButton = document.querySelector(`.tab-button[data-year="${year}"]`);
+  const selectedContent = document.querySelector(`.tab-content[data-year="${year}"]`);
+
+  if (selectedButton) {
+    selectedButton.classList.add('active');
+  }
+
+  if (selectedContent) {
+    selectedContent.classList.add('active');
+  }
+
+  console.log(`📑 탭 전환: ${year}년`);
 }
 
 // 전역 함수로 노출
