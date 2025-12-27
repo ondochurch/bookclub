@@ -82,14 +82,8 @@ async function loadBookData(bookId) {
 
     console.log('📊 데이터 로딩 중:', csvUrl);
 
-    // CORS 프록시를 사용하여 데이터 가져오기
-    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(csvUrl)}`;
-    console.log('🔄 CORS 프록시 URL:', proxyUrl);
-
-    // CORS 문제 해결을 위한 fetch 옵션
-    const response = await fetch(proxyUrl, {
-      method: 'GET'
-    });
+    // 데이터 가져오기
+    const response = await fetch(csvUrl);
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -251,19 +245,8 @@ window.loadBookClubData = initializeBookPage;
 // 요약 페이지: 책 목록 로딩
 // ========================================
 async function loadBookList() {
-  const loadingMsg = document.getElementById('loading-message');
-  const errorMsg = document.getElementById('error-message');
-  const emptyMsg = document.getElementById('empty-message');
-  const tabsContainer = document.getElementById('tabs-container');
-
   try {
     console.log('📚 책 목록 로딩 중...');
-
-    // 로딩 메시지 표시
-    if (loadingMsg) loadingMsg.style.display = 'block';
-    if (errorMsg) errorMsg.style.display = 'none';
-    if (emptyMsg) emptyMsg.style.display = 'none';
-    if (tabsContainer) tabsContainer.style.display = 'none';
 
     // CSV URL 생성 (책 메타데이터 스프레드시트)
     let csvUrl = BOOK_METADATA_CONFIG.csvUrl;
@@ -274,19 +257,11 @@ async function loadBookList() {
 
     if (!csvUrl) {
       console.warn('⚠️ 책 메타데이터 스프레드시트 URL이 설정되지 않았습니다.');
-      throw new Error('스프레드시트 URL이 설정되지 않았습니다.');
+      return;
     }
 
-    console.log('📊 데이터 URL:', csvUrl);
-
-    // CORS 프록시를 사용하여 데이터 가져오기
-    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(csvUrl)}`;
-    console.log('🔄 CORS 프록시 URL:', proxyUrl);
-
     // 데이터 가져오기
-    const response = await fetch(proxyUrl, {
-      method: 'GET'
-    });
+    const response = await fetch(csvUrl);
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -294,35 +269,15 @@ async function loadBookList() {
 
     const csvText = await response.text();
     console.log('✅ 책 목록 CSV 데이터 로드 완료');
-    console.log('📄 CSV 데이터 미리보기:', csvText.substring(0, 200));
 
     const books = parseCSV(csvText);
     console.log(`📖 총 ${books.length}권의 책 발견`);
-
-    // 로딩 메시지 숨기기
-    if (loadingMsg) loadingMsg.style.display = 'none';
-
-    // 책 목록이 비어있는지 확인
-    if (books.length === 0) {
-      console.warn('⚠️ 책 목록이 비어있습니다.');
-      if (emptyMsg) emptyMsg.style.display = 'block';
-      return;
-    }
-
-    // 탭 컨테이너 표시
-    if (tabsContainer) tabsContainer.style.display = 'block';
 
     // 책 목록 렌더링
     renderBookList(books);
 
   } catch (error) {
     console.error('❌ 책 목록 로딩 실패:', error);
-    console.error('상세 오류:', error.message);
-    console.error('스택:', error.stack);
-
-    // 로딩 메시지 숨기고 에러 메시지 표시
-    if (loadingMsg) loadingMsg.style.display = 'none';
-    if (errorMsg) errorMsg.style.display = 'block';
   }
 }
 
@@ -507,13 +462,8 @@ async function loadSingleBookMetadata(bookId) {
       return null;
     }
 
-    // CORS 프록시를 사용하여 데이터 가져오기
-    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(csvUrl)}`;
-
     // 데이터 가져오기
-    const response = await fetch(proxyUrl, {
-      method: 'GET'
-    });
+    const response = await fetch(csvUrl);
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
