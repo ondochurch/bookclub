@@ -8,13 +8,23 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Noto+Serif+KR:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+  <link rel="icon" type="image/png" href="assets/favicon.png">
+  <link rel="apple-touch-icon" href="assets/favicon.png">
+  <!-- PapaParse CSV 파싱 라이브러리 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+  <!-- 북클럽 데이터 로더 -->
+  <script src="bookclub-data.js"></script>
 </head>
 <body>
 
   <div class="frame">
 
     <header class="topbar">
-      <a href="index.html" class="wordmark">온도교회 사명자반 북클럽</a>
+      <a href="index.html" class="wordmark">
+        <img class="mark mark-light" src="assets/ondo-mark.png" alt="" aria-hidden="true" width="224" height="172">
+        <img class="mark mark-dark" src="assets/ondo-mark-dark.png" alt="" aria-hidden="true" width="224" height="172">
+        <span>온도교회 사명자반 북클럽</span>
+      </a>
       <nav class="topnav">
         <a href="index.html">← 홈</a>
         <a href="https://www.ondochurch.org/" target="_blank">온도교회</a>
@@ -30,43 +40,34 @@
     <section class="section">
       <h2>2026년 봄학기</h2>
 
-      <div class="cover-grid">
+      <div class="cover-grid" data-semester="2026-봄">
         <div class="cover-card">
           <div class="shot"><img src="https://contents.kyobobook.co.kr/sih/fit-in/458x0/pdt/9791190308960.jpg" alt="성경시대 사람들의 일상은 어땠을까"></div>
-          <div class="title">성경시대 사람들의 일상은 어땠을까</div>
+          <div class="meta"><span class="t">성경시대 사람들의 일상은 어땠을까</span></div>
         </div>
         <div class="cover-card">
           <div class="shot"><img src="https://contents.kyobobook.co.kr/sih/fit-in/458x0/pdt/9788936506391.jpg" alt="침묵"></div>
-          <div class="title">침묵</div>
-          <div class="by">엔도 슈사쿠</div>
-        </div>
-        <div class="cover-card">
-          <div class="shot"><img src="https://contents.kyobobook.co.kr/sih/fit-in/458x0/pdt/9788937462788.jpg" alt="노인과 바다"></div>
-          <div class="title">노인과 바다</div>
+          <div class="meta"><span class="t">침묵</span><span class="a">엔도 슈사쿠</span></div>
         </div>
         <div class="cover-card">
           <div class="shot"><img src="https://contents.kyobobook.co.kr/sih/fit-in/458x0/pdt/9788932814926.jpg" alt="한나의 아이"></div>
-          <div class="title">한나의 아이</div>
-          <div class="by">하우어워스</div>
+          <div class="meta"><span class="t">한나의 아이</span><span class="a">하우어워스</span></div>
         </div>
         <div class="cover-card">
           <div class="shot"><img src="https://contents.kyobobook.co.kr/sih/fit-in/458x0/pdt/9788936513252.jpg" alt="고통의 문제"></div>
-          <div class="title">고통의 문제</div>
-          <div class="by">C.S. 루이스</div>
+          <div class="meta"><span class="t">고통의 문제</span><span class="a">C.S. 루이스</span></div>
         </div>
         <div class="cover-card">
           <div class="shot"><img src="https://contents.kyobobook.co.kr/sih/fit-in/458x0/pdt/9788934112440.jpg" alt="하나님의 일꾼과 사역"></div>
-          <div class="title">하나님의 일꾼과 사역</div>
-          <div class="by">위어스비</div>
+          <div class="meta"><span class="t">하나님의 일꾼과 사역</span><span class="a">위어스비</span></div>
         </div>
         <div class="cover-card">
           <div class="shot"><img src="https://contents.kyobobook.co.kr/sih/fit-in/458x0/pdt/9788953122147.jpg" alt="팀 켈러의 기도"></div>
-          <div class="title">팀 켈러의 기도</div>
+          <div class="meta"><span class="t">팀 켈러의 기도</span></div>
         </div>
         <div class="cover-card">
           <div class="shot"><img src="https://contents.kyobobook.co.kr/sih/fit-in/458x0/pdt/9791186409329.jpg" alt="소요리문답, 삶을 읽다"></div>
-          <div class="title">소요리문답, 삶을 읽다</div>
-          <div class="by">정요석</div>
+          <div class="meta"><span class="t">소요리문답, 삶을 읽다</span><span class="a">정요석</span></div>
         </div>
       </div>
 

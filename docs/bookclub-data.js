@@ -144,6 +144,136 @@ async function loadBookData(bookId) {
 }
 
 // ========================================
+// 공통 유틸
+// ========================================
+
+// 시트 값은 그대로 innerHTML에 넣으므로 escape 한다.
+// (제목에 <, & 같은 문자가 섞이면 마크업이 깨진다)
+function escapeHtml(value) {
+  return String(value == null ? '' : value).replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
+}
+
+// 시트는 항목마다 한국판과 영문판 두 벌을 가질 수 있다 (title/title_en 등).
+// 어느 쪽을 쓸지는 페이지 언어(<html lang>)가 정한다 — 나중에 만들 영어 페이지는
+// lang="en"이므로 영문 표기가 먼저 나온다. 한쪽이 비어 있으면 있는 쪽으로 넘어간다.
+function prefersEnglish() {
+  return (document.documentElement.lang || '').toLowerCase().indexOf('en') === 0;
+}
+
+function pick(row, keys) {
+  for (const k of keys) {
+    const v = (row[k] || '').trim();
+    if (v) return v;
+  }
+  return '';
+}
+
+// 두 벌 다 필요한 경우 (hover로 뒤집을 항목) — 우선판과 나머지를 함께 돌려준다.
+function localizedPair(row, koKeys, enKeys) {
+  const ko = pick(row, koKeys);
+  const en = pick(row, enKeys);
+
+  const primary = prefersEnglish() ? (en || ko) : (ko || en);
+  const other = primary === ko ? en : ko;
+
+  return { primary: primary, alt: other && other !== primary ? other : '' };
+}
+
+// 한 벌만 필요한 경우 (뒤집지 않는 자리)
+function localized(row, koKeys, enKeys) {
+  return localizedPair(row, koKeys, enKeys).primary;
+}
+
+// 목록·표지 카드처럼 좁은 자리에서는 부제를 뺀다.
+// 영문 제목은 "Prayer: Experiencing Awe and..." 처럼 부제가 길어서
+// 그대로 두면 한국어 제목 자리를 넘어 저자 줄까지 덮는다.
+function stripSubtitle(value) {
+  return String(value || '').split(/[:：]/)[0].trim();
+}
+
+// 좁은 자리용 (부제 없음). 책 상세 페이지는 bookTitle()로 전체 제목을 쓴다.
+function titlePair(row) {
+  const pair = localizedPair(row, ['제목', 'title'], ['title_en']);
+  return { primary: stripSubtitle(pair.primary), alt: stripSubtitle(pair.alt) };
+}
+function authorPair(row) { return localizedPair(row, ['저자', 'author'], ['author_en']); }
+function coverPair(row)  { return localizedPair(row, ['표지', 'cover', 'cover_url'], ['cover_url_en']); }
+
+function bookTitle(row)  { return localized(row, ['제목', 'title'],       ['title_en']); }
+function bookAuthor(row) { return localized(row, ['저자', 'author'],      ['author_en']); }
+function bookDesc(row)   { return localized(row, ['설명', 'description'], ['description_en']); }
+
+// 다른 판이 있으면 두 벌을 겹쳐 두고 CSS가 hover에서 바꿔 보여준다.
+function swapText(pair) {
+  const primary = escapeHtml(pair.primary);
+  if (!pair.alt) return primary;
+  return `<span class="txt-primary">${primary}</span>` +
+         `<span class="txt-alt">${escapeHtml(pair.alt)}</span>`;
+}
+
+// "2026년 3월", "2026-03", "2026.3" 등에서 정렬용 숫자(YYYYMM)를 뽑는다.
+// 월이 없으면 연도만으로 비교한다.
+function dateKey(value) {
+  const m = String(value || '').match(/(\d{4})\D+(\d{1,2})/) || String(value || '').match(/(\d{4})/);
+  if (!m) return 0;
+  return Number(m[1]) * 100 + (m[2] ? Number(m[2]) : 0);
+}
+
+// 표지 영역 마크업. 두 판이 다 있으면 <img class="alt-cover">를 겹쳐 두고
+// CSS가 hover에서 바꿔 보여준다. 표지가 아예 없으면 제목 첫 글자로 대체한다.
+function coverMarkup(row, rawTitle) {
+  const { primary, alt } = coverPair(row);
+  const title = escapeHtml(rawTitle);
+
+  if (!primary) {
+    return `<span class="no-cover">${escapeHtml(rawTitle.charAt(0))}</span>`;
+  }
+
+  if (!alt) {
+    return `<img src="${escapeHtml(primary)}" alt="${title}" loading="lazy">`;
+  }
+
+  // 두 판이 있을 때만 겹쳐 둔다. 뒷장(다른 판)이 먼저, 앞장(우선판)이 그 위에.
+  // 앞장이 왼쪽 모서리를 축으로 열리는 연출은 styles.css의 .primary-cover가 담당.
+  return `<img class="alt-cover" src="${escapeHtml(alt)}" alt="" aria-hidden="true" loading="lazy">` +
+         `<img class="primary-cover" src="${escapeHtml(primary)}" alt="${title}" loading="lazy">`;
+}
+
+function metadataCsvUrl() {
+  if (BOOK_METADATA_CONFIG.csvUrl) return BOOK_METADATA_CONFIG.csvUrl;
+  if (!BOOK_METADATA_CONFIG.sheetId) return '';
+  return `https://docs.google.com/spreadsheets/d/${BOOK_METADATA_CONFIG.sheetId}/export?format=csv&gid=${BOOK_METADATA_CONFIG.gid}`;
+}
+
+// 책 메타데이터 시트를 한 번만 받아 재사용한다 (한 페이지에서 여러 번 쓰임)
+let metadataPromise = null;
+function fetchBookMetadata() {
+  if (metadataPromise) return metadataPromise;
+
+  const csvUrl = metadataCsvUrl();
+  if (!csvUrl) {
+    console.warn('⚠️ 책 메타데이터 스프레드시트 URL이 설정되지 않았습니다.');
+    return Promise.resolve([]);
+  }
+
+  metadataPromise = fetch(csvUrl)
+    .then(function (res) {
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+      return res.text();
+    })
+    .then(parseCSV)
+    .catch(function (err) {
+      console.error('❌ 책 메타데이터 로딩 실패:', err);
+      metadataPromise = null;   // 다음 시도에서 재요청할 수 있게
+      return [];
+    });
+
+  return metadataPromise;
+}
+
+// ========================================
 // HTML 업데이트 함수
 // ========================================
 function updateSection(sectionId, content) {
@@ -236,40 +366,13 @@ window.loadBookClubData = initializeBookPage;
 // 요약 페이지: 책 목록 로딩
 // ========================================
 async function loadBookList() {
-  try {
-    console.log('📚 책 목록 로딩 중...');
+  console.log('📚 책 목록 로딩 중...');
 
-    // CSV URL 생성 (책 메타데이터 스프레드시트)
-    let csvUrl = BOOK_METADATA_CONFIG.csvUrl;
+  const books = await fetchBookMetadata();
+  if (!books.length) return;
 
-    if (!csvUrl && BOOK_METADATA_CONFIG.sheetId) {
-      csvUrl = `https://docs.google.com/spreadsheets/d/${BOOK_METADATA_CONFIG.sheetId}/export?format=csv&gid=${BOOK_METADATA_CONFIG.gid}`;
-    }
-
-    if (!csvUrl) {
-      console.warn('⚠️ 책 메타데이터 스프레드시트 URL이 설정되지 않았습니다.');
-      return;
-    }
-
-    // 데이터 가져오기
-    const response = await fetch(csvUrl);
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const csvText = await response.text();
-    console.log('✅ 책 목록 CSV 데이터 로드 완료');
-
-    const books = parseCSV(csvText);
-    console.log(`📖 총 ${books.length}권의 책 발견`);
-
-    // 책 목록 렌더링
-    renderBookList(books);
-
-  } catch (error) {
-    console.error('❌ 책 목록 로딩 실패:', error);
-  }
+  console.log(`📖 총 ${books.length}권의 책 발견`);
+  renderBookList(books);
 }
 
 function extractYear(dateString) {
@@ -343,44 +446,50 @@ function renderBookList(books) {
     const booksGrid = document.createElement('div');
     booksGrid.className = 'books';
 
+    // 연도 안에서는 최신 날짜가 위로 (연도 탭도 최신순이라 방향을 맞춘다)
+    booksByYear[year].sort(function (a, b) {
+      return dateKey(b['날짜'] || b['date']) - dateKey(a['날짜'] || a['date']);
+    });
+
     // 해당 연도의 책들 렌더링
     booksByYear[year].forEach(book => {
       const bookId = book['책ID'] || book['book_id'] || '';
-      const title = book['제목'] || book['title'] || '';
-      const author = book['저자'] || book['author'] || '';
-      const description = book['설명'] || book['description'] || '';
-      const coverUrl = book['표지'] || book['cover'] || book['cover_url'] || '';
+      const title = titlePair(book);
+      const author = authorPair(book);
+      const description = bookDesc(book);
       const status = book['상태'] || book['status'] || '토론 완료';
       const date = book['날짜'] || book['date'] || '';
 
       // 필수 필드 확인
-      if (!bookId || !title) {
+      if (!bookId || !title.primary) {
         console.warn('⚠️ 책ID 또는 제목이 없는 항목 무시:', book);
         return;
       }
 
       // 책 항목 HTML 생성 (동적 페이지 링크 사용)
       const bookCard = document.createElement('a');
-      bookCard.href = `book.html?id=${bookId}`;
+      bookCard.href = `book.html?id=${encodeURIComponent(bookId)}`;
       bookCard.className = 'book-entry';
-
-      const coverHTML = coverUrl
-        ? `<img src="${coverUrl}" alt="${title}">`
-        : (title ? title.charAt(0) : '?');
 
       // 상태 문구에 "완료"가 있으면 정보색, 아니면 강조색(진행 중)으로 매핑
       const statusClass = status.includes('완료') ? 'status-done' : 'status-active';
 
-      // 저자 · 날짜는 제목 아래 한 줄로 (한글 이름이 길어도 깨지지 않도록)
-      const metaLine = [author, date].filter(Boolean).join(' · ');
+      // 저자 · 날짜는 제목 아래 한 줄로 (한글 이름이 길어도 깨지지 않도록).
+      // 날짜는 판본과 무관하지만, 두 벌을 같은 칸에 포개려면 한쪽에만 텍스트 노드를
+      // 남기면 안 되므로 양쪽 문구에 모두 넣는다.
+      const withDate = (who) => [who, date].filter(Boolean).join(' · ');
+      const metaLine = swapText({
+        primary: withDate(author.primary),
+        alt: author.alt ? withDate(author.alt) : '',
+      });
 
       bookCard.innerHTML = `
-        <div class="book-cover">${coverHTML}</div>
+        <div class="book-cover">${coverMarkup(book, title.primary)}</div>
         <div class="book-main">
-          <h3>${title}</h3>
+          <h3>${swapText(title)}</h3>
           ${metaLine ? `<p class="book-meta">${metaLine}</p>` : ''}
-          ${description ? `<p class="desc">${description}</p>` : ''}
-          <span class="status ${statusClass}">${status}</span>
+          ${description ? `<p class="desc">${escapeHtml(description)}</p>` : ''}
+          <span class="status ${statusClass}">${escapeHtml(status)}</span>
         </div>
       `;
 
@@ -424,6 +533,87 @@ function switchTab(year) {
 window.loadBookList = loadBookList;
 
 // ========================================
+// 학기별 표지 목록 (index.html 홈, register.html 신청 페이지)
+// ========================================
+// <div class="cover-grid" data-semester="2026-봄"> 안에 하드코딩된 표지를
+// 시트 내용으로 교체한다. 시트의 semester 컬럼 값이 data-semester와 같은 행만 쓴다.
+//
+// 시트를 못 불러오거나 해당 학기 행이 하나도 없으면 HTML에 있던 표지를 그대로 둔다
+// (예전에 CORS로 로딩이 막힌 적이 있어, 실패 시 빈 화면이 되지 않도록 폴백을 남긴다).
+async function loadSemesterShelves() {
+  const grids = document.querySelectorAll('[data-semester]');
+  if (!grids.length) return;
+
+  const books = await fetchBookMetadata();
+  if (!books.length) {
+    console.warn('⚠️ 시트를 불러오지 못해 HTML의 기존 표지를 유지합니다.');
+    return;
+  }
+
+  grids.forEach(function (grid) {
+    const wanted = (grid.getAttribute('data-semester') || '').trim();
+    if (!wanted) return;
+
+    const matched = books.filter(function (row) {
+      const semester = (row['학기'] || row['semester'] || '').trim();
+      return semester && semester === wanted;
+    });
+
+    if (!matched.length) {
+      console.warn(`⚠️ "${wanted}" 학기에 해당하는 행이 없어 기존 표지를 유지합니다.`);
+    } else {
+      // 학기 라인업은 읽는 순서대로 (이른 날짜 먼저)
+      matched.sort(function (a, b) {
+        return dateKey(a['날짜'] || a['date']) - dateKey(b['날짜'] || b['date']);
+      });
+
+      grid.innerHTML = matched.map(function (row) {
+        const title = titlePair(row);
+        const author = authorPair(row);
+        const bookId = row['책ID'] || row['book_id'] || '';
+
+        // 책ID가 있으면 토론 기록 페이지로 넘어가는 링크로 만든다
+        const open = bookId
+          ? `<a class="cover-card" href="book.html?id=${encodeURIComponent(bookId)}">`
+          : '<div class="cover-card">';
+        const close = bookId ? '</a>' : '</div>';
+
+        // 제목과 저자를 한 덩어리로 묶어 통째로 전환한다.
+        // 따로 전환하면 영문 제목이 한 줄 더 길 때 그 여유가 제목과 저자 "사이"에
+        // 벌어진다. 묶어 두면 남는 공간이 카드 맨 아래로 가서 눈에 띄지 않는다.
+        const block = (t, a) =>
+          `<span class="t">${escapeHtml(t)}</span>` +
+          (a ? `<span class="a">${escapeHtml(a)}</span>` : '');
+
+        const hasAlt = title.alt || author.alt;
+        const meta = hasAlt
+          ? `<span class="txt-primary">${block(title.primary, author.primary)}</span>` +
+            `<span class="txt-alt">${block(title.alt || title.primary, author.alt || author.primary)}</span>`
+          : block(title.primary, author.primary);
+
+        return `
+          ${open}
+            <div class="shot">${coverMarkup(row, title.primary)}</div>
+            <div class="meta">${meta}</div>
+          ${close}`;
+      }).join('');
+
+      console.log(`✅ "${wanted}" 학기 ${matched.length}권 렌더링 완료`);
+    }
+
+    // 시트에서도 못 채우고 폴백 표지도 없으면 섹션째로 감춘다
+    // (제목만 덩그러니 남은 빈 섹션이 보이지 않도록)
+    if (!grid.children.length) {
+      const section = grid.closest('section');
+      if (section) section.hidden = true;
+      console.warn(`⚠️ "${wanted}" 학기: 표시할 책이 없어 섹션을 감춥니다.`);
+    }
+  });
+}
+
+window.loadSemesterShelves = loadSemesterShelves;
+
+// ========================================
 // 동적 책 페이지: URL에서 책 ID 가져오기
 // ========================================
 function getBookIdFromURL() {
@@ -435,49 +625,22 @@ function getBookIdFromURL() {
 // 동적 책 페이지: 단일 책 메타데이터 로딩
 // ========================================
 async function loadSingleBookMetadata(bookId) {
-  try {
-    console.log(`📖 책 메타데이터 로딩 중: "${bookId}"`);
+  console.log(`📖 책 메타데이터 로딩 중: "${bookId}"`);
 
-    // CSV URL 생성 (책 메타데이터 스프레드시트)
-    let csvUrl = BOOK_METADATA_CONFIG.csvUrl;
+  const books = await fetchBookMetadata();
 
-    if (!csvUrl && BOOK_METADATA_CONFIG.sheetId) {
-      csvUrl = `https://docs.google.com/spreadsheets/d/${BOOK_METADATA_CONFIG.sheetId}/export?format=csv&gid=${BOOK_METADATA_CONFIG.gid}`;
-    }
+  const book = books.find(row => {
+    const rowBookId = row['책ID'] || row['book_id'] || '';
+    return rowBookId.toLowerCase() === bookId.toLowerCase();
+  });
 
-    if (!csvUrl) {
-      console.warn('⚠️ 책 메타데이터 스프레드시트 URL이 설정되지 않았습니다.');
-      return null;
-    }
-
-    // 데이터 가져오기
-    const response = await fetch(csvUrl);
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const csvText = await response.text();
-    const books = parseCSV(csvText);
-
-    // 해당 책 찾기
-    const book = books.find(row => {
-      const rowBookId = row['책ID'] || row['book_id'] || '';
-      return rowBookId.toLowerCase() === bookId.toLowerCase();
-    });
-
-    if (book) {
-      console.log(`✅ 책 메타데이터 찾음: "${book['제목'] || book['title']}"`);
-      return book;
-    } else {
-      console.warn(`⚠️ 책ID "${bookId}"에 해당하는 메타데이터를 찾을 수 없습니다.`);
-      return null;
-    }
-
-  } catch (error) {
-    console.error('❌ 책 메타데이터 로딩 실패:', error);
-    return null;
+  if (book) {
+    console.log(`✅ 책 메타데이터 찾음: "${book['제목'] || book['title']}"`);
+    return book;
   }
+
+  console.warn(`⚠️ 책ID "${bookId}"에 해당하는 메타데이터를 찾을 수 없습니다.`);
+  return null;
 }
 
 // ========================================
@@ -489,10 +652,9 @@ function populateBookPage(bookMetadata) {
     return;
   }
 
-  const title = bookMetadata['제목'] || bookMetadata['title'] || '북클럽';
-  const author = bookMetadata['저자'] || bookMetadata['author'] || '';
-  const description = bookMetadata['설명'] || bookMetadata['description'] || '';
-  const coverUrl = bookMetadata['표지'] || bookMetadata['cover'] || bookMetadata['cover_url'] || '';
+  const title = bookTitle(bookMetadata) || '북클럽';
+  const author = bookAuthor(bookMetadata);
+  const description = bookDesc(bookMetadata);
   const date = bookMetadata['날짜'] || bookMetadata['date'] || '';
 
   // 페이지 제목 업데이트
@@ -525,10 +687,10 @@ function populateBookPage(bookMetadata) {
     descriptionElement.textContent = description;
   }
 
-  // 책 표지 업데이트
+  // 책 표지 업데이트 (한/영 두 판이 있으면 hover로 전환)
   const coverContainer = document.getElementById('book-cover-container');
-  if (coverContainer && coverUrl) {
-    coverContainer.innerHTML = `<img src="${coverUrl}" alt="${title}">`;
+  if (coverContainer) {
+    coverContainer.innerHTML = coverMarkup(bookMetadata, title);
   }
 
   console.log('✅ 페이지 메타데이터 업데이트 완료');
@@ -563,6 +725,10 @@ window.initializeDynamicBookPage = initializeDynamicBookPage;
 // 자동 초기화 (페이지 로드 시)
 // ========================================
 document.addEventListener('DOMContentLoaded', function() {
+  // 학기별 표지 목록은 다른 초기화와 독립적으로 동작한다
+  // (홈·신청 페이지에 있고, 없으면 아무것도 하지 않음)
+  loadSemesterShelves();
+
   // URL 파라미터에서 책 ID 확인 (동적 페이지)
   const urlBookId = getBookIdFromURL();
 
@@ -581,7 +747,5 @@ document.addEventListener('DOMContentLoaded', function() {
   } else if (document.body.getAttribute('data-page-type') === 'summary') {
     console.log('🚀 자동 초기화: 요약 페이지 감지됨');
     loadBookList();
-  } else {
-    console.log('ℹ️ data-book-id 또는 data-page-type 속성이 없습니다.');
   }
 });

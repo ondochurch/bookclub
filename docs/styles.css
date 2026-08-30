@@ -10,6 +10,7 @@
   --rule:    #d5cdbc;  /* 구분선 */
   --accent:  #a6300e;  /* 이번 학기 · 신청 · 진행 중 */
   --accent-2:#3e4a5c;  /* 완료 · 정보 */
+  --brand:   #e1a846;  /* 온도교회 로고 골드 — 선(border)에만. 글자에 쓰면 대비 부족 */
   --shadow:  0 2px 6px rgba(28, 26, 23, 0.10);
 
   --serif: 'Noto Serif KR', Georgia, serif;
@@ -25,6 +26,7 @@
     --rule:    #3a352b;
     --accent:  #e8836a;
     --accent-2:#9db2cc;
+    --brand:   #e8b45c;
     --shadow:  0 2px 8px rgba(0, 0, 0, 0.45);
   }
 }
@@ -37,6 +39,7 @@
   --rule:    #3a352b;
   --accent:  #e8836a;
   --accent-2:#9db2cc;
+  --brand:   #e8b45c;
   --shadow:  0 2px 8px rgba(0, 0, 0, 0.45);
 }
 
@@ -80,12 +83,27 @@ img { max-width: 100%; display: block; }
 }
 
 .wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
   font-family: var(--serif);
   font-size: 0.95rem;
   font-weight: 600;
   text-decoration: none;
   color: var(--ink);
 }
+
+/* 온도교회 로고 마크. 원본은 차콜이라 어두운 배경에서 묻히므로
+   밝은 잉크색으로 다시 칠한 변형(-dark)을 따로 두고 테마에 따라 교체한다. */
+.wordmark .mark { height: 1.35rem; width: auto; flex: none; }
+.wordmark .mark-dark { display: none; }
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .wordmark .mark-light { display: none; }
+  :root:not([data-theme="light"]) .wordmark .mark-dark { display: block; }
+}
+:root[data-theme="dark"] .wordmark .mark-light { display: none; }
+:root[data-theme="dark"] .wordmark .mark-dark { display: block; }
 
 .topnav {
   display: flex;
@@ -156,6 +174,16 @@ h1.page-title {
 .btn:hover { background: color-mix(in srgb, var(--accent) 80%, black); }
 .btn:active { background: color-mix(in srgb, var(--accent) 68%, black); }
 
+/* 신청 기간이 아닐 때. 보이되 누를 수 없다 */
+.btn-off {
+  background: var(--paper-2);
+  color: var(--muted);
+  border: 1px solid var(--rule);
+  cursor: default;
+  pointer-events: none;
+}
+.btn-off:hover { background: var(--paper-2); }
+
 .link-quiet {
   font-size: 0.92rem;
   color: var(--muted);
@@ -175,7 +203,7 @@ h1.page-title {
   color: var(--muted);
   margin: 0 0 1.2rem;
   padding-bottom: 0.7rem;
-  border-bottom: 1px solid var(--rule);
+  border-bottom: 2px solid var(--brand);
 }
 
 .section-note {
@@ -192,24 +220,114 @@ h1.page-title {
   margin-bottom: 2rem;
 }
 
+/* 책ID가 있으면 <a>로 렌더링되어 토론 기록 페이지로 이어진다 */
+.cover-card {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
 .cover-card .shot {
   box-shadow: var(--shadow);
   background: var(--paper-2);
   aspect-ratio: 2 / 3;
-  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
+
+a.cover-card:hover .t { color: var(--accent); }
 .cover-card .shot img { width: 100%; height: 100%; object-fit: cover; }
 
-.cover-card .title {
+/* 시트에 표지 URL이 없을 때 제목 첫 글자로 대신한다 */
+.cover-card .no-cover {
+  font-family: var(--serif);
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+/* 한국판·영문판이 둘 다 있을 때: hover하면 카드가 가운데 축으로 회전해 다른 판이 나온다.
+   우선판은 페이지 언어(<html lang>)가 정한다 — bookclub-data.js의 localizedPair() 참고.
+   터치 기기에는 hover가 없으므로 우선판이 그대로 남는다. */
+
+/* 원근은 회전하는 요소가 아니라 그 부모에 걸어야 한다 */
+.cover-card,
+.book-entry,
+.book-head { perspective: 1000px; }
+
+.cover-card .shot,
+.book-cover,
+.book-head .cover {
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.55s cubic-bezier(0.4, 0.05, 0.2, 1);
+  /* overflow:hidden은 preserve-3d를 깨뜨린다. 잘라내기는 object-fit이 이미 한다 */
+}
+
+/* 뒷면(.alt-cover)이 있을 때만 돌린다. 영문판이 없는 책은 그대로 있어야 한다 */
+.cover-card:hover .shot:has(.alt-cover),
+.book-entry:hover .book-cover:has(.alt-cover),
+.book-head .cover:has(.alt-cover):hover { transform: rotateY(180deg); }
+
+/* 앞면: 흐름에 남아 컨테이너 높이를 만든다 (book.html 표지는 높이가 이미지에 달려 있음) */
+.primary-cover { position: relative; backface-visibility: hidden; }
+
+/* 뒷면: 같은 자리에 미리 180도 돌려 둔다 — 카드가 뒤집히면 정면으로 온다 */
+.alt-cover {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  backface-visibility: hidden;
+  transform: rotateY(180deg);
+}
+
+/* 제목·저자도 같이 바뀐다 (표지만 영문인데 글자는 한글이면 어긋나 보인다).
+   두 벌을 같은 칸에 포개므로 칸 높이는 둘 중 긴 쪽이 된다.
+   표지 카드는 제목+저자를 한 덩어리로 묶어서(.meta) 그 여유가 카드 맨 아래로 가고,
+   목록은 넓어서 두 언어 다 한 줄이라 차이가 안 생긴다. */
+.book-main h3,
+.book-main .book-meta { display: grid; }
+
+.book-main h3 > .txt-primary,
+.book-main h3 > .txt-alt,
+.book-main .book-meta > .txt-primary,
+.book-main .book-meta > .txt-alt { grid-area: 1 / 1; }
+
+.txt-primary,
+.txt-alt { transition: opacity 0.2s ease; }
+
+/* 자리는 유지한 채 숨긴다 (display:none이면 칸 높이가 무너진다) */
+.txt-alt { visibility: hidden; opacity: 0; }
+
+.cover-card:hover .txt-primary,
+.book-entry:hover .txt-primary { visibility: hidden; opacity: 0; }
+
+.cover-card:hover .txt-alt,
+.book-entry:hover .txt-alt { visibility: visible; opacity: 1; }
+
+/* 제목+저자는 한 덩어리(.meta). 두 판이 있으면 그 덩어리째 겹쳐 전환한다 */
+.cover-card .meta {
+  display: grid;
+  margin-top: 0.7rem;
+}
+
+.cover-card .meta > .txt-primary,
+.cover-card .meta > .txt-alt { grid-area: 1 / 1; }
+
+.cover-card .t {
+  display: block;
   font-family: var(--serif);
   font-size: 0.92rem;
   font-weight: 600;
   line-height: 1.45;
-  margin-top: 0.7rem;
   text-wrap: pretty;
 }
 
-.cover-card .by {
+.cover-card .a {
+  display: block;
   font-size: 0.82rem;
   color: var(--muted);
   margin-top: 0.15rem;
@@ -217,6 +335,23 @@ h1.page-title {
 
 @media (max-width: 40rem) {
   .cover-grid { grid-template-columns: repeat(2, 1fr); gap: 1.4rem 1rem; }
+}
+
+/* 홈에서는 한 줄짜리 책장으로 — 표지가 세로를 다 먹으면 아래 메뉴가 안 보인다.
+   .cover-grid보다 구체적이라 위 미디어쿼리에 덮이지 않는다. */
+.cover-grid.shelf {
+  grid-template-columns: repeat(8, 1fr);
+  gap: 1rem 0.8rem;
+}
+.cover-grid.shelf .meta { margin-top: 0.5rem; }
+.cover-grid.shelf .t { font-size: 0.68rem; line-height: 1.4; }
+.cover-grid.shelf .a { font-size: 0.64rem; }
+
+@media (max-width: 52rem) {
+  .cover-grid.shelf { grid-template-columns: repeat(4, 1fr); }
+}
+@media (max-width: 30rem) {
+  .cover-grid.shelf { grid-template-columns: repeat(3, 1fr); }
 }
 
 /* ---------- 목록형 링크 (둘러보기 · 기타 자료) ---------- */
@@ -262,6 +397,49 @@ h1.page-title {
   margin-left: 0.45rem;
 }
 
+/* 앞세우는 두 항목. 크기와 채운 면으로만 위계를 주고,
+   색 띠나 그림자 카드는 쓰지 않는다. */
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.2rem;
+  margin-bottom: 1.8rem;
+}
+
+.feature-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 1.3rem 1.4rem;
+  background: var(--paper-2);
+  border: 1px solid var(--rule);
+  text-decoration: none;
+  color: var(--ink);
+  transition: border-color 0.12s ease;
+}
+.feature-card:hover { border-color: var(--accent); }
+
+.feature-card .label {
+  font-family: var(--serif);
+  font-size: 1.3rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+.feature-card:hover .label { color: var(--accent); }
+
+.feature-card .desc { flex: 1; font-size: 0.92rem; color: var(--muted); }
+
+.feature-card .arrow {
+  align-self: flex-end;
+  color: var(--rule);
+  transition: transform 0.12s ease, color 0.12s ease;
+}
+.feature-card:hover .arrow { color: var(--accent); transform: translateX(0.2rem); }
+
+@media (max-width: 40rem) {
+  .feature-grid { grid-template-columns: 1fr; }
+}
+
 /* ---------- 연도 탭 (summary.html) ---------- */
 .tabs-container { border-bottom: 1px solid var(--rule); }
 .tabs { display: flex; gap: 1.4rem; flex-wrap: wrap; }
@@ -281,7 +459,7 @@ h1.page-title {
 .tab-button.active {
   color: var(--ink);
   font-weight: 700;
-  border-bottom-color: var(--accent);
+  border-bottom-color: var(--brand);
 }
 
 .tab-content { display: none; }
@@ -306,7 +484,6 @@ h1.page-title {
   aspect-ratio: 2 / 3;
   background: var(--paper-2);
   box-shadow: var(--shadow);
-  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -384,7 +561,7 @@ h1.page-title {
   font-weight: 700;
   margin: 0 0 1rem;
   padding-bottom: 0.6rem;
-  border-bottom: 1px solid var(--rule);
+  border-bottom: 2px solid var(--brand);
 }
 
 .placeholder { color: var(--muted); font-size: 0.95rem; }
@@ -393,7 +570,7 @@ h1.page-title {
 .prose p, .prose li { margin-bottom: 0.9rem; }
 .prose ul, .prose ol { padding-left: 1.4rem; margin-bottom: 0.9rem; }
 .prose blockquote {
-  border-left: 3px solid var(--accent);
+  border-left: 3px solid var(--brand);
   padding-left: 1rem;
   margin: 1.2rem 0;
   color: var(--muted);

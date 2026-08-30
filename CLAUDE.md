@@ -244,6 +244,47 @@ New books no longer need a new HTML file — `book.html` is a shared template dr
 
 **See SPREADSHEET_SETUP.md for complete step-by-step instructions.**
 
+### Semester cover shelves (landing page + register page)
+
+`index.html` and `register.html` each show the semester's books as a grid of covers. Both are driven from the **same metadata spreadsheet** via a `semester` column, so a new semester needs no HTML edit:
+
+- The grid element carries `data-semester="<value>"` (e.g. `data-semester="2026-봄"`). `loadSemesterShelves()` in `bookclub-data.js` fetches the metadata sheet and replaces the grid's contents with every row whose `semester` (or `학기`) column equals that value.
+- **The markup inside the grid is a deliberate fallback, not dead code.** If the sheet can't be fetched or no row matches the semester, the hardcoded covers stay on screen. (The repo has prior history of the sheet fetch failing on CORS — an empty semester section on the live site would be worse than a slightly stale one.) When updating the hardcoded fallback, update both files.
+- To roll the site to a new semester: add/label rows in the sheet with the new `semester` value, then change `data-semester` in the two files and update the section heading and CTA copy.
+- Note the metadata sheet doubles as the record of books actually read (it drives `summary.html`, grouped by `date`). The `semester` column is what separates "this term's lineup" from "what we have read" — don't conflate them by filtering the shelves on `date`.
+
+### Bilingual book data, and the page-turn cover hover
+
+A book can carry a Korean and an English version of several fields. The `_en` columns are optional — anything missing falls back to the Korean value:
+
+| Korean | English | Used for |
+| --- | --- | --- |
+| `title` | `title_en` | book title |
+| `author` | `author_en` | author |
+| `description` | `description_en` | blurb |
+| `cover_url` | `cover_url_en` | cover image |
+
+The suffix is `_en` (a language), not `_us` (a country) — an earlier draft used `_us`.
+
+- **The page's own `<html lang>` decides which side wins** — `lang="ko"` prefers Korean, an English page (`lang="en"`, planned) prefers English. There is no per-page config beyond `lang`. See `prefersEnglish()` / `localizedPair()` in `bookclub-data.js`; always read book fields through the `titlePair()` / `authorPair()` / `coverPair()` / `bookDesc()` helpers rather than indexing the row directly, or the English page will show Korean text.
+- `localizedPair()` returns `{ primary, alt }`. Use the pair helpers where the value flips on hover; use the single-value helpers (`bookTitle()` etc.) for places that don't flip, such as `<title>` and the `book.html` heading.
+
+**Hover flip.** On the semester shelves and the `summary.html` list, hovering a card rotates the cover 180° on its centre axis (`rotateY`) to reveal the other edition, and the title and author swap to match — a card showing an English cover under a Korean title reads as a mistake. Implementation notes worth knowing before editing:
+
+- `perspective` sits on the **parent** (`.cover-card`, `.book-entry`, `.book-head`), not on the rotating element; the rotating element carries `transform-style: preserve-3d`.
+- **Do not add `overflow: hidden` back to `.cover-card .shot` or `.book-cover`.** It silently flattens `preserve-3d` and the flip degrades to a dissolve. Cropping is already handled by `object-fit: cover`.
+- The back face (`.alt-cover`) is pre-rotated 180° and both faces set `backface-visibility: hidden`.
+- Text swaps via `.txt-primary` / `.txt-alt` (`swapText()`), not by rewriting the DOM on hover.
+- With only one edition present, no flip markup is emitted at all and the card is static. Touch devices have no hover, so the preferred edition simply stays.
+
+**Ordering.** Books sort by the `date` column through `dateKey()`, which parses `2026년 3월`, `2026-03`, `2026.3`, and bare years into a comparable `YYYYMM`. Two directions, deliberately:
+
+- **Semester shelves: oldest first** — a term's lineup reads as a syllabus, in the order the club will read it.
+- **`summary.html` within each year: newest first** — an archive, matching the year tabs which are already newest-first.
+- When both exist, `coverMarkup()` stacks them — `.alt-cover` (back) then `.primary-cover` (front) — and CSS swings the front cover open on its left edge (`rotateY(-115deg)`, `transform-origin: left center`, `backface-visibility: hidden`) so it reads like opening a book. With only one cover it emits a plain `<img>` and no animation. Touch devices have no hover, so the preferred edition simply stays.
+- This applies everywhere covers render: the semester shelves, the `summary.html` list, and the `book.html` detail header.
+- **English-edition covers are stored in the repo** under `docs/assets/covers/`, not hotlinked. They were sourced from retailer/Open Library image CDNs, which block hotlinking and can change URLs without notice; the files are ~20–50 KB each. Korean covers still hotlink to Yes24/Kyobo, which is pre-existing behavior.
+
 - Book cover images in register.html are linked from external CDN (Kyobobook)
 - The Google Form link in register.html should be updated when creating new book club sessions
 - Current registration is for "2026년 봄학기" (2026 Spring Semester)
