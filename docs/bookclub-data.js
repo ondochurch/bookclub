@@ -666,12 +666,6 @@ function populateBookPage(bookMetadata) {
   if (pageTitle) pageTitle.textContent = title;
   if (pageSubtitle) pageSubtitle.textContent = author || '';
 
-  // 저자 정보 업데이트
-  const authorElement = document.getElementById('book-author');
-  if (authorElement && author) {
-    authorElement.textContent = `저자: ${author}`;
-  }
-
   // 날짜 정보 업데이트
   const dateElement = document.getElementById('book-date');
   if (dateElement && date) {

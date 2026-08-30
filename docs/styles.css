@@ -70,10 +70,50 @@ img { max-width: 100%; display: block; }
   padding: 0 1.5rem 4rem;
 }
 
-/* ---------- top bar ---------- */
+/* ---------- 페이지 머리 ----------
+   따로 로고 바를 두지 않는다. 제목이 페이지 맨 위에 오고
+   바깥 링크(온도교회 로고 · YouTube)는 그 오른쪽에 붙는다. */
+.pagehead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 2rem;
+  padding-top: 2.4rem;
+  margin-bottom: 3rem;
+}
+
+.pagehead-main { flex: 1 1 auto; min-width: 0; }
+
+.pagehead-links {
+  display: flex;
+  align-items: center;
+  gap: 1.1rem;
+  flex: none;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+.pagehead-links a { text-decoration: none; }
+.pagehead-links a:hover { color: var(--accent); }
+
+/* 화면에서는 감추고 스크린리더에는 남긴다 —
+   로고 이미지가 장식이라 이 이름이 없으면 링크를 읽어줄 방법이 없다 */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---------- 로고 바 (하위 페이지) ----------
+   랜딩만 제목을 맨 위로 올렸고, 나머지 페이지는 이 바를 그대로 쓴다. */
 .topbar {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: 1rem;
   flex-wrap: wrap;
@@ -82,28 +122,8 @@ img { max-width: 100%; display: block; }
   margin-bottom: 2.6rem;
 }
 
-.wordmark {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-  font-family: var(--serif);
-  font-size: 0.95rem;
-  font-weight: 600;
-  text-decoration: none;
-  color: var(--ink);
-}
-
-/* 온도교회 로고 마크. 원본은 차콜이라 어두운 배경에서 묻히므로
-   밝은 잉크색으로 다시 칠한 변형(-dark)을 따로 두고 테마에 따라 교체한다. */
-.wordmark .mark { height: 1.35rem; width: auto; flex: none; }
-.wordmark .mark-dark { display: none; }
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .wordmark .mark-light { display: none; }
-  :root:not([data-theme="light"]) .wordmark .mark-dark { display: block; }
-}
-:root[data-theme="dark"] .wordmark .mark-light { display: none; }
-:root[data-theme="dark"] .wordmark .mark-dark { display: block; }
+.wordmark { display: inline-flex; align-items: center; }
+.wordmark .mark { height: 1.9rem; width: auto; flex: none; }
 
 .topnav {
   display: flex;
@@ -114,9 +134,27 @@ img { max-width: 100%; display: block; }
 .topnav a { text-decoration: none; }
 .topnav a:hover { color: var(--accent); }
 
-/* ---------- hero / page head ---------- */
-.hero { margin-bottom: 3.4rem; }
+/* 온도교회 로고 (랜딩 우측 상단) */
+.church-mark { display: inline-flex; align-items: center; }
+.church-mark .mark { height: 1.6rem; width: auto; flex: none; }
 
+/* 원본 로고는 차콜이라 어두운 배경에서 묻힌다.
+   밝은 잉크색으로 다시 칠한 변형(-dark)을 테마에 따라 바꿔 끼운다. */
+.mark-dark { display: none; }
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .mark-light { display: none; }
+  :root:not([data-theme="light"]) .mark-dark { display: block; }
+}
+:root[data-theme="dark"] .mark-light { display: none; }
+:root[data-theme="dark"] .mark-dark { display: block; }
+
+@media (max-width: 40rem) {
+  .pagehead { flex-direction: column-reverse; gap: 1.4rem; }
+  .pagehead-links { align-self: flex-start; }
+}
+
+/* ---------- 제목 영역 ---------- */
 .kicker {
   font-size: 0.82rem;
   letter-spacing: 0.02em;
@@ -535,7 +573,6 @@ a.cover-card:hover .t { color: var(--accent); }
   gap: 2rem;
   align-items: flex-start;
   flex-wrap: wrap;
-  margin-bottom: 3rem;
 }
 .book-head .cover {
   width: 11rem;

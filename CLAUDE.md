@@ -297,6 +297,10 @@ The site uses a shared stylesheet, **`docs/styles.css`**, loaded by every page e
 
 > An earlier pass styled the site after Edward Tufte's data-ink aesthetic. It was abandoned: that recipe suits dense analytical documents, and applying "minimize non-data ink" to a 6-link navigation hub with no data produced a near-empty page. Don't reach for it again here.
 
+**Two page headers, on purpose.** The landing page has no logo bar — its title sits at the very top (`.pagehead`) with the church logo and YouTube as small links to its right. Every other page keeps the logo bar (`.topbar`): the mark on the left linking home, back-navigation and the church link on the right. Don't "unify" these; the landing page dropped the bar because its `<h1>` already repeats the site name, which the sub-pages don't.
+
+In both headers the mark is an image with `alt=""`, so each link carries an `.sr-only` span for its accessible name. Removing that span leaves the link unnamed for screen readers — the visible text is gone. The light/dark mark swap is driven by `.mark-light` / `.mark-dark`, shared by both headers.
+
 - **Color** (CSS vars in `styles.css`) — two accents, both semantic rather than decorative, since the covers already supply the page's color:
   - `--paper` (#faf8f3 light / #16140f dark) — background; `--paper-2` — hover/raised surfaces
   - `--ink` (#1c1a17 / #f0ece2) — body text; `--muted` — secondary text and labels
