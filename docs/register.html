@@ -3,311 +3,72 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>온도교회 사명자반 북클럽</title>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Noto Sans KR', 'Nanum Gothic', sans-serif;
-      background: #f8f9fa;
-      color: #333;
-      position: relative;
-      min-height: 100vh;
-    }
-
-    body::before {
-      content: '';
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-image: url('https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=1920&q=80');
-      background-size: cover;
-      background-position: center;
-      background-attachment: fixed;
-      opacity: 0.12;
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    body > * {
-      position: relative;
-      z-index: 1;
-    }
-
-    header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      padding: 3rem 2rem 2rem 2rem;
-      text-align: center;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      position: relative;
-    }
-
-    .church-link {
-      position: absolute;
-      top: 1rem;
-      right: 2rem;
-      color: white;
-      text-decoration: none;
-      font-size: 0.9rem;
-      opacity: 0.9;
-      transition: opacity 0.3s ease;
-      display: flex;
-      align-items: center;
-      gap: 0.3rem;
-    }
-
-    .church-link:hover {
-      opacity: 1;
-      text-decoration: underline;
-    }
-
-    .nav-back {
-      display: inline-block;
-      margin: 2rem 0 1rem 2rem;
-      padding: 0.5rem 1rem;
-      background: white;
-      color: #667eea;
-      text-decoration: none;
-      border-radius: 0.5rem;
-      font-weight: 500;
-      transition: all 0.3s ease;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-
-    .nav-back:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-    }
-
-    header h1 {
-      margin: 0;
-      font-size: 2.5rem;
-      color: white;
-      font-weight: 700;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-    }
-
-    .container {
-      max-width: 1000px;
-      margin: 3rem auto;
-      padding: 2rem;
-      background: #fff;
-      border-radius: 1rem;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-
-    .container h2 {
-      text-align: center;
-      color: #2c3e50;
-      font-weight: 500;
-      margin-bottom: 0.5rem;
-    }
-
-    .books-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 2rem;
-      margin: 2rem 0;
-    }
-
-    .book-item {
-      text-align: center;
-    }
-
-    .book-cover {
-      text-align: center;
-      margin-bottom: 0.5rem;
-    }
-
-    .book-cover img {
-      width: 100%;
-      max-width: 200px;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      transition: transform 0.3s ease;
-    }
-
-    .book-cover img:hover {
-      transform: scale(1.05);
-    }
-
-    .book-title {
-      font-size: 0.85rem;
-      color: #2c3e50;
-      font-weight: 500;
-      margin-top: 0.5rem;
-      line-height: 1.3;
-    }
-
-    .book-info {
-      text-align: center;
-      color: #666;
-      margin: 1rem 0;
-      font-size: 0.95rem;
-    }
-
-    .form-button {
-      display: block;
-      width: calc(100% - 2rem);
-      margin: 2rem auto 0 auto;
-      padding: 1rem;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      border: none;
-      border-radius: 0.5rem;
-      color: white;
-      font-size: 1.1rem;
-      font-weight: 500;
-      text-align: center;
-      text-decoration: none;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    }
-
-    .form-button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 12px rgba(0,0,0,0.2);
-    }
-
-    footer {
-      text-align: center;
-      font-size: 0.9rem;
-      color: #999;
-      margin-top: 2rem;
-      padding: 2rem;
-      border-top: 1px solid #e0e0e0;
-      background: white;
-    }
-
-    footer a {
-      color: #667eea;
-      text-decoration: none;
-      transition: color 0.3s ease;
-    }
-
-    footer a:hover {
-      color: #764ba2;
-      text-decoration: underline;
-    }
-
-    @media (max-width: 768px) {
-      .church-link {
-        position: static;
-        display: inline-block;
-        margin-top: 1rem;
-        font-size: 0.85rem;
-      }
-
-      header {
-        padding: 2rem 1rem;
-      }
-
-      header h1 {
-        font-size: 2rem;
-      }
-
-      .container {
-        margin: 2rem auto;
-        padding: 1.5rem;
-      }
-
-      .nav-back {
-        margin: 1rem 0 0.5rem 1rem;
-      }
-
-      .book-cover img {
-        width: 60%;
-      }
-    }
-  </style>
+  <title>북클럽 신청 - 온도교회 사명자반 북클럽</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-  <header>
-    <a href="https://www.ondochurch.org/" target="_blank" class="church-link">
-      🏛️ 온도교회 홈페이지
-    </a>
-    <h1>온도교회 사명자반<br> 북클럽</h1>
-  </header>
+  <div class="frame">
 
-  <a href="index.html" class="nav-back">← 홈으로</a>
+    <header class="topbar">
+      <a href="index.html" class="wordmark">온도<sup>℃</sup> · 사명자반 북클럽</a>
+      <nav class="topnav">
+        <a href="index.html">← 홈</a>
+        <a href="https://www.ondochurch.org/" target="_blank">온도교회</a>
+      </nav>
+    </header>
 
-  <div class="container">
-    <h2>📖 북클럽 신청</h2>
-    <div class="book-info">2026년 봄학기 신청</div>
+    <p class="kicker">2026년 봄학기 신청</p>
+    <h1 class="page-title">북클럽 신청</h1>
+    <p class="lede">이번 학기 후보 도서들입니다. 아래에서 확인하시고, 하단 버튼으로 신청해 주세요.</p>
 
-    <div class="books-grid">
-      <div class="book-item">
-        <div class="book-cover">
-          <img src="https://contents.kyobobook.co.kr/sih/fit-in/458x0/pdt/9791190308960.jpg" alt="성경시대 사람들의 일상은 어땠을까">
-        </div>
-        <div class="book-title">성경시대 사람들의 일상은 어땠을까</div>
+    <div class="candidate-grid">
+      <div class="candidate">
+        <img src="https://contents.kyobobook.co.kr/sih/fit-in/458x0/pdt/9791190308960.jpg" alt="성경시대 사람들의 일상은 어땠을까">
+        <div class="title">성경시대 사람들의 일상은 어땠을까</div>
       </div>
-
-      <div class="book-item">
-        <div class="book-cover">
-          <img src="https://contents.kyobobook.co.kr/sih/fit-in/458x0/pdt/9788936506391.jpg" alt="침묵">
-        </div>
-        <div class="book-title">침묵<br>(엔도 슈사쿠)</div>
+      <div class="candidate">
+        <img src="https://contents.kyobobook.co.kr/sih/fit-in/458x0/pdt/9788936506391.jpg" alt="침묵">
+        <div class="title">침묵<br>(엔도 슈사쿠)</div>
       </div>
-
-      <div class="book-item">
-        <div class="book-cover">
-          <img src="https://contents.kyobobook.co.kr/sih/fit-in/458x0/pdt/9788937462788.jpg" alt="노인과 바다">
-        </div>
-        <div class="book-title">노인과 바다</div>
+      <div class="candidate">
+        <img src="https://contents.kyobobook.co.kr/sih/fit-in/458x0/pdt/9788937462788.jpg" alt="노인과 바다">
+        <div class="title">노인과 바다</div>
       </div>
-
-      <div class="book-item">
-        <div class="book-cover">
-          <img src="https://contents.kyobobook.co.kr/sih/fit-in/458x0/pdt/9788932814926.jpg" alt="한나의 아이">
-        </div>
-        <div class="book-title">한나의 아이<br>(하우어워스)</div>
+      <div class="candidate">
+        <img src="https://contents.kyobobook.co.kr/sih/fit-in/458x0/pdt/9788932814926.jpg" alt="한나의 아이">
+        <div class="title">한나의 아이<br>(하우어워스)</div>
       </div>
-
-      <div class="book-item">
-        <div class="book-cover">
-          <img src="https://contents.kyobobook.co.kr/sih/fit-in/458x0/pdt/9788936513252.jpg" alt="고통의 문제">
-        </div>
-        <div class="book-title">고통의 문제<br>(C.S. 루이스)</div>
+      <div class="candidate">
+        <img src="https://contents.kyobobook.co.kr/sih/fit-in/458x0/pdt/9788936513252.jpg" alt="고통의 문제">
+        <div class="title">고통의 문제<br>(C.S. 루이스)</div>
       </div>
-
-      <div class="book-item">
-        <div class="book-cover">
-          <img src="https://contents.kyobobook.co.kr/sih/fit-in/458x0/pdt/9788934112440.jpg" alt="하나님의 일꾼과 사역">
-        </div>
-        <div class="book-title">하나님의 일꾼과 사역<br>(위어스비)</div>
+      <div class="candidate">
+        <img src="https://contents.kyobobook.co.kr/sih/fit-in/458x0/pdt/9788934112440.jpg" alt="하나님의 일꾼과 사역">
+        <div class="title">하나님의 일꾼과 사역<br>(위어스비)</div>
       </div>
-
-      <div class="book-item">
-        <div class="book-cover">
-          <img src="https://contents.kyobobook.co.kr/sih/fit-in/458x0/pdt/9788953122147.jpg" alt="팀 켈러의 기도">
-        </div>
-        <div class="book-title">팀 켈러의 기도</div>
+      <div class="candidate">
+        <img src="https://contents.kyobobook.co.kr/sih/fit-in/458x0/pdt/9788953122147.jpg" alt="팀 켈러의 기도">
+        <div class="title">팀 켈러의 기도</div>
       </div>
-
-      <div class="book-item">
-        <div class="book-cover">
-          <img src="https://contents.kyobobook.co.kr/sih/fit-in/458x0/pdt/9791186409329.jpg" alt="소요리문답, 삶을 읽다">
-        </div>
-        <div class="book-title">소요리문답, 삶을 읽다<br>(정요석)</div>
+      <div class="candidate">
+        <img src="https://contents.kyobobook.co.kr/sih/fit-in/458x0/pdt/9791186409329.jpg" alt="소요리문답, 삶을 읽다">
+        <div class="title">소요리문답, 삶을 읽다<br>(정요석)</div>
       </div>
     </div>
 
-    <a class="form-button"
-       href="https://forms.gle/LuszxCoXbtKxFxjQ8"
-       target="_blank">
-      📝 2026년 봄학기 북클럽 신청하기
-    </a>
-  </div>
+    <div class="page-actions">
+      <a class="btn" href="https://forms.gle/LuszxCoXbtKxFxjQ8" target="_blank">2026년 봄학기 북클럽 신청하기</a>
+    </div>
 
-  <footer>
-    <p>온도교회 사명자반 북클럽 © 2025</p>
-    <p style="margin-top: 0.5rem;">
+    <footer>
+      <span>온도교회 사명자반 북클럽 © 2025</span>
       <a href="https://www.ondochurch.org/" target="_blank">온도교회 웹사이트 방문하기 →</a>
-    </p>
-  </footer>
+    </footer>
+
+  </div>
 
 </body>
 </html>

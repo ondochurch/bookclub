@@ -4,336 +4,44 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>기타 자료 - 온도교회 사명자반 북클럽</title>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Noto Sans KR', 'Nanum Gothic', sans-serif;
-      background: #f8f9fa;
-      color: #333;
-      line-height: 1.6;
-      position: relative;
-      min-height: 100vh;
-    }
-
-    body::before {
-      content: '';
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-image: url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=1920&q=80');
-      background-size: cover;
-      background-position: center;
-      background-attachment: fixed;
-      opacity: 0.1;
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    body > * {
-      position: relative;
-      z-index: 1;
-    }
-
-    header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      padding: 3rem 2rem 2rem 2rem;
-      text-align: center;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      color: white;
-      position: relative;
-    }
-
-    .church-link {
-      position: absolute;
-      top: 1rem;
-      right: 2rem;
-      color: white;
-      text-decoration: none;
-      font-size: 0.9rem;
-      opacity: 0.9;
-      transition: opacity 0.3s ease;
-      display: flex;
-      align-items: center;
-      gap: 0.3rem;
-    }
-
-    .church-link:hover {
-      opacity: 1;
-      text-decoration: underline;
-    }
-
-    header h1 {
-      font-size: 2.5rem;
-      font-weight: 700;
-      margin-bottom: 0.5rem;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-    }
-
-    header p {
-      font-size: 1.1rem;
-      font-weight: 300;
-      opacity: 0.95;
-    }
-
-    .nav-back {
-      display: inline-block;
-      margin: 2rem 0 1rem 2rem;
-      padding: 0.5rem 1rem;
-      background: white;
-      color: #667eea;
-      text-decoration: none;
-      border-radius: 0.5rem;
-      font-weight: 500;
-      transition: all 0.3s ease;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-
-    .nav-back:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-    }
-
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 2rem 2rem 3rem 2rem;
-    }
-
-    .intro {
-      text-align: center;
-      margin-bottom: 3rem;
-    }
-
-    .intro .icon {
-      font-size: 3rem;
-      margin-bottom: 1rem;
-    }
-
-    .intro h2 {
-      font-size: 2rem;
-      color: #2c3e50;
-      margin-bottom: 1rem;
-      font-weight: 500;
-    }
-
-    .intro p {
-      font-size: 1.1rem;
-      color: #666;
-      max-width: 800px;
-      margin: 0 auto;
-    }
-
-    .resources-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 2rem;
-      margin-top: 2rem;
-    }
-
-    .resource-card {
-      background: white;
-      border-radius: 12px;
-      padding: 2rem;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.07);
-      transition: all 0.3s ease;
-      text-decoration: none;
-      color: inherit;
-      display: flex;
-      flex-direction: column;
-      border: 2px solid transparent;
-    }
-
-    .resource-card:hover {
-      transform: translateY(-8px);
-      box-shadow: 0 12px 24px rgba(0,0,0,0.15);
-      border-color: #667eea;
-    }
-
-    .resource-card .icon {
-      font-size: 2.5rem;
-      margin-bottom: 1rem;
-    }
-
-    .resource-card h3 {
-      font-size: 1.5rem;
-      color: #2c3e50;
-      margin-bottom: 0.5rem;
-      font-weight: 500;
-    }
-
-    .resource-card .type {
-      font-size: 0.85rem;
-      color: #999;
-      margin-bottom: 1rem;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .resource-card p {
-      color: #666;
-      font-size: 1rem;
-      line-height: 1.6;
-      flex-grow: 1;
-      margin-bottom: 1rem;
-    }
-
-    .resource-card .meta {
-      display: flex;
-      gap: 1rem;
-      font-size: 0.9rem;
-      color: #888;
-      margin-top: auto;
-    }
-
-    .resource-card .meta span {
-      display: flex;
-      align-items: center;
-      gap: 0.3rem;
-    }
-
-    .placeholder-message {
-      text-align: center;
-      padding: 3rem;
-      color: #999;
-      font-style: italic;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.07);
-    }
-
-    footer {
-      text-align: center;
-      padding: 2rem;
-      margin-top: 3rem;
-      color: #999;
-      font-size: 0.9rem;
-      border-top: 1px solid #e0e0e0;
-      background: white;
-    }
-
-    footer a {
-      color: #667eea;
-      text-decoration: none;
-      transition: color 0.3s ease;
-    }
-
-    footer a:hover {
-      color: #764ba2;
-      text-decoration: underline;
-    }
-
-    @media (max-width: 768px) {
-      .church-link {
-        position: static;
-        display: inline-block;
-        margin-top: 1rem;
-        font-size: 0.85rem;
-      }
-
-      header {
-        padding: 2rem 1rem;
-      }
-
-      header h1 {
-        font-size: 2rem;
-      }
-
-      header p {
-        font-size: 1rem;
-      }
-
-      .intro h2 {
-        font-size: 1.5rem;
-      }
-
-      .intro p {
-        font-size: 1rem;
-      }
-
-      .resources-grid {
-        grid-template-columns: 1fr;
-        gap: 1.5rem;
-      }
-
-      .container {
-        padding: 2rem 1rem;
-      }
-
-      .nav-back {
-        margin: 1rem 0 0.5rem 1rem;
-      }
-    }
-  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-  <header>
-    <a href="https://www.ondochurch.org/" target="_blank" class="church-link">
-      🏛️ 온도교회 홈페이지
-    </a>
-    <h1>📚 기타 자료</h1>
-    <p>북클럽과 관련된 유용한 자료들</p>
-  </header>
+  <div class="frame">
 
-  <a href="index.html" class="nav-back">← 홈으로</a>
+    <header class="topbar">
+      <a href="index.html" class="wordmark">온도<sup>℃</sup> · 사명자반 북클럽</a>
+      <nav class="topnav">
+        <a href="index.html">← 홈</a>
+        <a href="https://www.ondochurch.org/" target="_blank">온도교회</a>
+      </nav>
+    </header>
 
-  <div class="container">
-    <div class="intro">
-      <div class="icon">📑</div>
-      <h2>학습 자료 모음</h2>
-      <p>북클럽 활동에 도움이 되는 기사, 영상, 문서 등 다양한 자료를 모아두었습니다.</p>
+    <p class="kicker">학습 자료 모음</p>
+    <h1 class="page-title">기타 자료</h1>
+    <p class="lede">북클럽 활동에 도움이 되는 기사, 영상, 문서 등 다양한 자료를 모아두었습니다.</p>
+
+    <div class="index-list">
+      <a href="https://docs.google.com/spreadsheets/d/1bBgOcH7jx9cQUv6QhBSgOnflz602X_iqrIPZC6VWjl8/edit?gid=1497153805#gid=1497153805" target="_blank" class="index-row">
+        <strong>과신대 북클럽 리스트</strong> — <span class="desc">과학과 신학의 대화(과신대)에서 진행한 북클럽 도서 목록입니다. 과학과 신앙 관련 추천 도서를 참고할 수 있습니다.</span>
+      </a>
+      <a href="https://docs.google.com/spreadsheets/d/1qHB87MSZ-lSdfO15DajQA-chjqVpk2EUks-GdqO2MGM/edit?gid=0#gid=0" target="_blank" class="index-row">
+        <strong>도서 분류</strong> — <span class="desc">다양한 기준으로 분류된 도서 목록입니다. 주제별, 장르별로 정리된 책들을 확인하고 읽고 싶은 책을 찾아보세요.</span>
+      </a>
+      <a href="https://docs.google.com/spreadsheets/d/155rDwAbaSzpbvmnBpevi1W5oNn6q-rXSnpHHB2kOFLM/edit?gid=0#gid=0" target="_blank" class="index-row">
+        <strong>리뷰 모음</strong> — <span class="desc">북클럽 멤버들이 작성한 책 리뷰와 독후감 모음입니다. 다양한 관점과 생각을 확인해보세요.</span>
+      </a>
     </div>
 
-    <div class="resources-grid" id="resources-container">
-      <!-- 자료 카드들이 여기에 표시됩니다 -->
-
-      <a href="https://docs.google.com/spreadsheets/d/1bBgOcH7jx9cQUv6QhBSgOnflz602X_iqrIPZC6VWjl8/edit?gid=1497153805#gid=1497153805" class="resource-card" target="_blank">
-        <div class="icon">📊</div>
-        <div class="type">외부 자료 • 스프레드시트</div>
-        <h3>과신대 북클럽 리스트</h3>
-        <p>과학과 신학의 대화(과신대)에서 진행한 북클럽 도서 목록입니다. 과학과 신앙 관련 추천 도서를 참고할 수 있습니다.</p>
-        <div class="meta">
-          <span>🔗 Google Sheets</span>
-        </div>
-      </a>
-
-      <a href="https://docs.google.com/spreadsheets/d/1qHB87MSZ-lSdfO15DajQA-chjqVpk2EUks-GdqO2MGM/edit?gid=0#gid=0" class="resource-card" target="_blank">
-        <div class="icon">📚</div>
-        <div class="type">자료 • 스프레드시트</div>
-        <h3>도서 분류</h3>
-        <p>다양한 기준으로 분류된 도서 목록입니다. 주제별, 장르별로 정리된 책들을 확인하고 읽고 싶은 책을 찾아보세요.</p>
-        <div class="meta">
-          <span>🔗 Google Sheets</span>
-        </div>
-      </a>
-
-      <a href="https://docs.google.com/spreadsheets/d/155rDwAbaSzpbvmnBpevi1W5oNn6q-rXSnpHHB2kOFLM/edit?gid=0#gid=0" class="resource-card" target="_blank">
-        <div class="icon">⭐</div>
-        <div class="type">자료 • 스프레드시트</div>
-        <h3>리뷰 모음</h3>
-        <p>북클럽 멤버들이 작성한 책 리뷰와 독후감 모음입니다. 다양한 관점과 생각을 확인해보세요.</p>
-        <div class="meta">
-          <span>🔗 Google Sheets</span>
-        </div>
-      </a>
-
-    </div>
-  </div>
-
-  <footer>
-    <p>온도교회 사명자반 북클럽 © 2025</p>
-    <p style="margin-top: 0.5rem;">
+    <footer>
+      <span>온도교회 사명자반 북클럽 © 2025</span>
       <a href="https://www.ondochurch.org/" target="_blank">온도교회 웹사이트 방문하기 →</a>
-    </p>
-  </footer>
+    </footer>
+
+  </div>
 
 </body>
 </html>

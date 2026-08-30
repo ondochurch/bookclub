@@ -342,15 +342,15 @@ function renderBookList(books) {
 
     // 탭 콘텐츠 생성
     const tabContent = document.createElement('div');
-    tabContent.className = 'tab-content year-section';
+    tabContent.className = 'tab-content';
     tabContent.setAttribute('data-year', year);
     if (index === 0) {
       tabContent.classList.add('active');
     }
 
-    // 책 그리드 생성
+    // 책 목록 생성
     const booksGrid = document.createElement('div');
-    booksGrid.className = 'books-grid';
+    booksGrid.className = 'books';
 
     // 해당 연도의 책들 렌더링
     booksByYear[year].forEach(book => {
@@ -368,32 +368,29 @@ function renderBookList(books) {
         return;
       }
 
-      // 책 카드 HTML 생성 (동적 페이지 링크 사용)
+      // 책 항목 HTML 생성 (동적 페이지 링크 사용)
       const bookCard = document.createElement('a');
       bookCard.href = `book.html?id=${bookId}`;
-      bookCard.className = 'book-card';
+      bookCard.className = 'book-entry';
 
-      let coverHTML = '';
-      if (coverUrl) {
-        coverHTML = `
-          <div class="book-cover">
-            <img src="${coverUrl}" alt="${title}">
-          </div>
-        `;
-      }
+      const coverHTML = coverUrl
+        ? `<img src="${coverUrl}" alt="${title}">`
+        : (title ? title.charAt(0) : '?');
 
-      let dateHTML = '';
-      if (date) {
-        dateHTML = `<div class="date">${date}</div>`;
-      }
+      // 상태 문구에 "완료"가 있으면 쿨(정보), 아니면 웜(진행 중)으로 매핑
+      const statusClass = status.includes('완료') ? 'status-done' : 'status-active';
 
       bookCard.innerHTML = `
-        ${coverHTML}
-        <h3>${title}</h3>
-        <div class="author">${author}</div>
-        ${dateHTML}
-        <p>${description}</p>
-        <span class="status">${status}</span>
+        <div class="book-cover">${coverHTML}</div>
+        <div class="book-main">
+          <h3>${title}</h3>
+          <p>${description}</p>
+        </div>
+        <div class="book-margin">
+          ${author ? `<span>${author}</span>` : ''}
+          ${date ? `<span>${date}</span>` : ''}
+          <span class="status ${statusClass}">${status}</span>
+        </div>
       `;
 
       booksGrid.appendChild(bookCard);

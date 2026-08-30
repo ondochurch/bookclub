@@ -4,301 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>북클럽 - 온도교회 사명자반 북클럽</title>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Noto Sans KR', 'Nanum Gothic', sans-serif;
-      background: #f8f9fa;
-      color: #333;
-      line-height: 1.6;
-      position: relative;
-      min-height: 100vh;
-    }
-
-    body::before {
-      content: '';
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-image: url('https://images.unsplash.com/photo-1490730141103-6cac27aaab94?w=1920&q=80');
-      background-size: cover;
-      background-position: center;
-      background-attachment: fixed;
-      opacity: 0.15;
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    body > * {
-      position: relative;
-      z-index: 1;
-    }
-
-    header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      padding: 3rem 2rem 2rem 2rem;
-      text-align: center;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      color: white;
-      position: relative;
-    }
-
-    .church-link {
-      position: absolute;
-      top: 1rem;
-      right: 2rem;
-      color: white;
-      text-decoration: none;
-      font-size: 0.9rem;
-      opacity: 0.9;
-      transition: opacity 0.3s ease;
-      display: flex;
-      align-items: center;
-      gap: 0.3rem;
-    }
-
-    .church-link:hover {
-      opacity: 1;
-      text-decoration: underline;
-    }
-
-    header h1 {
-      font-size: 2.5rem;
-      font-weight: 700;
-      margin-bottom: 0.5rem;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-    }
-
-    header .subtitle {
-      font-size: 1.1rem;
-      font-weight: 300;
-      opacity: 0.95;
-    }
-
-    .nav-back {
-      display: inline-block;
-      margin: 2rem 0 1rem 2rem;
-      padding: 0.5rem 1rem;
-      background: white;
-      color: #667eea;
-      text-decoration: none;
-      border-radius: 0.5rem;
-      font-weight: 500;
-      transition: all 0.3s ease;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-
-    .nav-back:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-    }
-
-    .container {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 2rem 2rem 3rem 2rem;
-    }
-
-    .book-info {
-      background: white;
-      border-radius: 12px;
-      padding: 2rem;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      margin-bottom: 2rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .book-cover {
-      margin-bottom: 1.5rem;
-      text-align: center;
-    }
-
-    .book-cover img {
-      max-width: 200px;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    }
-
-    .book-details {
-      width: 100%;
-    }
-
-    .book-info h2 {
-      font-size: 1.8rem;
-      color: #2c3e50;
-      margin-bottom: 0.5rem;
-      font-weight: 500;
-      text-align: center;
-    }
-
-    .book-info .meta {
-      color: #888;
-      font-size: 0.95rem;
-      margin-bottom: 1.5rem;
-      text-align: center;
-    }
-
-    .book-info .description {
-      color: #666;
-      font-size: 1rem;
-      line-height: 1.8;
-    }
-
-    .section {
-      background: white;
-      border-radius: 12px;
-      padding: 2rem;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      margin-bottom: 2rem;
-    }
-
-    .section h3 {
-      font-size: 1.5rem;
-      color: #2c3e50;
-      margin-bottom: 1rem;
-      font-weight: 500;
-      border-bottom: 2px solid #667eea;
-      padding-bottom: 0.5rem;
-    }
-
-    .section p {
-      color: #666;
-      font-size: 1rem;
-      line-height: 1.8;
-      margin-bottom: 1rem;
-    }
-
-    .section ul {
-      margin-left: 1.5rem;
-      color: #666;
-    }
-
-    .section li {
-      margin-bottom: 0.5rem;
-      line-height: 1.8;
-    }
-
-    .section strong {
-      font-weight: 700;
-      color: #333;
-    }
-
-    .section em {
-      font-style: italic;
-    }
-
-    .section code {
-      background: #f4f4f4;
-      padding: 0.2rem 0.4rem;
-      border-radius: 3px;
-      font-family: 'Consolas', 'Monaco', monospace;
-      font-size: 0.9em;
-    }
-
-    .section pre {
-      background: #f4f4f4;
-      padding: 1rem;
-      border-radius: 5px;
-      overflow-x: auto;
-      margin-bottom: 1rem;
-    }
-
-    .section pre code {
-      background: transparent;
-      padding: 0;
-    }
-
-    .section blockquote {
-      border-left: 4px solid #667eea;
-      padding-left: 1rem;
-      margin: 1rem 0;
-      color: #555;
-      font-style: italic;
-    }
-
-    .section ol {
-      margin-left: 1.5rem;
-      color: #666;
-      margin-bottom: 1rem;
-    }
-
-    .placeholder {
-      color: #999;
-      font-style: italic;
-      padding: 2rem;
-      text-align: center;
-      background: #f8f9fa;
-      border-radius: 8px;
-      border: 2px dashed #ddd;
-    }
-
-    .loading {
-      text-align: center;
-      padding: 3rem;
-      color: #666;
-    }
-
-    footer {
-      text-align: center;
-      padding: 2rem;
-      margin-top: 3rem;
-      color: #999;
-      font-size: 0.9rem;
-      border-top: 1px solid #e0e0e0;
-      background: white;
-    }
-
-    footer a {
-      color: #667eea;
-      text-decoration: none;
-      transition: color 0.3s ease;
-    }
-
-    footer a:hover {
-      color: #764ba2;
-      text-decoration: underline;
-    }
-
-    @media (max-width: 768px) {
-      .church-link {
-        position: static;
-        display: inline-block;
-        margin-top: 1rem;
-        font-size: 0.85rem;
-      }
-
-      header {
-        padding: 2rem 1rem;
-      }
-
-      header h1 {
-        font-size: 2rem;
-      }
-
-      .container {
-        padding: 2rem 1rem;
-      }
-
-      .book-info,
-      .section {
-        padding: 1.5rem;
-      }
-
-      .nav-back {
-        margin: 1rem 0 0.5rem 1rem;
-      }
-    }
-  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
   <!-- PapaParse CSV 파싱 라이브러리 -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
   <!-- markdown-it Markdown 파싱 라이브러리 -->
@@ -308,52 +16,45 @@
 </head>
 <body>
 
-  <header>
-    <a href="https://www.ondochurch.org/" target="_blank" class="church-link">
-      🏛️ 온도교회 홈페이지
-    </a>
-    <h1 id="page-title">북클럽</h1>
-    <div class="subtitle" id="page-subtitle">로딩 중...</div>
-  </header>
+  <div class="frame">
 
-  <a href="summary.html" class="nav-back">← 목록으로</a>
+    <header class="topbar">
+      <a href="index.html" class="wordmark">온도<sup>℃</sup> · 사명자반 북클럽</a>
+      <nav class="topnav">
+        <a href="summary.html">← 목록</a>
+        <a href="https://www.ondochurch.org/" target="_blank">온도교회</a>
+      </nav>
+    </header>
 
-  <div class="container">
-    <div class="book-info">
-      <div class="book-cover" id="book-cover-container">
+    <div class="book-head">
+      <div class="cover" id="book-cover-container">
         <!-- 책 표지가 여기에 로드됩니다 -->
       </div>
-      <div class="book-details">
-        <h2>📖 책 소개</h2>
-        <div class="meta" id="book-author">저자: 로딩 중...</div>
-        <div class="meta" id="book-date" style="display: none;">토론일: </div>
-        <div class="description" id="book-description">
-          로딩 중...
-        </div>
+      <div class="meta">
+        <p class="eyebrow" id="page-subtitle">로딩 중...</p>
+        <h1 class="page-title" id="page-title">북클럽</h1>
+        <p class="author-line" id="book-author">저자: 로딩 중...</p>
+        <p class="date-line" id="book-date" style="display: none;">토론일: </p>
+        <p class="description" id="book-description">로딩 중...</p>
       </div>
     </div>
 
-    <div class="section" id="discussion">
-      <h3>💬 주요 토론 내용</h3>
-      <div class="placeholder">
-        토론 내용을 여기에 추가해 주세요.
-      </div>
-    </div>
+    <section class="section" id="discussion">
+      <h3>주요 토론 내용</h3>
+      <div class="placeholder">토론 내용을 여기에 추가해 주세요.</div>
+    </section>
 
-    <div class="section" id="qa">
-      <h3>❓ 질문과 답변</h3>
-      <div class="placeholder">
-        모임에서 나온 질문과 답변을 여기에 추가해 주세요.
-      </div>
-    </div>
-  </div>
+    <section class="section" id="qa">
+      <h3>질문과 답변</h3>
+      <div class="placeholder">모임에서 나온 질문과 답변을 여기에 추가해 주세요.</div>
+    </section>
 
-  <footer>
-    <p>온도교회 사명자반 북클럽 © 2025</p>
-    <p style="margin-top: 0.5rem;">
+    <footer>
+      <span>온도교회 사명자반 북클럽 © 2025</span>
       <a href="https://www.ondochurch.org/" target="_blank">온도교회 웹사이트 방문하기 →</a>
-    </p>
-  </footer>
+    </footer>
+
+  </div>
 
 </body>
 </html>

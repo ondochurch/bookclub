@@ -13,11 +13,14 @@ bookclub/
 ├── docs/
 │   ├── index.html              # Main landing page with navigation
 │   ├── register.html           # Book club registration page
-│   ├── summary.html            # Book club content summary list
+│   ├── summary.html            # Book list, grouped into year tabs (dynamic)
+│   ├── book.html                # Dynamic per-book page, reads ?id=<bookId> from URL
+│   ├── book-cosmos.html        # Legacy static discussion page (superseded by book.html)
+│   ├── book-today-worship.html # Legacy static discussion page (superseded by book.html)
+│   ├── resources.html          # Links out to external reference spreadsheets
 │   ├── questions.html          # Theological questions submission page
 │   ├── participants.html       # Participant tracking (Airtable integration)
-│   ├── book-cosmos.html        # 코스모스 discussion page
-│   ├── book-today-worship.html # 오늘이라는 예배 discussion page
+│   ├── styles.css              # Shared design system (all pages except the legacy book-*.html)
 │   └── bookclub-data.js        # Google Spreadsheet data loader script
 ├── AIRTABLE_SETUP.md           # Detailed Airtable setup guide
 ├── SPREADSHEET_SETUP.md        # Google Spreadsheet integration guide
@@ -37,9 +40,11 @@ This is a multi-page static website with no build process, dependencies, or fram
   - Clean, professional design with hover animations
   - Links to:
     - register.html (북클럽 신청)
-    - Book suggestion page (새로운 책 제안) - placeholder
-    - Content summary page (북클럽 내용 정리) - placeholder
-    - Participant tracking (참여자 현황) - needs Airtable link
+    - Book suggestion page (새로운 책 제안) - external Google Sheet link
+    - Content summary page (북클럽 내용 정리) - summary.html
+    - Other resources (기타 자료) - resources.html
+    - Participant tracking (참여자 현황) - **href is currently empty; needs Airtable link**
+    - Theological questions (신학 질문) - questions.html
 
 - **docs/register.html**: Book club registration page with embedded CSS. Features:
   - Purple/blue gradient header matching landing page
@@ -48,10 +53,21 @@ This is a multi-page static website with no build process, dependencies, or fram
   - Noto Sans KR font matching landing page
 
 - **docs/summary.html**: Book club content summary page listing all books. Features:
-  - Card-based grid layout for book entries
+  - Books are grouped into year tabs, generated dynamically from the metadata spreadsheet (`extractYear()` / `renderBookList()` in `bookclub-data.js`)
+  - Card-based grid layout for book entries within each year tab
   - Book cover images with hover effects
-  - Links to individual book discussion pages
+  - Each card links to `book.html?id=<bookId>` (the dynamic per-book page), not a static file
   - Back navigation to home page
+
+- **docs/book.html**: Dynamic per-book discussion page (replaces the old one-static-page-per-book pattern). Features:
+  - Reads the book id from the `?id=` query parameter (`getBookIdFromURL()`)
+  - Loads book metadata (title, author, cover, date, description) from the metadata spreadsheet and populates the header/hero via `populateBookPage()`
+  - Loads discussion content (`#discussion`, `#qa` sections) from the discussion-content spreadsheet, same as the legacy static pages
+  - Single template serves every book — no new HTML file is needed per book anymore
+
+- **docs/book-cosmos.html** & **docs/book-today-worship.html**: Legacy static discussion pages, superseded by `book.html`. Kept for any existing inbound links; new books should not get a new static page — just add a row to the metadata spreadsheet and link to `book.html?id=<bookId>`.
+
+- **docs/resources.html**: Static page of curated external links (Google Sheets) useful to the book club — e.g. 과신대 북클럽 리스트, 도서 분류, 리뷰 모음. Card grid, no dynamic data loading.
 
 - **docs/questions.html**: Theological questions submission page. Features:
   - Support for both Airtable Forms (recommended) and Google Forms
@@ -76,38 +92,43 @@ This is a multi-page static website with no build process, dependencies, or fram
   - Placeholder sections shown if no data available
   - Back navigation to summary page
 
-- **docs/bookclub-data.js**: JavaScript module for loading book discussion content. Features:
-  - Fetches data from Google Spreadsheet (published as CSV)
+- **docs/bookclub-data.js**: JavaScript module for loading book metadata and discussion content, and for driving the dynamic pages. Features:
+  - Fetches data from **two** Google Spreadsheet tabs (published as CSV):
+    - Book metadata tab (`BOOK_METADATA_CONFIG`) — used by `summary.html` (book list) and `book.html` (per-book header)
+    - Discussion content tab (`DISCUSSION_CONTENT_CONFIG`) — used by `book.html` and the legacy static book pages
   - Uses **PapaParse** library for robust CSV parsing (handles commas, quotes, newlines)
-  - Uses **marked.js** library for Markdown rendering (supports GitHub Flavored Markdown)
-  - **Automatic initialization** - reads `data-book-id` attribute from `<body>` tag
-  - Automatically populates book page sections (#discussion, #insights, #qa)
-  - Configurable spreadsheet URL
+  - Uses **markdown-it** library for Markdown rendering (`formatContent()`)
+  - **Automatic initialization** on `DOMContentLoaded`, branching on what's present in the page:
+    - `?id=` URL param present → dynamic book page (`initializeDynamicBookPage()`), used by `book.html`
+    - `data-book-id` attribute on `<body>` → static legacy book page (`initializeBookPage()`)
+    - `data-page-type="summary"` attribute on `<body>` → book list page (`loadBookList()`), used by `summary.html`
+  - Falls back to placeholder text if no data is found for a section/book
   - See SPREADSHEET_SETUP.md for setup instructions
 
   **Dependencies**:
   - PapaParse 5.4.1 (CSV parsing)
-  - marked.js 11.1.1 (Markdown rendering)
-  - Both loaded via CDN in book pages
+  - markdown-it 14.0.0 (Markdown rendering)
+  - Both loaded via CDN in pages that use `bookclub-data.js`
 
-  **Usage in HTML**:
+  **Usage in HTML** (dynamic per-book page, e.g. `book.html`):
   ```html
   <head>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/markdown-it@14.0.0/dist/markdown-it.min.js"></script>
     <script src="bookclub-data.js"></script>
   </head>
-  <body data-book-id="cosmos">
-    <!-- No manual initialization needed! -->
+  <body>
+    <!-- No manual initialization needed - reads ?id= from the URL -->
   </body>
   ```
+  Visit as `book.html?id=cosmos`.
 
   **Markdown Support**:
   Content in Google Spreadsheet can use Markdown syntax:
   - `**bold**`, `*italic*`, `~~strikethrough~~`
   - Lists, links, headings, blockquotes
   - GitHub Flavored Markdown features
-  - Falls back to plain text if marked.js not loaded
+  - Falls back to plain text if markdown-it not loaded
 
 ## Development
 
@@ -140,14 +161,13 @@ When updating the site content, note:
   - 북클럽 신청 (Book club registration) - links to register.html
   - 새로운 책 제안 (New book suggestion) - links to Google Spreadsheet
   - 북클럽 내용 정리 (Book club content summary) - links to summary.html
-  - 참여자 현황 (Participant status) - links to participants.html (Airtable setup required)
+  - 기타 자료 (Other resources) - links to resources.html
+  - 참여자 현황 (Participant status) - **`href` is currently empty**; needs to link to participants.html or an Airtable view once set up
   - 신학 질문 (Theological questions) - links to questions.html
-- The summary page lists books with individual discussion pages:
-  - 코스모스 (Cosmos) by 칼 세이건 - book-cosmos.html
-  - 오늘이라는 예배 (Today's Worship) by 티시 해리슨 워런 - book-today-worship.html
-- To add discussion content:
-  - **Option 1 (Recommended)**: Update the Google Spreadsheet - content automatically loads on page refresh
-  - **Option 2**: Directly edit the individual book pages and replace the placeholder sections
+- The summary page lists every book from the metadata spreadsheet, grouped by year; each card links to `book.html?id=<bookId>` (there is no longer a static HTML file per book — `book-cosmos.html` and `book-today-worship.html` are legacy pages kept only for old inbound links)
+- To add a new book:
+  - **Recommended**: Add a row to the book metadata spreadsheet (책ID, 제목, 저자, 설명, 표지, 상태, 날짜) and a row per section to the discussion content spreadsheet — it will automatically appear in `summary.html` and be viewable at `book.html?id=<bookId>`, no HTML changes needed
+  - Do not create a new static `book-*.html` file for new books; that pattern is deprecated in favor of `book.html`
 - **Important**: GitHub Pages is static-only and cannot run databases. External services used:
   - Google Forms for collecting registrations and questions
   - Google Spreadsheet for book suggestions AND book discussion content (auto-loaded via JavaScript)
@@ -216,38 +236,33 @@ The website uses Google Spreadsheet as a simple database for managing book discu
 
 ### Adding New Books
 
-To add a new book with spreadsheet integration:
+New books no longer need a new HTML file — `book.html` is a shared template driven entirely by spreadsheet data:
 
-1. Create the book page HTML (copy from existing book page)
-2. Add script tag: `<script src="bookclub-data.js"></script>`
-3. Add section IDs: `#discussion`, `#insights`, `#qa`
-4. Add initialization script:
-   ```javascript
-   document.addEventListener('DOMContentLoaded', function() {
-     window.loadBookClubData('new-book-id');
-   });
-   ```
-5. Add data to spreadsheet with the new book ID
+1. Add a row to the metadata spreadsheet with the new `책ID` (책ID, 제목, 저자, 설명, 표지, 상태, 날짜)
+2. Add one row per section (주요토론, 질문답변) to the discussion content spreadsheet with the same `책ID`
+3. Link to it as `book.html?id=<bookId>` from `summary.html` (this happens automatically since the summary page is generated from the metadata spreadsheet)
 
 **See SPREADSHEET_SETUP.md for complete step-by-step instructions.**
 
 - Book cover images in register.html are linked from external CDN (Kyobobook)
 - The Google Form link in register.html should be updated when creating new book club sessions
-- Current registration is for "9월 (코스모스)" (September - Cosmos)
+- Current registration is for "2026년 봄학기" (2026 Spring Semester)
 
 ## Styling Notes
 
-**Landing Page (index.html):**
-- Modern gradient header: linear-gradient(135deg, #667eea 0%, #764ba2 100%)
-- Background: #f8f9fa (light gray)
-- Text: #333 (dark gray), #2c3e50 (headings), #666 (secondary)
-- Card-based layout with hover effects (translateY and shadow transitions)
-- Responsive grid layout (auto-fit, minmax(280px, 1fr))
+The site uses a shared stylesheet, **`docs/styles.css`**, loaded by every page except the legacy static book pages (`book-cosmos.html`, `book-today-worship.html`, which keep their old embedded styles since they're deprecated and not being maintained). Do not add new per-page `<style>` blocks — add shared classes to `styles.css` instead so pages stay visually consistent.
 
-**Registration Page (register.html):**
-- Matches landing page color scheme:
-  - Purple/blue gradient header: linear-gradient(135deg, #667eea 0%, #764ba2 100%)
-  - Background: #f8f9fa (light gray)
-  - Text: #333 (dark gray), #2c3e50 (headings)
-  - Button: Purple gradient matching header with hover lift effect
-  - Noto Sans KR font matching landing page
+**Design direction — "Tufte data-ink"**: modeled on Edward Tufte's editorial/data-ink aesthetic (see `references/style-recipes/tufte-dataink.md` in the `web-design-engineer` skill for the source recipe). Deliberately avoids common AI-generated-site patterns (purple/blue gradient headers, emoji-as-icons, card grids with shadow-lift hover, rounded corners everywhere).
+
+- **Color — exactly two accents, both semantic, never decorative** (CSS vars in `styles.css`):
+  - `--paper` (#fbfaf6 light / #17140f dark) — background
+  - `--ink` (#1b1b1a / #f0ece0) — body text
+  - `--muted` (#5c5550 / #b0a897) — secondary text, labels
+  - `--rule` (#d8d2c2 / #332f26) — hairline dividers (the only ornament — no shadows, no rounded corners, no gradients)
+  - `--warm` (#a6300e / #ed7e63) — means "do this now" (primary CTA button, "진행 중" status, pending-setup flags)
+  - `--cool` (#3e4a5c / #93a8c2) — means "settled / informational" (hover states, "완료" status, nav links)
+  - Dark mode follows the viewer's OS theme automatically via `prefers-color-scheme`; `[data-theme="dark"/"light"]` on the root element overrides it if a toggle is ever added.
+- **Typography**: serif throughout (`Noto Serif KR`, loaded via Google Fonts, with system-serif fallbacks) for headings and body text; a small system sans-serif stack only for labels, nav, buttons, and metadata (see `.sans`, `.kicker`, `.eyebrow`, `.topnav` in `styles.css`). No Inter/Roboto/Noto Sans KR as the primary face.
+- **Layout**: a single centered column (`.frame`, max-width 860px), not a card grid. Lists (nav, resources, books) render as hairline-divided rows (`.index-row`, `.book-entry`), not shadowed cards. The book list on `summary.html` uses a "book + running text + right-margin annotations" layout (`.book-margin`) rather than badges/pills.
+- **Motion**: intentionally minimal — a single instant/near-instant color transition on hover/press (`transition: background 0.1s`), no spring easing, no entrance animations, no hover-lift/shadow. This is a deliberate departure from typical "polished" motion — the recipe's own guidance is "the page is meant to be read still."
+- No emoji used as icons or section markers anywhere in the redesigned pages.
