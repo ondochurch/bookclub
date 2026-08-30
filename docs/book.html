@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>북클럽 - 온도교회 사명자반 북클럽</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Noto+Serif+KR:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <!-- PapaParse CSV 파싱 라이브러리 -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
@@ -19,7 +20,7 @@
   <div class="frame">
 
     <header class="topbar">
-      <a href="index.html" class="wordmark">온도<sup>℃</sup> · 사명자반 북클럽</a>
+      <a href="index.html" class="wordmark">온도교회 사명자반 북클럽</a>
       <nav class="topnav">
         <a href="summary.html">← 목록</a>
         <a href="https://www.ondochurch.org/" target="_blank">온도교회</a>
@@ -33,24 +34,28 @@
       <div class="meta">
         <p class="eyebrow" id="page-subtitle">로딩 중...</p>
         <h1 class="page-title" id="page-title">북클럽</h1>
-        <p class="author-line" id="book-author">저자: 로딩 중...</p>
-        <p class="date-line" id="book-date" style="display: none;">토론일: </p>
+        <p class="book-meta" id="book-author">저자: 로딩 중...</p>
+        <p class="book-meta" id="book-date" style="display: none;">토론일: </p>
         <p class="description" id="book-description">로딩 중...</p>
       </div>
     </div>
 
-    <section class="section" id="discussion">
+    <section class="section">
       <h3>주요 토론 내용</h3>
-      <div class="placeholder">토론 내용을 여기에 추가해 주세요.</div>
+      <div class="prose" id="discussion">
+        <p class="placeholder">토론 내용을 여기에 추가해 주세요.</p>
+      </div>
     </section>
 
-    <section class="section" id="qa">
+    <section class="section">
       <h3>질문과 답변</h3>
-      <div class="placeholder">모임에서 나온 질문과 답변을 여기에 추가해 주세요.</div>
+      <div class="prose" id="qa">
+        <p class="placeholder">모임에서 나온 질문과 답변을 여기에 추가해 주세요.</p>
+      </div>
     </section>
 
     <footer>
-      <span>온도교회 사명자반 북클럽 © 2025</span>
+      <span>온도교회 사명자반 북클럽</span>
       <a href="https://www.ondochurch.org/" target="_blank">온도교회 웹사이트 방문하기 →</a>
     </footer>
 

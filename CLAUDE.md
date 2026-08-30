@@ -252,17 +252,23 @@ New books no longer need a new HTML file — `book.html` is a shared template dr
 
 The site uses a shared stylesheet, **`docs/styles.css`**, loaded by every page except the legacy static book pages (`book-cosmos.html`, `book-today-worship.html`, which keep their old embedded styles since they're deprecated and not being maintained). Do not add new per-page `<style>` blocks — add shared classes to `styles.css` instead so pages stay visually consistent.
 
-**Design direction — "Tufte data-ink"**: modeled on Edward Tufte's editorial/data-ink aesthetic (see `references/style-recipes/tufte-dataink.md` in the `web-design-engineer` skill for the source recipe). Deliberately avoids common AI-generated-site patterns (purple/blue gradient headers, emoji-as-icons, card grids with shadow-lift hover, rounded corners everywhere).
+**Design direction — book covers are the main character.** The site's only real visual asset is the book cover art (Kyobobook CDN), so pages lead with covers rather than with text or decorative graphics: the landing page opens with the current semester's covers in a 4-up grid, and `summary.html` lists past books cover-first. Deliberately avoids common AI-generated-site patterns (purple/blue gradient headers, emoji-as-icons, rounded-corner cards with shadow-lift hover).
 
-- **Color — exactly two accents, both semantic, never decorative** (CSS vars in `styles.css`):
-  - `--paper` (#fbfaf6 light / #17140f dark) — background
-  - `--ink` (#1b1b1a / #f0ece0) — body text
-  - `--muted` (#5c5550 / #b0a897) — secondary text, labels
-  - `--rule` (#d8d2c2 / #332f26) — hairline dividers (the only ornament — no shadows, no rounded corners, no gradients)
-  - `--warm` (#a6300e / #ed7e63) — means "do this now" (primary CTA button, "진행 중" status, pending-setup flags)
-  - `--cool` (#3e4a5c / #93a8c2) — means "settled / informational" (hover states, "완료" status, nav links)
-  - Dark mode follows the viewer's OS theme automatically via `prefers-color-scheme`; `[data-theme="dark"/"light"]` on the root element overrides it if a toggle is ever added.
-- **Typography**: serif throughout (`Noto Serif KR`, loaded via Google Fonts, with system-serif fallbacks) for headings and body text; a small system sans-serif stack only for labels, nav, buttons, and metadata (see `.sans`, `.kicker`, `.eyebrow`, `.topnav` in `styles.css`). No Inter/Roboto/Noto Sans KR as the primary face.
-- **Layout**: a single centered column (`.frame`, max-width 860px), not a card grid. Lists (nav, resources, books) render as hairline-divided rows (`.index-row`, `.book-entry`), not shadowed cards. The book list on `summary.html` uses a "book + running text + right-margin annotations" layout (`.book-margin`) rather than badges/pills.
-- **Motion**: intentionally minimal — a single instant/near-instant color transition on hover/press (`transition: background 0.1s`), no spring easing, no entrance animations, no hover-lift/shadow. This is a deliberate departure from typical "polished" motion — the recipe's own guidance is "the page is meant to be read still."
+> An earlier pass styled the site after Edward Tufte's data-ink aesthetic. It was abandoned: that recipe suits dense analytical documents, and applying "minimize non-data ink" to a 6-link navigation hub with no data produced a near-empty page. Don't reach for it again here.
+
+- **Color** (CSS vars in `styles.css`) — two accents, both semantic rather than decorative, since the covers already supply the page's color:
+  - `--paper` (#faf8f3 light / #16140f dark) — background; `--paper-2` — hover/raised surfaces
+  - `--ink` (#1c1a17 / #f0ece2) — body text; `--muted` — secondary text and labels
+  - `--rule` (#d5cdbc / #3a352b) — dividers
+  - `--accent` (#a6300e / #e8836a) — "act now": the signup CTA, current semester, "진행 중" status, 준비 중 flags, hover
+  - `--accent-2` (#3e4a5c / #9db2cc) — "settled / informational": kickers, "완료" status
+  - Dark mode follows the OS via `prefers-color-scheme`; `[data-theme="dark"/"light"]` on the root overrides it if a toggle is ever added.
+- **Typography** — two Korean faces, split by role (both from Google Fonts, one request):
+  - `Noto Serif KR` for headings, book titles, and the wordmark (`--serif`)
+  - `Noto Sans KR` for body copy, descriptions, labels, nav, and buttons (`--sans`)
+  - **Never apply `font-style: italic` to Korean text.** Korean fonts ship no true italic, so browsers synthesize a faux oblique that looks broken. (An earlier revision had this bug in five places.)
+  - Sizing is rem-based off `html { font-size: 100% }` so the reader's own text-size setting is respected — no fixed px type.
+- **Layout**: a single centered column (`.frame`, max-width 62rem). Covers use `aspect-ratio: 2/3` with a soft shadow so they read as physical objects. Navigation and resource links are full-width rows (`.index-row`) with a hover background tying the label to its trailing arrow; the book list (`.book-entry`) is cover + stacked title/meta/description, avoiding fixed-width columns that break on long Korean names.
+- **Motion**: short color/background transitions only (~0.12s), no entrance animations or hover-lift. All transitions are disabled under `prefers-reduced-motion`.
 - No emoji used as icons or section markers anywhere in the redesigned pages.
+- **Copy is not to be invented.** All user-facing text traces to the original pages or the spreadsheet. Where a fact isn't known (e.g. whether the semester's listed books are candidates or a confirmed reading list), use a neutral label rather than asserting one — don't write claims about how the club operates.

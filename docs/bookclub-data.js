@@ -150,21 +150,12 @@ function updateSection(sectionId, content) {
   const section = document.getElementById(sectionId);
   if (!section) return;
 
-  const placeholder = section.querySelector('.placeholder');
-
-  if (content && content.trim() !== '') {
-    // 내용이 있으면 placeholder를 실제 콘텐츠로 교체
-    if (placeholder) {
-      placeholder.innerHTML = formatContent(content);
-      placeholder.classList.remove('placeholder');
-      placeholder.style.color = '#666';
-      placeholder.style.fontStyle = 'normal';
-      placeholder.style.background = 'transparent';
-      placeholder.style.border = 'none';
-      placeholder.style.padding = '0';
-    }
-  }
   // 내용이 없으면 placeholder 유지
+  if (!content || content.trim() === '') return;
+
+  // 마크다운은 <p>/<ul> 같은 블록 요소를 만들므로 placeholder <p> 안이 아니라
+  // 컨테이너 자체를 통째로 교체한다. 색·여백은 styles.css의 .prose가 담당.
+  section.innerHTML = formatContent(content);
 }
 
 function formatContent(content) {
@@ -377,18 +368,18 @@ function renderBookList(books) {
         ? `<img src="${coverUrl}" alt="${title}">`
         : (title ? title.charAt(0) : '?');
 
-      // 상태 문구에 "완료"가 있으면 쿨(정보), 아니면 웜(진행 중)으로 매핑
+      // 상태 문구에 "완료"가 있으면 정보색, 아니면 강조색(진행 중)으로 매핑
       const statusClass = status.includes('완료') ? 'status-done' : 'status-active';
+
+      // 저자 · 날짜는 제목 아래 한 줄로 (한글 이름이 길어도 깨지지 않도록)
+      const metaLine = [author, date].filter(Boolean).join(' · ');
 
       bookCard.innerHTML = `
         <div class="book-cover">${coverHTML}</div>
         <div class="book-main">
           <h3>${title}</h3>
-          <p>${description}</p>
-        </div>
-        <div class="book-margin">
-          ${author ? `<span>${author}</span>` : ''}
-          ${date ? `<span>${date}</span>` : ''}
+          ${metaLine ? `<p class="book-meta">${metaLine}</p>` : ''}
+          ${description ? `<p class="desc">${description}</p>` : ''}
           <span class="status ${statusClass}">${status}</span>
         </div>
       `;

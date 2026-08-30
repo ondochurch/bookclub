@@ -1,397 +1,469 @@
-/* 온도 · 사명자반 북클럽 — 공유 디자인 시스템
-   Tufte 데이터잉크 방향: 색은 정확히 2개(웜=지금 할 일, 쿨=완료/정보)만 의미를 갖고,
-   그 외엔 종이/잉크/가는 선(hairline)뿐이다. 그림자·둥근 모서리·그라데이션 없음. */
+/* 온도교회 사명자반 북클럽 — 공유 스타일
+   주인공은 책 표지. 제목은 세리프(Noto Serif KR), 본문·라벨은 산세리프(Noto Sans KR).
+   한글에는 이탤릭을 쓰지 않는다(한글 폰트에 진짜 이탤릭이 없어 브라우저가 억지로 기울임). */
 
 :root {
-  --paper: #fbfaf6;
-  --ink: #1b1b1a;
-  --muted: #5c5550;
-  --rule: #d8d2c2;
-  --warm: #a6300e;  /* 지금 해야 할 일 / 진행 중 */
-  --cool: #3e4a5c;  /* 완료 / 정보 */
+  --paper:   #faf8f3;  /* 배경 */
+  --paper-2: #f1ece1;  /* 살짝 떠 있는 면 (호버, 표지 placeholder) */
+  --ink:     #1c1a17;  /* 본문 */
+  --muted:   #6b6358;  /* 보조 텍스트 */
+  --rule:    #d5cdbc;  /* 구분선 */
+  --accent:  #a6300e;  /* 이번 학기 · 신청 · 진행 중 */
+  --accent-2:#3e4a5c;  /* 완료 · 정보 */
+  --shadow:  0 2px 6px rgba(28, 26, 23, 0.10);
+
+  --serif: 'Noto Serif KR', Georgia, serif;
+  --sans:  'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --paper: #17140f;
-    --ink: #f0ece0;
-    --muted: #b0a897;
-    --rule: #332f26;
-    --warm: #ed7e63;
-    --cool: #93a8c2;
+    --paper:   #16140f;
+    --paper-2: #1f1c16;
+    --ink:     #f0ece2;
+    --muted:   #a89f8f;
+    --rule:    #3a352b;
+    --accent:  #e8836a;
+    --accent-2:#9db2cc;
+    --shadow:  0 2px 8px rgba(0, 0, 0, 0.45);
   }
 }
 
 :root[data-theme="dark"] {
-  --paper: #17140f;
-  --ink: #f0ece0;
-  --muted: #b0a897;
-  --rule: #332f26;
-  --warm: #ed7e63;
-  --cool: #93a8c2;
+  --paper:   #16140f;
+  --paper-2: #1f1c16;
+  --ink:     #f0ece2;
+  --muted:   #a89f8f;
+  --rule:    #3a352b;
+  --accent:  #e8836a;
+  --accent-2:#9db2cc;
+  --shadow:  0 2px 8px rgba(0, 0, 0, 0.45);
 }
 
 * { box-sizing: border-box; }
 
-html { background: var(--paper); }
+html {
+  font-size: 100%;          /* 사용자 글자 크기 설정을 존중 */
+  background: var(--paper);
+}
 
 body {
   margin: 0;
   background: var(--paper);
   color: var(--ink);
-  font-family: 'Noto Serif KR', Georgia, 'Nanum Myeongjo', 'AppleMyungjo', ui-serif, 'Times New Roman', serif;
-  font-size: 15.5px;
+  font-family: var(--sans);
+  font-size: 1rem;
   line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
 }
 
 a { color: inherit; }
 img { max-width: 100%; display: block; }
 
-.sans {
-  font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
-}
-
 /* ---------- frame ---------- */
 .frame {
-  max-width: 860px;
+  max-width: 62rem;
   margin: 0 auto;
-  padding: 0 1.5rem 5rem 1.5rem;
+  padding: 0 1.5rem 4rem;
 }
-
-.frame.wide { max-width: 1080px; }
 
 /* ---------- top bar ---------- */
 .topbar {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  padding: 2.4rem 0 1rem 0;
-  border-bottom: 1px solid var(--rule);
-  margin-bottom: 3rem;
   gap: 1rem;
   flex-wrap: wrap;
+  padding: 1.6rem 0 1rem;
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 2.6rem;
 }
 
 .wordmark {
-  font-size: 1.1rem;
-  font-style: italic;
+  font-family: var(--serif);
+  font-size: 0.95rem;
+  font-weight: 600;
   text-decoration: none;
   color: var(--ink);
 }
-.wordmark sup { font-style: normal; color: var(--warm); font-size: 0.6em; margin-left: 0.15em; }
 
 .topnav {
   display: flex;
-  gap: 1.3rem;
-  font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
-  font-size: 0.78rem;
-  letter-spacing: 0.02em;
+  gap: 1.2rem;
+  font-size: 0.82rem;
   color: var(--muted);
 }
 .topnav a { text-decoration: none; }
-.topnav a:hover { color: var(--cool); }
+.topnav a:hover { color: var(--accent); }
 
-/* ---------- page head (non-hero pages) ---------- */
-.eyebrow {
-  font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
-  font-size: 0.85rem;
-  color: var(--muted);
-  margin: 0 0 0.5rem 0;
-}
+/* ---------- hero / page head ---------- */
+.hero { margin-bottom: 3.4rem; }
 
 .kicker {
-  font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
-  font-size: 0.72rem;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  color: var(--cool);
-  margin: 0 0 1rem 0;
-}
-
-h1.page-title {
-  font-size: clamp(1.7rem, 3.6vw, 2.2rem);
-  font-weight: 500;
-  line-height: 1.35;
-  margin: 0 0 1rem 0;
-  max-width: 22ch;
-  text-wrap: balance;
+  font-size: 0.82rem;
+  letter-spacing: 0.02em;
+  color: var(--accent-2);
+  margin: 0 0 0.7rem;
 }
 
 h1.hero-title {
-  font-size: clamp(1.9rem, 4.2vw, 2.6rem);
-  font-weight: 500;
-  line-height: 1.35;
-  margin: 0 0 1.3rem 0;
-  max-width: 20ch;
+  font-family: var(--serif);
+  font-size: clamp(2rem, 5vw, 2.9rem);
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  margin: 0 0 0.9rem;
+  text-wrap: balance;
+}
+
+h1.page-title {
+  font-family: var(--serif);
+  font-size: clamp(1.7rem, 4vw, 2.3rem);
+  font-weight: 700;
+  line-height: 1.3;
+  margin: 0 0 0.9rem;
   text-wrap: balance;
 }
 
 .lede {
-  font-size: 1.02rem;
-  color: var(--ink);
-  opacity: 0.82;
-  max-width: 58ch;
-  margin: 0 0 1.6rem 0;
+  font-size: 1.05rem;
+  color: var(--muted);
+  max-width: 44ch;
+  margin: 0 0 1.8rem;
+  text-wrap: pretty;
 }
 
-.hero-actions, .page-actions {
-  display: flex;
-  align-items: baseline;
-  gap: 1.6rem;
-  flex-wrap: wrap;
-  margin-bottom: 3rem;
+.eyebrow {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin: 0 0 0.4rem;
 }
 
 /* ---------- buttons & links ---------- */
 .btn {
   display: inline-block;
-  background: var(--warm);
+  background: var(--accent);
   color: var(--paper);
+  font-family: var(--sans);
+  font-size: 0.95rem;
+  font-weight: 700;
   text-decoration: none;
-  font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
-  font-size: 0.85rem;
-  font-weight: 600;
-  letter-spacing: 0.01em;
-  padding: 0.65rem 1.1rem;
+  padding: 0.85rem 1.5rem;
   border: none;
   cursor: pointer;
-  transition: background 0.1s;
+  transition: background 0.12s ease;
 }
-.btn:hover { background: color-mix(in srgb, var(--warm) 82%, black); }
+.btn:hover { background: color-mix(in srgb, var(--accent) 80%, black); }
+.btn:active { background: color-mix(in srgb, var(--accent) 68%, black); }
 
 .link-quiet {
-  font-size: 0.88rem;
+  font-size: 0.92rem;
   color: var(--muted);
   text-decoration: underline;
   text-decoration-color: var(--rule);
-  text-underline-offset: 3px;
+  text-underline-offset: 0.2em;
 }
-.link-quiet:hover { color: var(--cool); text-decoration-color: var(--cool); }
+.link-quiet:hover { color: var(--accent); text-decoration-color: currentColor; }
 
-/* ---------- section heading ---------- */
-.section { margin-top: 3.4rem; }
+/* ---------- section ---------- */
+.section { margin-top: 3.2rem; }
+
 .section h2 {
-  font-size: 0.78rem;
-  font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
   color: var(--muted);
-  font-weight: 600;
-  margin: 0 0 0.2rem 0;
-  padding-bottom: 0.8rem;
+  margin: 0 0 1.2rem;
+  padding-bottom: 0.7rem;
   border-bottom: 1px solid var(--rule);
 }
 
-/* ---------- index list (nav / resource links) ---------- */
-.index-list { }
+.section-note {
+  font-size: 0.9rem;
+  color: var(--muted);
+  margin: -0.4rem 0 1.4rem;
+}
 
+/* ---------- 표지 그리드 (홈 · 신청 페이지) ---------- */
+.cover-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.8rem 1.4rem;
+  margin-bottom: 2rem;
+}
+
+.cover-card .shot {
+  box-shadow: var(--shadow);
+  background: var(--paper-2);
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+}
+.cover-card .shot img { width: 100%; height: 100%; object-fit: cover; }
+
+.cover-card .title {
+  font-family: var(--serif);
+  font-size: 0.92rem;
+  font-weight: 600;
+  line-height: 1.45;
+  margin-top: 0.7rem;
+  text-wrap: pretty;
+}
+
+.cover-card .by {
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin-top: 0.15rem;
+}
+
+@media (max-width: 40rem) {
+  .cover-grid { grid-template-columns: repeat(2, 1fr); gap: 1.4rem 1rem; }
+}
+
+/* ---------- 목록형 링크 (둘러보기 · 기타 자료) ---------- */
 .index-row {
-  display: block;
-  padding: 0.95rem 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 0.75rem;
+  margin-inline: -0.75rem;
   border-bottom: 1px solid var(--rule);
   text-decoration: none;
   color: var(--ink);
-  font-size: 1rem;
+  transition: background 0.12s ease;
 }
-.index-list .index-row:first-child { border-top: 1px solid var(--rule); }
+.index-row:hover { background: var(--paper-2); }
 
-.index-row strong { font-weight: 600; }
-.index-row .desc { color: var(--muted); font-size: 0.92rem; }
-.index-row:hover strong { color: var(--cool); }
+.index-row .label {
+  font-family: var(--serif);
+  font-size: 1.05rem;
+  font-weight: 600;
+  display: block;
+}
+.index-row .desc {
+  font-size: 0.9rem;
+  color: var(--muted);
+  display: block;
+  margin-top: 0.1rem;
+}
+.index-row:hover .label { color: var(--accent); }
+
+.index-row .arrow {
+  flex: none;
+  color: var(--rule);
+  transition: transform 0.12s ease, color 0.12s ease;
+}
+.index-row:hover .arrow { color: var(--accent); transform: translateX(0.2rem); }
+
 .pending {
-  font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
-  font-size: 0.72rem;
-  letter-spacing: 0.04em;
-  color: var(--warm);
-  margin-left: 0.4rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--accent);
+  margin-left: 0.45rem;
 }
 
-/* ---------- tabs (summary.html year tabs) ---------- */
-.tabs-container { border-bottom: 1px solid var(--rule); margin-bottom: 0; }
+/* ---------- 연도 탭 (summary.html) ---------- */
+.tabs-container { border-bottom: 1px solid var(--rule); }
 .tabs { display: flex; gap: 1.4rem; flex-wrap: wrap; }
+
 .tab-button {
   background: none;
   border: none;
   border-bottom: 2px solid transparent;
   margin-bottom: -1px;
-  padding: 0 0 0.8rem 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
-  font-size: 0.85rem;
-  letter-spacing: 0.02em;
+  padding: 0 0 0.7rem;
+  font-family: var(--sans);
+  font-size: 0.95rem;
   color: var(--muted);
   cursor: pointer;
 }
 .tab-button:hover { color: var(--ink); }
-.tab-button.active { color: var(--ink); border-bottom-color: var(--warm); font-weight: 600; }
-.tab-content { display: none; padding-top: 0.5rem; }
+.tab-button.active {
+  color: var(--ink);
+  font-weight: 700;
+  border-bottom-color: var(--accent);
+}
+
+.tab-content { display: none; }
 .tab-content.active { display: block; }
 
-/* ---------- books (summary.html list, book.html not used here) ---------- */
-.books { }
-
+/* ---------- 읽은 책 목록 (summary.html) ---------- */
 .book-entry {
   display: grid;
-  grid-template-columns: 3.2rem 1fr 8.5rem;
-  gap: 1.3rem;
-  padding: 1.2rem 0;
+  grid-template-columns: 5rem 1fr;
+  gap: 1.4rem;
+  padding: 1.5rem 0.75rem;
+  margin-inline: -0.75rem;
   border-bottom: 1px solid var(--rule);
   text-decoration: none;
   color: var(--ink);
-  align-items: start;
+  transition: background 0.12s ease;
 }
-.books .book-entry:first-child { border-top: 1px solid var(--rule); }
+.book-entry:hover { background: var(--paper-2); }
 
 .book-cover {
-  width: 3.2rem;
-  height: 4.6rem;
-  border: 1px solid var(--rule);
+  width: 5rem;
+  aspect-ratio: 2 / 3;
+  background: var(--paper-2);
+  box-shadow: var(--shadow);
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-style: italic;
-  font-size: 1.2rem;
+  font-family: var(--serif);
+  font-size: 1.4rem;
   color: var(--muted);
 }
 .book-cover img { width: 100%; height: 100%; object-fit: cover; }
 
-.book-main h3 { margin: 0 0 0.3rem 0; font-size: 1.12rem; font-weight: 600; }
-.book-main p { margin: 0; font-size: 0.92rem; color: var(--ink); opacity: 0.82; }
-.book-entry:hover .book-main h3 { color: var(--cool); }
+.book-main h3 {
+  font-family: var(--serif);
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin: 0 0 0.25rem;
+}
+.book-entry:hover .book-main h3 { color: var(--accent); }
 
-.book-margin {
-  font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
-  font-size: 0.74rem;
-  letter-spacing: 0.02em;
+.book-meta {
+  font-size: 0.85rem;
   color: var(--muted);
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-  text-align: right;
-}
-.book-margin .status { font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
-.book-margin .status-done { color: var(--cool); }
-.book-margin .status-active { color: var(--warm); }
-
-@media (max-width: 620px) {
-  .book-entry { grid-template-columns: 2.6rem 1fr; }
-  .book-margin { grid-column: 1 / -1; flex-direction: row; justify-content: flex-start; gap: 0.9rem; text-align: left; margin-top: 0.3rem; }
+  margin: 0 0 0.5rem;
 }
 
-/* ---------- candidate grid (register.html book covers) ---------- */
-.candidate-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  gap: 1.8rem 1.2rem;
-  margin: 2rem 0;
-}
-.candidate { text-align: center; }
-.candidate img { width: 100%; max-width: 140px; margin: 0 auto; border: 1px solid var(--rule); }
-.candidate .title {
-  margin-top: 0.6rem;
-  font-size: 0.82rem;
-  font-style: italic;
+.book-main .desc {
+  font-size: 0.95rem;
   color: var(--muted);
-  line-height: 1.4;
+  margin: 0 0 0.6rem;
+  text-wrap: pretty;
 }
 
-/* ---------- setup steps (Airtable instructions) ---------- */
-.setup-step { padding: 1.3rem 0; border-top: 1px solid var(--rule); }
-.setup-step:first-child { border-top: none; padding-top: 0; }
-.setup-step h3 { font-size: 1rem; font-weight: 600; margin: 0 0 0.6rem 0; }
-.setup-step p { margin: 0 0 0.5rem 0; color: var(--ink); opacity: 0.85; font-size: 0.94rem; }
-.setup-step ul { margin: 0.5rem 0; padding-left: 1.4rem; color: var(--ink); opacity: 0.85; font-size: 0.94rem; }
-.setup-step li { margin-bottom: 0.3rem; }
-.setup-step code {
-  font-family: ui-monospace, 'SF Mono', monospace;
-  background: var(--paper);
-  border: 1px solid var(--rule);
-  padding: 0.1rem 0.4rem;
-  font-size: 0.85em;
-  color: var(--ink);
+.status {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.15rem 0.5rem;
+  border: 1px solid currentColor;
 }
-.setup-note {
-  font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
-  border: 1px solid var(--rule);
-  padding: 0.9rem 1.1rem;
-  font-size: 0.82rem;
-  color: var(--muted);
-  margin-top: 1.2rem;
+.status-done   { color: var(--accent-2); }
+.status-active { color: var(--accent); }
+
+@media (max-width: 40rem) {
+  .book-entry { grid-template-columns: 4rem 1fr; gap: 1rem; }
+  .book-cover { width: 4rem; }
 }
-.setup-note.warn { border-color: var(--warm); color: var(--ink); }
 
-/* ---------- embeds (applied directly to an <iframe>) ---------- */
-.embed-box { display: block; width: 100%; border: 1px solid var(--rule); }
-
-/* ---------- book detail page (book.html) ---------- */
+/* ---------- 책 상세 (book.html) ---------- */
 .book-head {
   display: flex;
-  gap: 1.8rem;
+  gap: 2rem;
   align-items: flex-start;
-  margin-bottom: 3rem;
   flex-wrap: wrap;
+  margin-bottom: 3rem;
 }
-.book-head .cover { width: 9rem; flex: 0 0 9rem; }
-.book-head .cover img { width: 100%; border: 1px solid var(--rule); }
-.book-head .meta { flex: 1 1 280px; }
-.book-head .meta .author-line,
-.book-head .meta .date-line {
-  font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
-  font-size: 0.82rem;
+.book-head .cover {
+  width: 11rem;
+  flex: none;
+  box-shadow: var(--shadow);
+  background: var(--paper-2);
+}
+.book-head .meta { flex: 1 1 20rem; }
+.book-head .description {
+  font-size: 1rem;
   color: var(--muted);
-  margin: 0 0 0.3rem 0;
+  margin: 0.8rem 0 0;
+  text-wrap: pretty;
 }
-.book-head .meta .description { font-size: 0.98rem; opacity: 0.85; margin-top: 0.8rem; }
+
+@media (max-width: 40rem) {
+  .book-head .cover { width: 7.5rem; }
+}
 
 .section h3 {
-  font-size: 1.05rem;
-  font-weight: 600;
-  margin: 0 0 1.1rem 0;
+  font-family: var(--serif);
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin: 0 0 1rem;
   padding-bottom: 0.6rem;
   border-bottom: 1px solid var(--rule);
 }
 
-.section .placeholder { color: var(--muted); font-style: italic; font-size: 0.92rem; }
+.placeholder { color: var(--muted); font-size: 0.95rem; }
 
-/* markdown-rendered discussion content */
-.section p, .section li { font-size: 0.98rem; opacity: 0.88; margin-bottom: 0.9rem; }
-.section ul, .section ol { padding-left: 1.4rem; margin-bottom: 0.9rem; }
-.section blockquote {
-  border-left: 2px solid var(--rule);
+/* 스프레드시트에서 온 마크다운 본문 */
+.prose p, .prose li { margin-bottom: 0.9rem; }
+.prose ul, .prose ol { padding-left: 1.4rem; margin-bottom: 0.9rem; }
+.prose blockquote {
+  border-left: 3px solid var(--accent);
   padding-left: 1rem;
-  margin: 1rem 0;
+  margin: 1.2rem 0;
   color: var(--muted);
-  font-style: italic;
 }
-.section code {
-  font-family: ui-monospace, 'SF Mono', monospace;
-  background: var(--paper);
-  border: 1px solid var(--rule);
+.prose code {
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  background: var(--paper-2);
   padding: 0.1rem 0.35rem;
-  font-size: 0.85em;
+  font-size: 0.9em;
 }
-.section pre {
-  background: var(--paper);
-  border: 1px solid var(--rule);
+.prose pre {
+  background: var(--paper-2);
   padding: 1rem;
   overflow-x: auto;
   margin-bottom: 1rem;
 }
-.section pre code { border: none; padding: 0; background: none; }
-.section strong { font-weight: 700; }
+.prose pre code { background: none; padding: 0; }
+
+/* ---------- 설정 안내 (participants.html) ---------- */
+.setup-step { padding: 1.2rem 0; border-top: 1px solid var(--rule); }
+.setup-step:first-of-type { border-top: none; padding-top: 0; }
+.setup-step h3 {
+  font-family: var(--sans);
+  font-size: 1rem;
+  font-weight: 700;
+  border: none;
+  padding: 0;
+  margin: 0 0 0.5rem;
+}
+.setup-step p { margin: 0 0 0.4rem; color: var(--muted); font-size: 0.95rem; }
+.setup-step ul { margin: 0.4rem 0; padding-left: 1.4rem; color: var(--muted); font-size: 0.95rem; }
+.setup-step code {
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  background: var(--paper-2);
+  padding: 0.1rem 0.35rem;
+  font-size: 0.9em;
+}
+
+.setup-note {
+  border-left: 3px solid var(--rule);
+  padding: 0.2rem 0 0.2rem 1rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+  margin-top: 1.2rem;
+}
+.setup-note.warn { border-left-color: var(--accent); }
+
+/* ---------- 임베드 ---------- */
+.embed-box {
+  display: block;
+  width: 100%;
+  border: 1px solid var(--rule);
+  background: var(--paper-2);
+}
 
 /* ---------- footer ---------- */
 footer {
-  margin-top: 4.5rem;
-  padding-top: 1.4rem;
+  margin-top: 4rem;
+  padding-top: 1.3rem;
   border-top: 1px solid var(--rule);
   display: flex;
   justify-content: space-between;
-  font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
-  font-size: 0.78rem;
-  color: var(--muted);
-  flex-wrap: wrap;
   gap: 0.5rem;
+  flex-wrap: wrap;
+  font-size: 0.85rem;
+  color: var(--muted);
 }
 footer a { text-decoration: none; }
-footer a:hover { color: var(--cool); }
+footer a:hover { color: var(--accent); }
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}
