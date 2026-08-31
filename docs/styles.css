@@ -388,15 +388,65 @@ a.cover-card:hover .t { color: var(--accent); }
   grid-template-columns: repeat(8, 1fr);
   gap: 1rem 0.8rem;
 }
-.cover-grid.shelf .meta { margin-top: 0.5rem; }
-.cover-grid.shelf .t { font-size: 0.68rem; line-height: 1.4; }
-.cover-grid.shelf .a { font-size: 0.64rem; }
+.cover-grid.shelf .meta,
+.shelf-row .meta { margin-top: 0.5rem; }
+.cover-grid.shelf .t,
+.shelf-row .t { font-size: 0.68rem; line-height: 1.4; }
+.cover-grid.shelf .a,
+.shelf-row .a { font-size: 0.64rem; }
 
 @media (max-width: 52rem) {
   .cover-grid.shelf { grid-template-columns: repeat(4, 1fr); }
 }
 @media (max-width: 30rem) {
   .cover-grid.shelf { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* ---------- 학기 연속 책장 (홈) ----------
+   학기마다 그리드를 따로 두면 4~7권짜리 학기는 8칸 중 절반이 비어 오른쪽이 크게 남았다.
+   그래서 학기 경계에서 줄을 끊지 않고 책을 이어서 채우고, 학기 표시는 카드 줄 위에
+   같은 트랙을 쓰는 별도 "레인"에 올린다.
+
+   라벨을 카드와 같은 그리드에 넣으면 auto-placement가 "다음 빈 칸"에 기계적으로 밀어 넣어
+   앞 학기 줄 끝에 붙어버린다(예전 시도). 카드 안 흐름에 넣으면 그 카드만 키가 커진다(그다음 시도).
+   레인을 분리하고 grid-column으로 명시 배치하면 두 문제가 구조적으로 생기지 않는다. */
+.shelf-stream {
+  --cols: 8;
+  /* 한 줄 안에서 학기가 바뀌는 지점에 끼우는 빈 트랙. fr이라 커버 폭에 비례한다.
+     0으로 두면 학기 구분 여백이 사라진다. */
+  --sem-gap: 0.333fr;
+  margin-bottom: 2rem;
+}
+
+@media (max-width: 52rem) { .shelf-stream { --cols: 4; } }
+@media (max-width: 30rem) { .shelf-stream { --cols: 3; --sem-gap: 0.25fr; } }
+
+/* grid-template-columns는 줄마다 다르므로(여백 트랙 위치가 다름) JS가 인라인으로 넣는다.
+   레인과 카드 줄에 똑같은 값이 들어가 라벨이 카드 x위치에 정확히 맞는다. */
+.shelf-lane,
+.shelf-row {
+  display: grid;
+  gap: 1rem 0.8rem;
+}
+
+/* 라벨을 아래로 정렬 — 세그먼트가 좁아 제목이 두 줄로 감겨도
+   밑줄은 그 레인의 모든 세그먼트에서 같은 높이에 놓인다 */
+.shelf-lane { align-items: end; margin-bottom: 1.2rem; }
+.shelf-row { margin-bottom: 2.2rem; }
+.shelf-row:last-child { margin-bottom: 0; }
+
+/* .section h2와 같은 생김새 — 학기 표시는 현행 유지가 요구사항이다.
+   달라지는 건 폭뿐이고, 태그·뱃지로 바꾸지 않는다. */
+.shelf-seg {
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  margin: 0;
+  padding-bottom: 0.7rem;
+  border-bottom: 2px solid var(--brand);
+  min-width: 0;              /* 트랙이 글자보다 좁아질 수 있게 */
+  overflow-wrap: anywhere;   /* 좁은 세그먼트에서 넘치지 않게 */
 }
 
 /* ---------- 목록형 링크 (둘러보기 · 기타 자료) ---------- */

@@ -11,7 +11,8 @@ This is a static website for 온도교회 사명자반 북클럽 (Ondo Church Mi
 ```
 bookclub/
 ├── docs/
-│   ├── index.html              # Main landing page with navigation
+│   ├── index.html              # Main landing page (Korean) — continuous semester shelf
+│   ├── index-en.html           # English landing page; mirrors index.html, lang="en"
 │   ├── register.html           # Book club registration page
 │   ├── summary.html            # Book list, grouped into year tabs (dynamic)
 │   ├── book.html                # Dynamic per-book page, reads ?id=<bookId> from URL
@@ -21,7 +22,9 @@ bookclub/
 │   ├── questions.html          # Theological questions submission page
 │   ├── participants.html       # Participant tracking (Airtable integration)
 │   ├── styles.css              # Shared design system (all pages except the legacy book-*.html)
-│   └── bookclub-data.js        # Google Spreadsheet data loader script
+│   ├── bookclub-data.js        # Google Spreadsheet data loader script
+│   └── assets/                 # Church logo/favicon + English-edition covers (covers/)
+├── serve.py                    # Local dev server for docs/, caching disabled
 ├── AIRTABLE_SETUP.md           # Detailed Airtable setup guide
 ├── SPREADSHEET_SETUP.md        # Google Spreadsheet integration guide
 └── README.md
@@ -105,7 +108,11 @@ This is a multi-page static website with no build process, dependencies, or fram
   - Falls back to placeholder text if no data is found for a section/book
   - See SPREADSHEET_SETUP.md for setup instructions
 
-  **Cache-busting**: every `<script src="bookclub-data.js?v=N">` tag carries a version query string. **Bump `N` in every page that includes it whenever this file changes.** Without it, browsers (Safari in particular) can keep serving a stale cached copy after a deploy even on a manual reload — this caused real confusion in dev (new markup rendered, but against old JS, producing behavior that looked like the fix hadn't landed at all). A private/incognito window is the fast way to tell "stale cache" apart from "the fix is actually wrong" when debugging a report that a change had no effect.
+  **Cache-busting**: `bookclub-data.js` **and `styles.css`** are both referenced with a version query string (`?v=N`). **Bump `N` in every page that references the file you changed** — `styles.css` is linked from 8 pages, the script from 5. Browsers (Safari in particular) keep serving stale copies after a deploy even on a manual reload.
+
+  This has bitten twice, and the second time was worse than a cosmetic glitch: `loadShelfStream()` reads `--cols` out of `styles.css`, so a stale stylesheet made `parseInt` return `NaN` and the shelf rendered **completely empty** — the page looked broken, not merely unstyled. The JS now falls back to a viewport-derived column count and warns, but the version bump is still the actual fix. **Be wary of any new JS that depends on a CSS custom property**: it couples the two files' cache lifetimes.
+
+  For local development use `python3 serve.py` (repo root) instead of `python3 -m http.server` — it serves `docs/` with `Cache-Control: no-store`, strips `Last-Modified`, and ignores conditional requests, so this class of confusion doesn't happen at all while iterating. If something only renders correctly in a private window, it's a stale cache, not a broken fix.
 
   **Dependencies**:
   - PapaParse 5.4.1 (CSV parsing)
@@ -142,13 +149,16 @@ Since this is a static HTML file with no dependencies, simply open the file in a
 open docs/index.html
 ```
 
-Or use any local web server, such as Python's built-in server:
+Or run the bundled dev server, which serves `docs/` with caching disabled:
 
 ```bash
-cd docs
-python3 -m http.server 8000
-# Then visit http://localhost:8000
+python3 serve.py          # http://localhost:8000
+python3 serve.py 8001     # different port
 ```
+
+Prefer this over `python3 -m http.server`, which sends no `Cache-Control` at all and lets the
+browser heuristically cache `styles.css` / `bookclub-data.js` — edits then appear not to land, and
+the page only looks right in a private window. See the cache-busting note above.
 
 ### Deployment
 
@@ -248,12 +258,24 @@ New books no longer need a new HTML file — `book.html` is a shared template dr
 
 ### Semester cover shelves (landing page + register page)
 
-`index.html` and `register.html` each show the semester's books as a grid of covers. Both are driven from the **same metadata spreadsheet** via a `semester` column, so a new semester needs no HTML edit:
+The landing pages and `register.html` show semester books as covers, all driven from the **same metadata spreadsheet** via a `semester` column, so a new semester needs no HTML edit. There are **two different renderers**, and they must not be merged:
 
-- The grid element carries `data-semester="<value>"` (e.g. `data-semester="2026-봄"`). `loadSemesterShelves()` in `bookclub-data.js` fetches the metadata sheet and replaces the grid's contents with every row whose `semester` (or `학기`) column equals that value.
-- **The markup inside the grid is a deliberate fallback, not dead code.** If the sheet can't be fetched or no row matches the semester, the hardcoded covers stay on screen. (The repo has prior history of the sheet fetch failing on CORS — an empty semester section on the live site would be worse than a slightly stale one.) When updating the hardcoded fallback, update both files.
-- To roll the site to a new semester: add/label rows in the sheet with the new `semester` value, then change `data-semester` in the two files and update the section heading and CTA copy.
+**`register.html` — one grid, one semester** (`loadShelves()`). The grid carries `data-semester="<value>"` and is filled with every sheet row whose `semester` (or `학기`) column matches.
+
+- **The markup inside that grid is a deliberate fallback, not dead code.** If the sheet can't be fetched or no row matches, the hardcoded covers stay on screen. (The repo has prior history of the sheet fetch failing on CORS — an empty semester section on the live site would be worse than a slightly stale one.)
+
+**`index.html` / `index-en.html` — one continuous shelf across all semesters** (`loadShelfStream()`). A separate section per semester left up to 55% of each row empty (semesters hold only 4–7 books against an 8-column grid), so books now flow across semester boundaries and the semester headings move into a "lane" above each row.
+
+- Declared with `<template data-shelf-semester="2026-봄" data-shelf-label="2026년 봄학기">` inside `.shelf-stream`. **Never name these `data-semester`** — `loadShelves()` selects on `[data-semester]` and would treat them as grids, which previously hid whole sections.
+- Each row gets its own inline `grid-template-columns`, built by `shelfRowTracks()`; the label lane uses the identical template, so a label lines up exactly with its own books.
+- **Both the labels and each segment's first card are explicitly placed via `grid-column`.** Auto-placement is the recurring trap here: it fills the *next free cell* in document order, so an unplaced label lands next to the wrong semester's books, and an unplaced card falls into the `--sem-gap` track and shifts a whole semester over by one. Two separate bugs, same cause.
+- Cover tracks use `minmax(0, 1fr)`, never bare `1fr` — `1fr` has an `auto` minimum, so a long Korean title widens its own track and cover widths stop matching within a row.
+- `packShelfRows()` never lets a semester occupy a **single column** (`MIN_SEGMENT_COLS`): a semester name in one ~107px cell wraps into mush, and the inter-semester gap makes it worse. It starts the semester on the next row instead, and shortens a chunk when the tail would otherwise be one book. A semester with books left always resumes on a new row — otherwise it splits into two segments inside one row.
+- `--cols` (8 / 4 / 3) and `--sem-gap` live in CSS; JS only reads `--cols` and re-renders on the `matchMedia` breakpoints. Don't add a second responsive source in JS. Setting `--sem-gap: 0` removes the inter-semester spacing.
+- A semester continuing onto the next row repeats its label — those books are visible on that row and would otherwise sit under nothing.
+- To roll to a new semester: add rows in the sheet with the new `semester` value, then add a `<template>` to both landing pages and update `data-semester` in `register.html` plus the CTA copy.
 - Note the metadata sheet doubles as the record of books actually read (it drives `summary.html`, grouped by `date`). The `semester` column is what separates "this term's lineup" from "what we have read" — don't conflate them by filtering the shelves on `date`.
+- There is **no "읽은 책" / "Books We've Read" heading** over the shelf, deliberately: the newest semester hasn't started yet, so the label would be false. Don't reintroduce it.
 
 ### Bilingual book data, and the page-turn cover hover
 

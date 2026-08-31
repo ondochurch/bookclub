@@ -543,16 +543,21 @@ window.loadBookList = loadBookList;
 // 시트를 못 불러오거나 조건에 맞는 행이 하나도 없으면 HTML에 있던 표지를 그대로 둔다
 // (예전에 CORS로 로딩이 막힌 적이 있어, 실패 시 빈 화면이 되지 않도록 폴백을 남긴다).
 // 폴백도 없는 그리드(예: 아직 확정 안 된 학기)는 그대로 비었다가, 아래에서 섹션째 감춘다.
-function cardsForShelfHTML(rows) {
-  return rows.map(function (row) {
+// startTrack: 연속 책장에서 이 묶음의 첫 카드를 놓을 그리드 트랙 번호.
+// 학기 사이 여백도 트랙 하나를 차지하므로, 그냥 두면 auto-placement가 카드를 그 여백 칸에
+// 밀어 넣어 학기 하나가 통째로 한 칸씩 밀린다. 첫 카드만 명시 배치하면 나머지는 이어서 붙는다.
+// 넘기지 않으면(신청 페이지의 단일 그리드) 예전처럼 auto-placement에 맡긴다.
+function cardsForShelfHTML(rows, startTrack) {
+  return rows.map(function (row, i) {
+    const place = (i === 0 && startTrack) ? ` style="grid-column:${startTrack}"` : '';
     const title = titlePair(row);
     const author = authorPair(row);
     const bookId = row['책ID'] || row['book_id'] || '';
 
     // 책ID가 있으면 토론 기록 페이지로 넘어가는 링크로 만든다
     const open = bookId
-      ? `<a class="cover-card" href="book.html?id=${encodeURIComponent(bookId)}">`
-      : '<div class="cover-card">';
+      ? `<a class="cover-card"${place} href="book.html?id=${encodeURIComponent(bookId)}">`
+      : `<div class="cover-card"${place}>`;
     const close = bookId ? '</a>' : '</div>';
 
     // 제목과 저자를 한 덩어리로 묶어 통째로 전환한다.
@@ -626,6 +631,167 @@ async function loadShelves() {
 }
 
 window.loadShelves = loadShelves;
+
+// ========================================
+// 학기 연속 책장 (홈)
+// ========================================
+// 학기마다 그리드를 따로 두면 4~7권짜리 학기는 8칸 중 절반이 비어 오른쪽이 크게 남았다.
+// 그래서 학기 경계에서 줄을 끊지 않고 책을 이어서 채우고, 학기 표시는 카드 줄 바로 위에
+// 같은 트랙을 쓰는 "레인"으로 올린다. 라벨을 카드와 같은 그리드에 넣으면 auto-placement가
+// 엉뚱한 자리에 밀어 넣고, 카드 안에 넣으면 그 카드만 키가 커진다 — 둘 다 겪은 실패다.
+//
+// 선언은 data-shelf-semester / data-shelf-label을 쓴다. data-semester를 쓰면
+// loadShelves()의 [data-semester] 셀렉터에 걸려 예전에 섹션이 통째로 숨겨지던 버그가 재현된다.
+
+// 학기를 시작할 때 이만큼도 안 남았으면 다음 줄로 넘긴다.
+// 1칸짜리 세그먼트에 학기 이름을 넣으면 글자가 감겨 뭉개지고, 학기 사이 여백까지 들어가면 더 나빠진다.
+const MIN_SEGMENT_COLS = 2;
+
+// 학기들을 cols 칸짜리 줄에 순서대로 채우고, 줄마다 세그먼트 목록을 돌려준다.
+// 세그먼트 = 한 줄 안에서 한 학기가 차지하는 연속 구간.
+function packShelfRows(groups, cols) {
+  const rows = [];
+  let row = [];
+  let used = 0;
+
+  groups.forEach(function (group) {
+    let remaining = group.rows.slice();
+    let first = true;
+
+    while (remaining.length) {
+      // 줄이 찼거나, 새 학기가 시작되는데 남은 칸이 너무 적으면 그 칸을 비우고 다음 줄로
+      if (used >= cols || (first && used > 0 && cols - used < MIN_SEGMENT_COLS)) {
+        rows.push(row);
+        row = [];
+        used = 0;
+      }
+
+      let take = Math.min(cols - used, remaining.length);
+
+      // 넘길 때 다음 줄에 1권만 남으면 그 세그먼트도 1칸짜리가 된다.
+      // 이번 줄에서 한 권 덜 가져와 꼬리를 2칸으로 만든다 (이번 줄이 너무 얇아지지 않는 선에서).
+      const tail = remaining.length - take;
+      if (tail === 1 && take - 1 >= MIN_SEGMENT_COLS) take -= 1;
+
+      row.push({ label: group.label, books: remaining.slice(0, take) });
+      remaining = remaining.slice(take);
+      used += take;
+      first = false;
+
+      // 아직 남은 책은 반드시 다음 줄에서 이어간다.
+      // 안 그러면 위에서 take를 줄인 만큼 같은 줄에 자리가 남아,
+      // 같은 학기가 한 줄 안에서 두 세그먼트로 쪼개진다.
+      if (remaining.length) {
+        rows.push(row);
+        row = [];
+        used = 0;
+      }
+    }
+  });
+
+  if (row.length) rows.push(row);
+  return rows;
+}
+
+// 한 줄의 grid-template-columns 문자열과, 각 세그먼트의 실제 트랙 시작 번호를 만든다.
+// 여백 트랙도 트랙 하나를 차지하므로 라벨의 grid-column은 여기서 함께 계산해야 어긋나지 않는다.
+function shelfRowTracks(segments, cols) {
+  const parts = [];
+  const starts = [];
+  let track = 1;
+  let filled = 0;
+
+  segments.forEach(function (seg, i) {
+    if (i > 0) {
+      parts.push('var(--sem-gap)');
+      track += 1;
+    }
+    starts.push(track);
+    // minmax(0, 1fr) — 그냥 1fr이면 최소폭이 auto라서 제목이 긴 카드가 트랙을 밀어 넓힌다.
+    // 그러면 같은 줄인데도 표지 폭이 제각각이 된다 (좁은 화면에서 실제로 그랬다).
+    parts.push(`repeat(${seg.books.length}, minmax(0, 1fr))`);
+    track += seg.books.length;
+    filled += seg.books.length;
+  });
+
+  // 남는 뒤쪽 칸도 트랙으로 남겨 둔다 — 안 그러면 표지가 늘어나 커진다
+  const spare = cols - filled;
+  if (spare > 0) parts.push(`repeat(${spare}, minmax(0, 1fr))`);
+
+  return { template: parts.join(' '), starts: starts };
+}
+
+function shelfStreamHTML(groups, cols) {
+  return packShelfRows(groups, cols).map(function (segments) {
+    const { template, starts } = shelfRowTracks(segments, cols);
+
+    const lane = segments.map(function (seg, i) {
+      return `<h2 class="shelf-seg" style="grid-column:${starts[i]}/span ${seg.books.length}">` +
+             `${escapeHtml(seg.label)}</h2>`;
+    }).join('');
+
+    const cards = segments.map(function (seg, i) {
+      return cardsForShelfHTML(seg.books, starts[i]);
+    }).join('');
+
+    return `<div class="shelf-lane" style="grid-template-columns:${template}">${lane}</div>` +
+           `<div class="shelf-row" style="grid-template-columns:${template}">${cards}</div>`;
+  }).join('');
+}
+
+async function loadShelfStream() {
+  const stream = document.querySelector('.shelf-stream');
+  if (!stream) return;
+
+  const defs = Array.from(stream.querySelectorAll('[data-shelf-semester]')).map(function (el) {
+    const semester = (el.getAttribute('data-shelf-semester') || '').trim();
+    return { semester: semester, label: el.getAttribute('data-shelf-label') || semester };
+  });
+  if (!defs.length) return;
+
+  const books = await fetchBookMetadata();
+  if (!books.length) {
+    console.warn('⚠️ 시트를 불러오지 못해 책장을 그대로 둡니다.');
+    return;
+  }
+
+  const groups = defs
+    .map(function (def) {
+      return { label: def.label, rows: matchShelfRows(books, def.semester, '') };
+    })
+    .filter(function (group) {
+      if (!group.rows.length) console.warn(`⚠️ "${group.label}"에 해당하는 행이 없어 건너뜁니다.`);
+      return group.rows.length > 0;
+    });
+
+  if (!groups.length) {
+    console.warn('⚠️ 표시할 책이 없어 책장을 그대로 둡니다.');
+    return;
+  }
+
+  const render = function () {
+    // --cols는 CSS가 정한다. 다만 스타일시트가 캐시로 옛 버전이면 이 변수가 없어서
+    // NaN이 되는데, 그때 그냥 return하면 책장이 통째로 빈 채로 남는다(실제로 겪음).
+    // 폭에서 직접 계산한 값으로라도 그린다 — 레이아웃이 조금 어긋나는 편이 백지보다 낫다.
+    const declared = parseInt(getComputedStyle(stream).getPropertyValue('--cols'), 10);
+    const cols = declared || (window.innerWidth <= 480 ? 3 : window.innerWidth <= 832 ? 4 : 8);
+    if (!declared) console.warn('⚠️ --cols를 못 읽어 화면 폭으로 대체합니다 (styles.css가 오래된 캐시일 수 있음).');
+    stream.innerHTML = shelfStreamHTML(groups, cols);
+    console.log(`✅ 책장 ${groups.length}개 학기 · ${cols}열로 렌더링 완료`);
+  };
+
+  render();
+
+  // --cols가 바뀌는 분기에서만 다시 그린다 (resize마다 그리지 않는다)
+  [52, 30].forEach(function (rem) {
+    const mq = window.matchMedia(`(max-width: ${rem}rem)`);
+    const onChange = function () { render(); };
+    if (mq.addEventListener) mq.addEventListener('change', onChange);
+    else mq.addListener(onChange);
+  });
+}
+
+window.loadShelfStream = loadShelfStream;
 
 // ========================================
 // 동적 책 페이지: URL에서 책 ID 가져오기
@@ -733,9 +899,9 @@ window.initializeDynamicBookPage = initializeDynamicBookPage;
 // 자동 초기화 (페이지 로드 시)
 // ========================================
 document.addEventListener('DOMContentLoaded', function() {
-  // 표지 목록(학기·연도)은 다른 초기화와 독립적으로 동작한다
-  // (홈·신청 페이지에 있고, 없으면 아무것도 하지 않음)
-  loadShelves();
+  // 표지 목록은 다른 초기화와 독립적으로 동작한다 (없는 페이지에서는 아무것도 하지 않음)
+  loadShelves();      // 학기 그리드 하나짜리 — 신청 페이지
+  loadShelfStream();  // 학기 연속 책장 — 홈
 
   // URL 파라미터에서 책 ID 확인 (동적 페이지)
   const urlBookId = getBookIdFromURL();

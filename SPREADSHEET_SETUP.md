@@ -262,16 +262,20 @@ git push
 
 #### Python 사용 (추천):
 ```bash
-cd docs
-python3 -m http.server 8000
+python3 serve.py
 ```
 
 브라우저에서 http://localhost:8000 접속
 
+저장소에 포함된 `serve.py`는 `docs/`를 캐시 없이(`Cache-Control: no-store`) 서빙합니다.
+`python3 -m http.server`는 캐시 헤더를 안 보내서 브라우저가 `styles.css` / `bookclub-data.js`의
+옛 버전을 계속 쓰는 일이 생깁니다 — 고친 게 반영이 안 된 것처럼 보이고, 프라이빗 창에서만
+제대로 나옵니다. 그래서 `serve.py`를 쓰세요.
+
 #### Node.js 사용:
 ```bash
 cd docs
-npx http-server -p 8000
+npx http-server -p 8000 -c-1   # -c-1 로 캐시 비활성
 ```
 
 #### VS Code Live Server 확장:
@@ -343,14 +347,13 @@ CORS policy: No 'Access-Control-Allow-Origin' header
 
 **Python 사용**:
 ```bash
-cd docs
-python3 -m http.server 8000
-# http://localhost:8000 에서 접속
+python3 serve.py
+# http://localhost:8000 에서 접속 (docs/를 캐시 없이 서빙)
 ```
 
 **또는 Node.js 사용**:
 ```bash
-npx http-server docs -p 8000
+npx http-server docs -p 8000 -c-1
 ```
 
 **또는 VS Code Live Server**:
@@ -528,23 +531,20 @@ Google Sheets의 버전 기록 활용:
 
 ### 새 책 추가 시
 
-1. **책ID 결정** (예: `new-book`)
-2. **HTML 파일 생성** - 기존 책 페이지를 복사
-3. **필수 스크립트 추가** (`<head>` 섹션):
-   ```html
-   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-   <script src="bookclub-data.js"></script>
-   ```
-4. **Book ID 설정** - `<body>` 태그에 추가:
-   ```html
-   <body data-book-id="new-book">
-   ```
-5. **섹션 ID 확인** - 다음 ID가 있는지 확인:
-   - `<div class="section" id="discussion">`
-   - `<div class="section" id="qa">`
-6. **스프레드시트에 데이터 추가**
+**HTML 파일을 새로 만들 필요가 없습니다.** `book.html`이 모든 책을 처리하는 공용 템플릿입니다.
 
-**자동 초기화**: `bookclub-data.js`가 `data-book-id` 속성을 읽고 자동으로 데이터를 로드합니다!
+1. **책ID 결정** (예: `new-book`)
+2. **책 메타데이터 시트에 행 추가** — `book_id`, `title`, `author`, `description`,
+   `cover_url`, `status`, `date`, `semester`
+   (영문판이 있으면 `title_en`, `author_en`, `cover_url_en`도. 비워두면 한글 값으로 대체됩니다.)
+3. **토론 내용 시트에 섹션별로 행 추가** — 같은 `책ID`에 `주요토론`, `질문답변`
+4. 끝. `summary.html` 목록에 자동으로 나타나고, `book.html?id=new-book`으로 열립니다.
+   `semester` 값을 채우면 홈 책장에도 자동으로 들어갑니다.
+
+**자동 초기화**: `bookclub-data.js`가 URL의 `?id=`를 읽어 해당 책의 메타데이터와 토론 내용을 불러옵니다.
+
+> 예전에는 책마다 정적 HTML(`book-cosmos.html` 등)을 만들었습니다. 그 방식은 폐기됐고,
+> 남아 있는 두 파일은 기존 링크 때문에 유지될 뿐입니다. 새 책에 새 HTML을 만들지 마세요.
 
 ---
 
