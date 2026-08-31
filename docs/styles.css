@@ -156,11 +156,18 @@ img { max-width: 100%; display: block; }
 
 /* ---------- 제목 영역 ---------- */
 .kicker {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
   font-size: 0.82rem;
   letter-spacing: 0.02em;
   color: var(--accent-2);
   margin: 0 0 0.7rem;
 }
+
+/* 맨 윗줄 아이콘은 em 단위로 — kicker 글자 크기를 따라간다 */
+.kicker .church-mark { flex: none; }
+.kicker .church-mark .mark { height: 1.6em; width: auto; }
 
 h1.hero-title {
   font-family: var(--serif);

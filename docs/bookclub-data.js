@@ -533,15 +533,65 @@ function switchTab(year) {
 window.loadBookList = loadBookList;
 
 // ========================================
-// 학기별 표지 목록 (index.html 홈, register.html 신청 페이지)
+// 표지 목록 (index.html 홈, register.html 신청 페이지)
 // ========================================
-// <div class="cover-grid" data-semester="2026-봄"> 안에 하드코딩된 표지를
-// 시트 내용으로 교체한다. 시트의 semester 컬럼 값이 data-semester와 같은 행만 쓴다.
+// <div class="cover-grid" data-semester="2026-봄"> 또는 data-year="2025" 안의
+// 하드코딩된 표지를 시트 내용으로 교체한다.
+//   - data-semester: semester 컬럼 값이 정확히 같은 행만 (학기 라인업)
+//   - data-year:     날짜의 연도가 같은 행만 (지난 연도 아카이브)
 //
-// 시트를 못 불러오거나 해당 학기 행이 하나도 없으면 HTML에 있던 표지를 그대로 둔다
+// 시트를 못 불러오거나 조건에 맞는 행이 하나도 없으면 HTML에 있던 표지를 그대로 둔다
 // (예전에 CORS로 로딩이 막힌 적이 있어, 실패 시 빈 화면이 되지 않도록 폴백을 남긴다).
-async function loadSemesterShelves() {
-  const grids = document.querySelectorAll('[data-semester]');
+// 폴백도 없는 그리드(예: 아직 확정 안 된 학기)는 그대로 비었다가, 아래에서 섹션째 감춘다.
+function cardsForShelfHTML(rows) {
+  return rows.map(function (row) {
+    const title = titlePair(row);
+    const author = authorPair(row);
+    const bookId = row['책ID'] || row['book_id'] || '';
+
+    // 책ID가 있으면 토론 기록 페이지로 넘어가는 링크로 만든다
+    const open = bookId
+      ? `<a class="cover-card" href="book.html?id=${encodeURIComponent(bookId)}">`
+      : '<div class="cover-card">';
+    const close = bookId ? '</a>' : '</div>';
+
+    // 제목과 저자를 한 덩어리로 묶어 통째로 전환한다.
+    // 따로 전환하면 영문 제목이 한 줄 더 길 때 그 여유가 제목과 저자 "사이"에
+    // 벌어진다. 묶어 두면 남는 공간이 카드 맨 아래로 가서 눈에 띄지 않는다.
+    const block = (t, a) =>
+      `<span class="t">${escapeHtml(t)}</span>` +
+      (a ? `<span class="a">${escapeHtml(a)}</span>` : '');
+
+    const hasAlt = title.alt || author.alt;
+    const meta = hasAlt
+      ? `<span class="txt-primary">${block(title.primary, author.primary)}</span>` +
+        `<span class="txt-alt">${block(title.alt || title.primary, author.alt || author.primary)}</span>`
+      : block(title.primary, author.primary);
+
+    return `
+      ${open}
+        <div class="shot">${coverMarkup(row, title.primary)}</div>
+        <div class="meta">${meta}</div>
+      ${close}`;
+  }).join('');
+}
+
+// semester(정확히 같은 학기, 읽는 순서) 또는 year(그 해 전체, 최신순)로 시트 행을 골라낸다
+function matchShelfRows(books, semester, year) {
+  if (semester) {
+    const rows = books.filter(function (row) {
+      return (row['학기'] || row['semester'] || '').trim() === semester;
+    });
+    rows.sort(function (a, b) { return dateKey(a['날짜'] || a['date']) - dateKey(b['날짜'] || b['date']); });
+    return rows;
+  }
+  const rows = books.filter(function (row) { return extractYear(row['날짜'] || row['date']) === year; });
+  rows.sort(function (a, b) { return dateKey(b['날짜'] || b['date']) - dateKey(a['날짜'] || a['date']); });
+  return rows;
+}
+
+async function loadShelves() {
+  const grids = document.querySelectorAll('[data-semester], [data-year]');
   if (!grids.length) return;
 
   const books = await fetchBookMetadata();
@@ -551,54 +601,18 @@ async function loadSemesterShelves() {
   }
 
   grids.forEach(function (grid) {
-    const wanted = (grid.getAttribute('data-semester') || '').trim();
-    if (!wanted) return;
+    const semester = (grid.getAttribute('data-semester') || '').trim();
+    const year = (grid.getAttribute('data-year') || '').trim();
+    if (!semester && !year) return;
 
-    const matched = books.filter(function (row) {
-      const semester = (row['학기'] || row['semester'] || '').trim();
-      return semester && semester === wanted;
-    });
+    const label = semester || `${year}년`;
+    const matched = matchShelfRows(books, semester, year);
 
     if (!matched.length) {
-      console.warn(`⚠️ "${wanted}" 학기에 해당하는 행이 없어 기존 표지를 유지합니다.`);
+      console.warn(`⚠️ "${label}"에 해당하는 행이 없어 기존 표지를 유지합니다.`);
     } else {
-      // 학기 라인업은 읽는 순서대로 (이른 날짜 먼저)
-      matched.sort(function (a, b) {
-        return dateKey(a['날짜'] || a['date']) - dateKey(b['날짜'] || b['date']);
-      });
-
-      grid.innerHTML = matched.map(function (row) {
-        const title = titlePair(row);
-        const author = authorPair(row);
-        const bookId = row['책ID'] || row['book_id'] || '';
-
-        // 책ID가 있으면 토론 기록 페이지로 넘어가는 링크로 만든다
-        const open = bookId
-          ? `<a class="cover-card" href="book.html?id=${encodeURIComponent(bookId)}">`
-          : '<div class="cover-card">';
-        const close = bookId ? '</a>' : '</div>';
-
-        // 제목과 저자를 한 덩어리로 묶어 통째로 전환한다.
-        // 따로 전환하면 영문 제목이 한 줄 더 길 때 그 여유가 제목과 저자 "사이"에
-        // 벌어진다. 묶어 두면 남는 공간이 카드 맨 아래로 가서 눈에 띄지 않는다.
-        const block = (t, a) =>
-          `<span class="t">${escapeHtml(t)}</span>` +
-          (a ? `<span class="a">${escapeHtml(a)}</span>` : '');
-
-        const hasAlt = title.alt || author.alt;
-        const meta = hasAlt
-          ? `<span class="txt-primary">${block(title.primary, author.primary)}</span>` +
-            `<span class="txt-alt">${block(title.alt || title.primary, author.alt || author.primary)}</span>`
-          : block(title.primary, author.primary);
-
-        return `
-          ${open}
-            <div class="shot">${coverMarkup(row, title.primary)}</div>
-            <div class="meta">${meta}</div>
-          ${close}`;
-      }).join('');
-
-      console.log(`✅ "${wanted}" 학기 ${matched.length}권 렌더링 완료`);
+      grid.innerHTML = cardsForShelfHTML(matched);
+      console.log(`✅ "${label}" ${matched.length}권 렌더링 완료`);
     }
 
     // 시트에서도 못 채우고 폴백 표지도 없으면 섹션째로 감춘다
@@ -606,12 +620,12 @@ async function loadSemesterShelves() {
     if (!grid.children.length) {
       const section = grid.closest('section');
       if (section) section.hidden = true;
-      console.warn(`⚠️ "${wanted}" 학기: 표시할 책이 없어 섹션을 감춥니다.`);
+      console.warn(`⚠️ "${label}": 표시할 책이 없어 섹션을 감춥니다.`);
     }
   });
 }
 
-window.loadSemesterShelves = loadSemesterShelves;
+window.loadShelves = loadShelves;
 
 // ========================================
 // 동적 책 페이지: URL에서 책 ID 가져오기
@@ -719,9 +733,9 @@ window.initializeDynamicBookPage = initializeDynamicBookPage;
 // 자동 초기화 (페이지 로드 시)
 // ========================================
 document.addEventListener('DOMContentLoaded', function() {
-  // 학기별 표지 목록은 다른 초기화와 독립적으로 동작한다
+  // 표지 목록(학기·연도)은 다른 초기화와 독립적으로 동작한다
   // (홈·신청 페이지에 있고, 없으면 아무것도 하지 않음)
-  loadSemesterShelves();
+  loadShelves();
 
   // URL 파라미터에서 책 ID 확인 (동적 페이지)
   const urlBookId = getBookIdFromURL();

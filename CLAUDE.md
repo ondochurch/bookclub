@@ -105,6 +105,8 @@ This is a multi-page static website with no build process, dependencies, or fram
   - Falls back to placeholder text if no data is found for a section/book
   - See SPREADSHEET_SETUP.md for setup instructions
 
+  **Cache-busting**: every `<script src="bookclub-data.js?v=N">` tag carries a version query string. **Bump `N` in every page that includes it whenever this file changes.** Without it, browsers (Safari in particular) can keep serving a stale cached copy after a deploy even on a manual reload — this caused real confusion in dev (new markup rendered, but against old JS, producing behavior that looked like the fix hadn't landed at all). A private/incognito window is the fast way to tell "stale cache" apart from "the fix is actually wrong" when debugging a report that a change had no effect.
+
   **Dependencies**:
   - PapaParse 5.4.1 (CSV parsing)
   - markdown-it 14.0.0 (Markdown rendering)
