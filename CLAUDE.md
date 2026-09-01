@@ -321,7 +321,11 @@ The site uses a shared stylesheet, **`docs/styles.css`**, loaded by every page e
 
 > An earlier pass styled the site after Edward Tufte's data-ink aesthetic. It was abandoned: that recipe suits dense analytical documents, and applying "minimize non-data ink" to a 6-link navigation hub with no data produced a near-empty page. Don't reach for it again here.
 
-**Two page headers, on purpose.** The landing page has no logo bar — its title sits at the very top (`.pagehead`) with the church logo and YouTube as small links to its right. Every other page keeps the logo bar (`.topbar`): the mark on the left linking home, back-navigation and the church link on the right. Don't "unify" these; the landing page dropped the bar because its `<h1>` already repeats the site name, which the sub-pages don't.
+**Two page headers, on purpose.** The landing page opens with `.pagehead`: a `.pagehead-top` row carrying the **ONDO wordmark** on the left and the language/YouTube links on the right, then the title block (kicker → `<h1>` → lede → CTA) below it. Every other page uses the logo bar (`.topbar`): the mark on the left linking home, back-navigation and the church link on the right. Don't "unify" these — they carry different marks and different link sets.
+
+**Logo assets.** The landing wordmark is `assets/ondo-wordmark.svg` (+ `-dark`), traced with `potrace` from the church's YouTube channel avatar, which is the cleanest available copy of the real mark. Gold "ON" `#e2a845`, charcoal "DO" `#51524c`; the dark variant repaints only "DO" to `#f0ece2`. It's vector and ~4.4 KB, so don't swap it back to a raster. Sub-pages still use the older cropped "온" glyph (`assets/ondo-mark.png`) — that's a deliberate scope boundary, not an oversight; changing them is a separate decision.
+
+**Don't use `currentColor` inside these SVGs.** They're loaded via `<img>`, which renders the SVG as a separate document, so `currentColor` resolves to the SVG's own default (black) and dark mode silently breaks. That's why two files exist instead of one. Inline SVG or `mask-image` would be needed for a single-file approach, and `mask-image` would flatten the two-tone mark to one color.
 
 In both headers the mark is an image with `alt=""`, so each link carries an `.sr-only` span for its accessible name. Removing that span leaves the link unnamed for screen readers — the visible text is gone. The light/dark mark swap is driven by `.mark-light` / `.mark-dark`, shared by both headers.
 

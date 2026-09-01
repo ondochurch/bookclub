@@ -73,16 +73,24 @@ img { max-width: 100%; display: block; }
 /* ---------- 페이지 머리 ----------
    따로 로고 바를 두지 않는다. 제목이 페이지 맨 위에 오고
    바깥 링크(온도교회 로고 · YouTube)는 그 오른쪽에 붙는다. */
+/* 랜딩 상단. 교회 워드마크가 맨 위 한 줄을 차지하고, 그 아래 제목 블록이 온다.
+   워드마크는 "ONDO"(교회 브랜드)라 아래 h1("온도교회 사명자반 북클럽")과 글자가 겹쳐 보이지
+   않는다 — 예전 로고 바를 뺐던 이유(제목과 사이트 이름이 중복)가 여기선 해당하지 않는다. */
 .pagehead {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 2rem;
   padding-top: 2.4rem;
   margin-bottom: 3rem;
 }
 
-.pagehead-main { flex: 1 1 auto; min-width: 0; }
+.pagehead-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem 1.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 2.6rem;
+}
+
+.pagehead-main { min-width: 0; }
 
 .pagehead-links {
   display: flex;
@@ -134,12 +142,14 @@ img { max-width: 100%; display: block; }
 .topnav a { text-decoration: none; }
 .topnav a:hover { color: var(--accent); }
 
-/* 온도교회 로고 (랜딩 우측 상단) */
+/* 온도교회 워드마크 (랜딩 최상단). YouTube 채널의 공식 로고를 벡터로 추적한 SVG다. */
 .church-mark { display: inline-flex; align-items: center; }
-.church-mark .mark { height: 1.6rem; width: auto; flex: none; }
+.church-mark .mark { height: 1.75rem; width: auto; flex: none; }
 
-/* 원본 로고는 차콜이라 어두운 배경에서 묻힌다.
-   밝은 잉크색으로 다시 칠한 변형(-dark)을 테마에 따라 바꿔 끼운다. */
+/* 로고의 어두운 부분(워드마크의 "DO", 하위 페이지 마크의 "온")은 차콜이라 어두운 배경에서 묻힌다.
+   밝은 잉크색으로 칠한 -dark 파일을 테마에 따라 바꿔 끼운다. 금색 부분은 양쪽 다 잘 보여 그대로 둔다.
+   랜딩의 ONDO 워드마크(SVG)와 하위 페이지의 마크(PNG)가 이 규칙을 함께 쓴다.
+   SVG 안에서 currentColor를 쓰면 안 된다 — <img>로 불러온 SVG는 별도 문서라 페이지 색을 못 물려받는다. */
 .mark-dark { display: none; }
 
 @media (prefers-color-scheme: dark) {
@@ -150,24 +160,17 @@ img { max-width: 100%; display: block; }
 :root[data-theme="dark"] .mark-dark { display: block; }
 
 @media (max-width: 40rem) {
-  .pagehead { flex-direction: column-reverse; gap: 1.4rem; }
-  .pagehead-links { align-self: flex-start; }
+  .pagehead-top { margin-bottom: 2rem; }
+  .church-mark .mark { height: 1.5rem; }
 }
 
 /* ---------- 제목 영역 ---------- */
 .kicker {
-  display: flex;
-  align-items: center;
-  gap: 0.5em;
   font-size: 0.82rem;
   letter-spacing: 0.02em;
   color: var(--accent-2);
   margin: 0 0 0.7rem;
 }
-
-/* 맨 윗줄 아이콘은 em 단위로 — kicker 글자 크기를 따라간다 */
-.kicker .church-mark { flex: none; }
-.kicker .church-mark .mark { height: 1.6em; width: auto; }
 
 h1.hero-title {
   font-family: var(--serif);
