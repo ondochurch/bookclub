@@ -543,13 +543,32 @@ window.loadBookList = loadBookList;
 // 시트를 못 불러오거나 조건에 맞는 행이 하나도 없으면 HTML에 있던 표지를 그대로 둔다
 // (예전에 CORS로 로딩이 막힌 적이 있어, 실패 시 빈 화면이 되지 않도록 폴백을 남긴다).
 // 폴백도 없는 그리드(예: 아직 확정 안 된 학기)는 그대로 비었다가, 아래에서 섹션째 감춘다.
-// startTrack: 연속 책장에서 이 묶음의 첫 카드를 놓을 그리드 트랙 번호.
-// 학기 사이 여백도 트랙 하나를 차지하므로, 그냥 두면 auto-placement가 카드를 그 여백 칸에
-// 밀어 넣어 학기 하나가 통째로 한 칸씩 밀린다. 첫 카드만 명시 배치하면 나머지는 이어서 붙는다.
-// 넘기지 않으면(신청 페이지의 단일 그리드) 예전처럼 auto-placement에 맡긴다.
-function cardsForShelfHTML(rows, startTrack) {
+// 새 학기 표시용 아이콘: "new" by DinosoftLabs (The Noun Project, CC BY 3.0).
+// https://thenounproject.com/icon/new-1693260/ — 저작자 표시가 라이선스 조건이라
+// 랜딩 푸터에 크레딧을 함께 넣었다. 아이콘을 바꾸면 그 크레딧도 같이 정리할 것.
+//
+// 원본은 가는 선 도안이라 26px 부근에서 NEW 글자가 뭉개진다. 그래서 별 모양 안쪽을
+// 채우고 글자를 구멍으로 뚫은 형태로 다시 그려(potrace) 작은 크기에서도 읽히게 했다.
+// 글자 마스크는 팽창(dilate 7px @512)시켜 한 단계 굵게 했다. 더 키우면 W가 별 안쪽
+// 테두리에 닿아 뭉개진다 — 11 이상은 쓰지 말 것.
+// <img>가 아니라 인라인이라 currentColor가 그대로 먹는다.
+const NEW_ICON =
+  '<svg viewBox="0 0 512 512" fill="currentColor" aria-hidden="true">'
+  + '<g transform="translate(0,512) scale(0.1,-0.1)" fill-rule="evenodd">'
+  + '<path d="M1903 4501 c-23 -11 -49 -31 -59 -46 -10 -15 -66 -129 -126 -253 -109 -228 -130 -262 -181 -288 -15 -8 -135 -28 -265 -44 -130 -17 -254 -34 -274 -40 -44 -13 -93 -52 -113 -91 -23 -43 -18 -95 30 -349 25 -129 45 -248 45 -263 0 -56 -34 -98 -222 -274 -104 -98 -198 -195 -209 -215 -10 -21 -19 -53 -19 -72 0 -75 23 -105 221 -291 189 -178 229 -227 229 -282 0 -15 -20 -134 -45 -263 -48 -252 -53 -306 -31 -348 22 -42 67 -79 111 -91 22 -6 150 -25 285 -42 209 -25 250 -33 280 -53 38 -25 49 -45 193 -351 38 -82 81 -164 93 -182 30 -39 100 -68 153 -60 24 3 129 54 272 133 310 170 268 170 578 0 143 -79 248 -130 272 -133 53 -8 123 21 153 60 12 18 69 131 126 252 115 245 129 269 170 290 15 8 137 28 271 45 134 16 261 34 281 40 76 22 128 89 128 167 0 21 -20 144 -45 273 -25 129 -45 248 -45 263 0 55 39 104 224 277 191 179 226 224 226 288 0 70 -25 103 -227 292 -194 183 -223 219 -223 277 0 15 20 134 45 263 25 129 45 252 45 273 0 78 -52 145 -128 167 -20 6 -144 23 -274 40 -140 17 -249 35 -267 45 -49 25 -76 68 -184 296 -56 118 -110 228 -120 243 -10 15 -37 36 -60 47 -81 36 -98 31 -361 -113 -320 -175 -274 -175 -592 0 -263 144 -280 149 -361 113z m-201 -1779 l158 -237 0 238 0 237 80 0 80 0 0 -400 0 -400 -84 0 -84 0 -156 237 -156 236 0 -236 0 -237 -80 0 -80 0 0 400 0 400 83 0 82 -1 157 -237z m1018 163 l0 -75 -220 0 -220 0 0 -80 0 -80 205 0 205 0 0 -75 0 -75 -205 0 -205 0 0 -95 0 -95 225 0 225 0 0 -75 0 -75 -305 0 -305 0 0 400 0 400 300 0 300 0 0 -75z m189 38 c5 -21 28 -121 51 -223 24 -102 46 -191 49 -198 4 -7 37 92 72 220 l65 233 94 0 93 0 66 -232 65 -233 58 233 c31 127 57 233 58 235 0 1 36 2 80 2 l80 0 -1 -42 c0 -24 -44 -203 -98 -398 l-98 -355 -80 -3 c-71 -2 -82 -1 -87 15 -2 10 -33 122 -67 248 -34 127 -65 233 -68 237 -4 4 -38 -107 -76 -248 l-70 -255 -84 3 -84 3 -98 370 c-54 204 -99 382 -99 398 l0 27 85 0 84 0 10 -37z"/></g></svg>';
+
+// opts.startTrack: 연속 책장에서 이 묶음의 첫 카드를 놓을 그리드 트랙 번호.
+//   학기 사이 여백도 트랙 하나를 차지하므로, 그냥 두면 auto-placement가 카드를 그 여백 칸에
+//   밀어 넣어 학기 하나가 통째로 한 칸씩 밀린다. 첫 카드만 명시 배치하면 나머지는 이어서 붙는다.
+//   넘기지 않으면(신청 페이지의 단일 그리드) 예전처럼 auto-placement에 맡긴다.
+// opts.isNew: 이 묶음의 표지에 새 학기 배지를 단다.
+function cardsForShelfHTML(rows, opts) {
+  const o = opts || {};
+  // 배지는 .shot 바깥에 둔다 — .shot은 hover 때 rotateY(180deg)로 돌아가는 면이라
+  // 그 안에 넣으면 배지까지 같이 뒤집혀 거울상이 되거나 뒷면으로 숨는다.
+  const badge = o.isNew ? `<span class="new-badge" aria-label="NEW">${NEW_ICON}</span>` : '';
   return rows.map(function (row, i) {
-    const place = (i === 0 && startTrack) ? ` style="grid-column:${startTrack}"` : '';
+    const place = (i === 0 && o.startTrack) ? ` style="grid-column:${o.startTrack}"` : '';
     const title = titlePair(row);
     const author = authorPair(row);
     const bookId = row['책ID'] || row['book_id'] || '';
@@ -575,7 +594,7 @@ function cardsForShelfHTML(rows, startTrack) {
 
     return `
       ${open}
-        <div class="shot">${coverMarkup(row, title.primary)}</div>
+        <div class="shot">${coverMarkup(row, title.primary)}</div>${badge}
         <div class="meta">${meta}</div>
       ${close}`;
   }).join('');
@@ -673,7 +692,7 @@ function packShelfRows(groups, cols) {
       const tail = remaining.length - take;
       if (tail === 1 && take - 1 >= MIN_SEGMENT_COLS) take -= 1;
 
-      row.push({ label: group.label, books: remaining.slice(0, take) });
+      row.push({ label: group.label, isNew: group.isNew, books: remaining.slice(0, take) });
       remaining = remaining.slice(take);
       used += take;
       first = false;
@@ -731,7 +750,7 @@ function shelfStreamHTML(groups, cols) {
     }).join('');
 
     const cards = segments.map(function (seg, i) {
-      return cardsForShelfHTML(seg.books, starts[i]);
+      return cardsForShelfHTML(seg.books, { startTrack: starts[i], isNew: seg.isNew });
     }).join('');
 
     return `<div class="shelf-lane" style="grid-template-columns:${template}">${lane}</div>` +
@@ -745,7 +764,11 @@ async function loadShelfStream() {
 
   const defs = Array.from(stream.querySelectorAll('[data-shelf-semester]')).map(function (el) {
     const semester = (el.getAttribute('data-shelf-semester') || '').trim();
-    return { semester: semester, label: el.getAttribute('data-shelf-label') || semester };
+    return {
+      semester: semester,
+      label: el.getAttribute('data-shelf-label') || semester,
+      isNew: el.hasAttribute('data-shelf-new'),
+    };
   });
   if (!defs.length) return;
 
@@ -757,7 +780,7 @@ async function loadShelfStream() {
 
   const groups = defs
     .map(function (def) {
-      return { label: def.label, rows: matchShelfRows(books, def.semester, '') };
+      return { label: def.label, isNew: def.isNew, rows: matchShelfRows(books, def.semester, '') };
     })
     .filter(function (group) {
       if (!group.rows.length) console.warn(`⚠️ "${group.label}"에 해당하는 행이 없어 건너뜁니다.`);
