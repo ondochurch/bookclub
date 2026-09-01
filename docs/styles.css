@@ -130,8 +130,10 @@ img { max-width: 100%; display: block; }
   margin-bottom: 2.6rem;
 }
 
+/* 랜딩과 같은 ONDO 워드마크를 쓰되 한 단계 작게 —
+   하위 페이지에서는 로고가 주인공이 아니라 돌아가는 링크다 (랜딩은 1.75rem) */
 .wordmark { display: inline-flex; align-items: center; }
-.wordmark .mark { height: 1.9rem; width: auto; flex: none; }
+.wordmark .mark { height: 1.15rem; width: auto; flex: none; }
 
 .topnav {
   display: flex;
