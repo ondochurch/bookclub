@@ -278,7 +278,9 @@ h1.page-title {
   position: relative; /* .new-badge 기준점 */
 }
 
-/* 새 학기 책 표시. 별 모양 NEW 스티커 (The Noun Project, CC BY — 푸터에 크레딧).
+/* 새 학기 책 표시. 별 모양은 직접 생성한 도형이고 글자는 진짜 <text>라
+   외부 아이콘 라이선스나 저작자 표시 의무가 없다.
+
    .shot은 hover 때 rotateY(180deg)로 뒤집히는 면이라 배지를 그 안에 두면 같이 돌아가
    거울상이 되거나 뒷면으로 숨는다. 그래서 .shot의 형제로 두고 카드 기준으로 얹는다.
 
@@ -300,6 +302,16 @@ h1.page-title {
 }
 
 .new-badge svg { width: 100%; height: 100%; display: block; }
+
+/* 글자 굵기·크기는 여기서 조절한다. viewBox가 0 0 100 100이라 px 값이 곧 도형 좌표다.
+   700은 이미 불러오는 웨이트라 폰트를 더 받지 않는다. 더 키우면 별 안쪽 테두리에 닿는다. */
+.new-badge text {
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: 27px;
+  letter-spacing: 0.5px;
+  fill: var(--paper);
+}
 
 .cover-card .shot {
   box-shadow: var(--shadow);
@@ -761,10 +773,6 @@ footer {
   font-size: 0.85rem;
   color: var(--muted);
 }
-/* 아이콘 라이선스 표기. 본문 정보가 아니라 의무 표기라 한 단계 더 작고 흐리게 둔다 */
-.credit { flex-basis: 100%; font-size: 0.72rem; color: var(--muted); opacity: 0.75; }
-.credit a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
-
 footer a { text-decoration: none; }
 footer a:hover { color: var(--accent); }
 

@@ -280,13 +280,16 @@ The landing pages and `register.html` show semester books as covers, all driven 
 
 ### The NEW badge
 
-`NEW_ICON` in `bookclub-data.js` is "new" by DinosoftLabs (The Noun Project), **CC BY**, so the attribution line in both landing footers (`.credit`) is a licence condition, not decoration — if the icon changes or goes, that line goes with it.
+The badge on a `data-shelf-new` semester's covers is **drawn in-house — no third-party icon, no licence, no attribution required.** An earlier version used a Noun Project icon under CC BY, which forced a credit line into both landing footers; that line is gone and should not come back unless a licensed asset is reintroduced.
 
-- The original is a thin outline drawing whose lettering turns to mush around 26px. What ships is a redrawn version: the starburst is filled and the letters are punched out as holes, then re-traced with `potrace`. The letter mask is dilated 7px at the 512px source to weight it up; **at 11px or more the W collides with the star's inner edge**.
-- No background box. The badge is the star shape itself, separated from cover art by two `--paper` drop-shadows acting as an outline, which works on light and dark covers and in both themes.
-- Don't shrink it below 1.75rem — the lettering stops resolving. There is deliberately no mobile size reduction for this reason.
+- `NEW_ICON` in `bookclub-data.js` is a 12-point rosette whose path was generated from coordinates, plus a real `<text>` element. **The lettering is live text, not baked into the path** — set its weight and size in `styles.css` (`.new-badge text`), never by editing the path data.
+- Weight is `700` deliberately: that weight is already loaded for the page, so the badge costs no extra font download. Going heavier means adding a weight to the Google Fonts request.
+- `font-size: 27px` works because the `viewBox` is `0 0 100 100`, so px values are shape coordinates. Much larger and the letters reach the star's inner edge.
+- No background box. The badge is the star itself, separated from cover art by two `--paper` drop-shadows acting as an outline — works on light and dark covers, in both themes.
+- Don't shrink below 1.75rem; the lettering stops resolving. There is deliberately no mobile size reduction.
 - The badge is a **sibling of `.shot`, not a child**: `.shot` is the face that rotates `180deg` on hover, so a badge inside it flips into a mirror image or hides on the back face.
-- An abstract icon was tried first (sparkles) and did not read as "new" — the meaning has to be carried by the word.
+- The `<svg>` carries `aria-hidden`; the accessible name comes from the wrapping span's `aria-label`, so the word isn't announced twice.
+- An abstract icon (sparkles) was tried first and did not read as "new" — the word has to carry the meaning.
 
 ### Bilingual book data, and the page-turn cover hover
 
