@@ -224,6 +224,20 @@ The website uses Google Spreadsheet as a simple database for managing book discu
 3. **Auto-Population**: Content is automatically injected into book pages on load
 4. **Fallback**: If no data found, placeholder text remains visible
 
+### ondo-sheets MCP (Claude 전용 편집 경로)
+
+이 저장소에서 작업하는 Claude Code 세션에는 프로젝트 스코프 MCP 서버 `ondo-sheets`가
+등록되어 있어, 스프레드시트를 브라우저 없이 직접 읽고 쓸 수 있다.
+
+- 서버: `~/prj/ondo/sheets-mcp/server.js` (로컬 전용 도구, 별도 git 저장소 아님)
+- 자격증명: 서비스 계정 키 `~/.config/ondo/sheets-key.json` (600 권한 — 절대 커밋 금지.
+  공개 저장소이므로 키 경로·자격증명 흐름을 저장소에 넣지 말 것)
+- 대상: 책 메타데이터 스프레드시트 (`docs/bookclub-data.js`의 `sheetId`와 동일)
+- 도구: `sheets_list_tabs` (탭 나열) / `sheets_read` (범위 읽기) /
+  `sheets_update` (범위 덮어쓰기) / `sheets_append` (행 추가)
+- 등록 위치: `~/.claude.json`의 이 프로젝트 항목 `mcpServers.ondo-sheets`
+  (프로젝트 스코프라 전역 `claude mcp list`에는 보이지 않음)
+
 ### Setup Process
 
 1. Create a Google Spreadsheet with the following structure:
