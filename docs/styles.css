@@ -11,6 +11,7 @@
   --accent:  #a6300e;  /* 이번 학기 · 신청 · 진행 중 */
   --accent-2:#3e4a5c;  /* 완료 · 정보 */
   --brand:   #e1a846;  /* 온도교회 로고 골드 — 선(border)에만. 글자에 쓰면 대비 부족 */
+  --youth:   #1d74e7;  /* 유스그룹 — 밝은 파랑 */
   --shadow:  0 2px 6px rgba(28, 26, 23, 0.10);
 
   --serif: 'Noto Serif KR', Georgia, serif;
@@ -27,6 +28,7 @@
     --accent:  #e8836a;
     --accent-2:#9db2cc;
     --brand:   #e8b45c;
+    --youth:   #58a6ff;
     --shadow:  0 2px 8px rgba(0, 0, 0, 0.45);
   }
 }
@@ -40,6 +42,7 @@
   --accent:  #e8836a;
   --accent-2:#9db2cc;
   --brand:   #e8b45c;
+  --youth:   #58a6ff;
   --shadow:  0 2px 8px rgba(0, 0, 0, 0.45);
 }
 
@@ -323,7 +326,7 @@ h1.page-title {
   z-index: 2;
   width: 1.55rem;
   height: 1.85rem;
-  color: var(--accent-2);
+  color: var(--youth);
   pointer-events: none;
   filter:
     drop-shadow(0 0 1.5px var(--paper))
@@ -701,8 +704,8 @@ a.cover-card:hover .t { color: var(--accent); }
 .status-active { color: var(--accent); }
 .status-youth {
   color: var(--paper);
-  background: var(--accent-2);
-  border-color: var(--accent-2);
+  background: var(--youth);
+  border-color: var(--youth);
 }
 
 @media (max-width: 40rem) {
