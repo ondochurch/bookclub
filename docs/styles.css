@@ -246,6 +246,13 @@ h1.page-title {
 }
 .link-quiet:hover { color: var(--accent); text-decoration-color: currentColor; }
 
+.hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.4rem;
+  flex-wrap: wrap;
+}
+
 /* ---------- section ---------- */
 .section { margin-top: 3.2rem; }
 
@@ -524,6 +531,22 @@ a.cover-card:hover .t { color: var(--accent); }
   border-bottom: 2px solid var(--brand);
   min-width: 0;              /* 트랙이 글자보다 좁아질 수 있게 */
   overflow-wrap: anywhere;   /* 좁은 세그먼트에서 넘치지 않게 */
+}
+
+/* 학기 연속 책장 끝 — 2025년 이전 아카이브 연결 */
+.shelf-tail {
+  margin-top: 2rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid var(--rule);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.shelf-tail-note {
+  font-size: 0.88rem;
+  color: var(--muted);
 }
 
 /* ---------- 목록형 링크 (둘러보기 · 기타 자료) ---------- */
