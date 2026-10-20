@@ -473,6 +473,9 @@ function renderBookList(books) {
 
       // 상태 문구에 "완료"가 있으면 정보색, 아니면 강조색(진행 중)으로 매핑
       const statusClass = status.includes('완료') ? 'status-done' : 'status-active';
+      const youthTag = isYouthBook(book)
+        ? `<span class="status status-youth">${prefersEnglish() ? 'Youth' : '유스'}</span>`
+        : '';
 
       // 저자 · 날짜는 제목 아래 한 줄로 (한글 이름이 길어도 깨지지 않도록).
       // 날짜는 판본과 무관하지만, 두 벌을 같은 칸에 포개려면 한쪽에만 텍스트 노드를
@@ -489,7 +492,10 @@ function renderBookList(books) {
           <h3>${swapText(title)}</h3>
           ${metaLine ? `<p class="book-meta">${metaLine}</p>` : ''}
           ${description ? `<p class="desc">${escapeHtml(description)}</p>` : ''}
-          <span class="status ${statusClass}">${escapeHtml(status)}</span>
+          <div class="status-row">
+            ${youthTag}
+            <span class="status ${statusClass}">${escapeHtml(status)}</span>
+          </div>
         </div>
       `;
 
@@ -543,6 +549,26 @@ window.loadBookList = loadBookList;
 // 시트를 못 불러오거나 조건에 맞는 행이 하나도 없으면 HTML에 있던 표지를 그대로 둔다
 // (예전에 CORS로 로딩이 막힌 적이 있어, 실패 시 빈 화면이 되지 않도록 폴백을 남긴다).
 // 폴백도 없는 그리드(예: 아직 확정 안 된 학기)는 그대로 비었다가, 아래에서 섹션째 감춘다.
+// 유스그룹 도서 여부 확인 (group 컬럼: 유스, 유스그룹, youth)
+function isYouthBook(row) {
+  const g = pick(row, ['group', '그룹']).toLowerCase();
+  return g === '유스' || g === '유스그룹' || g === 'youth';
+}
+
+// 유스 도서용 제비꼬리 책갈피 배지 (표지 좌상단)
+function youthBookmarkHTML() {
+  const label = prefersEnglish() ? 'YOUTH' : '유스';
+  const cls = prefersEnglish() ? 'youth-badge is-en' : 'youth-badge';
+  return (
+    `<span class="${cls}" aria-label="${label}">`
+    + '<svg viewBox="0 0 44 52" aria-hidden="true">'
+    + '<path d="M2,0 H42 V50 L22,39 L2,50 Z" fill="currentColor"/>'
+    + `<text x="22" y="21" text-anchor="middle" dominant-baseline="central">${label}</text>`
+    + '</svg>'
+    + '</span>'
+  );
+}
+
 // 새 학기 표시용 NEW 배지. 직접 만든 도형이라 외부 라이선스·저작자 표시 의무가 없다.
 // (전에 쓰던 The Noun Project 아이콘은 CC BY라 푸터 크레딧이 필요했다.)
 //
@@ -570,6 +596,7 @@ function cardsForShelfHTML(rows, opts) {
     const title = titlePair(row);
     const author = authorPair(row);
     const bookId = row['책ID'] || row['book_id'] || '';
+    const youthBadge = isYouthBook(row) ? youthBookmarkHTML() : '';
 
     // 책ID가 있으면 토론 기록 페이지로 넘어가는 링크로 만든다
     const open = bookId
@@ -592,7 +619,7 @@ function cardsForShelfHTML(rows, opts) {
 
     return `
       ${open}
-        <div class="shot">${coverMarkup(row, title.primary)}</div>${badge}
+        <div class="shot">${coverMarkup(row, title.primary)}</div>${youthBadge}${badge}
         <div class="meta">${meta}</div>
       ${close}`;
   }).join('');
@@ -886,6 +913,24 @@ function populateBookPage(bookMetadata) {
   const coverContainer = document.getElementById('book-cover-container');
   if (coverContainer) {
     coverContainer.innerHTML = coverMarkup(bookMetadata, title);
+  }
+
+  // 유스 도서인 경우 상태 태그 표시
+  let statusRow = document.getElementById('book-status-row');
+  if (isYouthBook(bookMetadata)) {
+    if (!statusRow) {
+      statusRow = document.createElement('div');
+      statusRow.id = 'book-status-row';
+      statusRow.className = 'status-row';
+      statusRow.style.margin = '0.5rem 0';
+      const descElem = document.getElementById('book-description');
+      if (descElem) {
+        descElem.parentNode.insertBefore(statusRow, descElem);
+      }
+    }
+    statusRow.innerHTML = `<span class="status status-youth">${prefersEnglish() ? 'Youth' : '유스'}</span>`;
+  } else if (statusRow) {
+    statusRow.remove();
   }
 
   console.log('✅ 페이지 메타데이터 업데이트 완료');

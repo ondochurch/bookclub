@@ -313,6 +313,39 @@ h1.page-title {
   fill: var(--paper);
 }
 
+/* 유스 도서 표시. 제비꼬리 모양 책갈피 리본으로 좌측 상단에 배치한다.
+   우측 상단의 .new-badge와 겹치지 않고 반대편 모서리에 위치한다.
+   .shot의 형제로 두어 3D 회전 시 뒤집히지 않는다. */
+.youth-badge {
+  position: absolute;
+  top: -0.3rem;
+  left: 0.35rem;
+  z-index: 2;
+  width: 1.55rem;
+  height: 1.85rem;
+  color: var(--accent-2);
+  pointer-events: none;
+  filter:
+    drop-shadow(0 0 1.5px var(--paper))
+    drop-shadow(0 0 1.5px var(--paper))
+    drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
+}
+
+.youth-badge svg { width: 100%; height: 100%; display: block; }
+
+.youth-badge text {
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.5px;
+  fill: var(--paper);
+}
+
+.youth-badge.is-en text {
+  font-size: 9.5px;
+  letter-spacing: 0.3px;
+}
+
 .cover-card .shot {
   box-shadow: var(--shadow);
   background: var(--paper-2);
@@ -650,6 +683,13 @@ a.cover-card:hover .t { color: var(--accent); }
   text-wrap: pretty;
 }
 
+.status-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
 .status {
   display: inline-block;
   font-size: 0.75rem;
@@ -659,6 +699,11 @@ a.cover-card:hover .t { color: var(--accent); }
 }
 .status-done   { color: var(--accent-2); }
 .status-active { color: var(--accent); }
+.status-youth {
+  color: var(--paper);
+  background: var(--accent-2);
+  border-color: var(--accent-2);
+}
 
 @media (max-width: 40rem) {
   .book-entry { grid-template-columns: 4rem 1fr; gap: 1rem; }

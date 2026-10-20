@@ -305,6 +305,29 @@ The badge on a `data-shelf-new` semester's covers is **drawn in-house — no thi
 - The `<svg>` carries `aria-hidden`; the accessible name comes from the wrapping span's `aria-label`, so the word isn't announced twice.
 - An abstract icon (sparkles) was tried first and did not read as "new" — the word has to carry the meaning.
 
+### The Youth Group (`유스`) badge and status tag
+
+Books read by the youth group are marked in the metadata spreadsheet with `group = 유스` (Column N). They appear alongside regular Mission Class books and are visually distinguished in two ways (combining a top-left bookmark ribbon on shelf covers with a rectangular stamp tag in list/detail views):
+
+1. **Detection helper (`bookclub-data.js`)**:
+   ```javascript
+   function isYouthBook(row) {
+     const g = pick(row, ['group', '그룹']).toLowerCase();
+     return g === '유스' || g === '유스그룹' || g === 'youth';
+   }
+   ```
+2. **Semester shelves (`index.html`, `index-en.html`, `register.html`) — `.youth-badge` bookmark ribbon**:
+   - Drawn in-house as an inline swallowtail bookmark SVG (`viewBox="0 0 44 52"`, `<path d="M2,0 H42 V50 L22,39 L2,50 Z" fill="currentColor"/>`) with a live `<text x="22" y="21" text-anchor="middle" dominant-baseline="central">` element (`유스` on `lang="ko"`, `YOUTH` on `lang="en"` with `.is-en`).
+   - Placed at the **top-left** of `.cover-card` (`top: -0.3rem; left: 0.35rem; z-index: 2; width: 1.55rem; height: 1.85rem; color: var(--accent-2)`), separated from cover art by the same double `--paper` `drop-shadow` outline as `.new-badge`.
+   - **Must be a sibling of `.shot`, never a child**, so the 180° hover flip (`rotateY(180deg)`) does not mirror or hide the badge.
+   - Positioned top-left in slate blue (`--accent-2`) so it never collides visually or spatially with `.new-badge` (top-right, terracotta `--accent`) when a book has both (e.g. 2026 Fall youth books).
+3. **Summary list (`summary.html`) & Book detail (`book.html`) — `.status-youth` stamp tag**:
+   - In `renderBookList()`, render `<span class="status status-youth">${prefersEnglish() ? 'Youth' : '유스'}</span>` next to the completion `.status` inside a `.status-row` flex wrapper (`display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap`).
+   - In `populateBookPage()`, display the `.status-youth` tag in the `.book-head` metadata block (e.g. alongside `#page-subtitle` or `#book-date`) when `isYouthBook(bookMetadata)` is true.
+   - Styled as a solid inverted stamp (`color: var(--paper); background: var(--accent-2); border-color: var(--accent-2)`) so it stands apart from the outlined `.status-done` tag sitting right next to it.
+4. **Cache-busting reminder**:
+   - After editing `styles.css` and `bookclub-data.js`, bump `?v=N` in all 8 HTML files referencing `styles.css` and all 5 HTML files referencing `bookclub-data.js`.
+
 ### Bilingual book data, and the page-turn cover hover
 
 A book can carry a Korean and an English version of several fields. The `_en` columns are optional — anything missing falls back to the Korean value:
