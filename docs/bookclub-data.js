@@ -457,8 +457,11 @@ function renderBookList(books) {
     const booksGrid = document.createElement('div');
     booksGrid.className = 'books';
 
-    // 연도 안에서는 최신 날짜가 위로 (연도 탭도 최신순이라 방향을 맞춘다)
+    // 연도 안에서는 일반 도서 먼저, 유스는 뒷부분으로 (최신순 정렬)
     booksByYear[year].sort(function (a, b) {
+      const ya = isYouthBook(a) ? 1 : 0;
+      const yb = isYouthBook(b) ? 1 : 0;
+      if (ya !== yb) return ya - yb;
       return dateKey(b['날짜'] || b['date']) - dateKey(a['날짜'] || a['date']);
     });
 
@@ -708,17 +711,28 @@ function cardsForShelfHTML(rows, opts) {
   }).join('');
 }
 
-// semester(정확히 같은 학기, 읽는 순서) 또는 year(그 해 전체, 최신순)로 시트 행을 골라낸다
+// semester(정확히 같은 학기, 읽는 순서) 또는 year(그 해 전체, 최신순)로 시트 행을 골라낸다.
+// 유스 도서는 섞지 않고 각 학기(또는 연도)의 뒷부분에 배치한다.
 function matchShelfRows(books, semester, year) {
   if (semester) {
     const rows = books.filter(function (row) {
       return (row['학기'] || row['semester'] || '').trim() === semester;
     });
-    rows.sort(function (a, b) { return dateKey(a['날짜'] || a['date']) - dateKey(b['날짜'] || b['date']); });
+    rows.sort(function (a, b) {
+      const ya = isYouthBook(a) ? 1 : 0;
+      const yb = isYouthBook(b) ? 1 : 0;
+      if (ya !== yb) return ya - yb;
+      return dateKey(a['날짜'] || a['date']) - dateKey(b['날짜'] || b['date']);
+    });
     return rows;
   }
   const rows = books.filter(function (row) { return extractYear(row['날짜'] || row['date']) === year; });
-  rows.sort(function (a, b) { return dateKey(b['날짜'] || b['date']) - dateKey(a['날짜'] || a['date']); });
+  rows.sort(function (a, b) {
+    const ya = isYouthBook(a) ? 1 : 0;
+    const yb = isYouthBook(b) ? 1 : 0;
+    if (ya !== yb) return ya - yb;
+    return dateKey(b['날짜'] || b['date']) - dateKey(a['날짜'] || a['date']);
+  });
   return rows;
 }
 
