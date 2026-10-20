@@ -376,7 +376,8 @@ async function loadBookList() {
 }
 
 function extractYear(dateString) {
-  if (!dateString) return '기타';
+  if (!dateString) return '2025년 이전';
+  if (dateString.includes('이전')) return '2025년 이전';
 
   // 날짜 형식에서 연도 추출 (예: "2024-09", "2024.09", "2024년 9월", "2024/09/15")
   const yearMatch = dateString.match(/(\d{4})/);
@@ -384,7 +385,7 @@ function extractYear(dateString) {
     return yearMatch[1];
   }
 
-  return '기타';
+  return '2025년 이전';
 }
 
 function renderBookList(books) {
@@ -414,8 +415,8 @@ function renderBookList(books) {
 
   // 연도를 정렬 (최신순)
   const years = Object.keys(booksByYear).sort((a, b) => {
-    if (a === '기타') return 1;
-    if (b === '기타') return -1;
+    if (a.includes('이전') || a === '기타') return 1;
+    if (b.includes('이전') || b === '기타') return -1;
     return b.localeCompare(a); // 내림차순 정렬
   });
 
@@ -427,7 +428,10 @@ function renderBookList(books) {
     const tabButton = document.createElement('button');
     tabButton.className = 'tab-button';
     tabButton.setAttribute('data-year', year);
-    tabButton.textContent = year === '기타' ? year : `${year}년`;
+    const isPrior = year.includes('이전');
+    tabButton.textContent = isPrior
+      ? (prefersEnglish() ? 'Prior to 2025' : year)
+      : (year === '기타' ? (prefersEnglish() ? 'Other' : '기타') : (year.endsWith('년') ? year : `${year}년`));
     if (index === 0) {
       tabButton.classList.add('active');
     }
@@ -480,7 +484,8 @@ function renderBookList(books) {
       // 저자 · 날짜는 제목 아래 한 줄로 (한글 이름이 길어도 깨지지 않도록).
       // 날짜는 판본과 무관하지만, 두 벌을 같은 칸에 포개려면 한쪽에만 텍스트 노드를
       // 남기면 안 되므로 양쪽 문구에 모두 넣는다.
-      const withDate = (who) => [who, date].filter(Boolean).join(' · ');
+      const displayDate = prefersEnglish() && date === '2025년 이전' ? 'Prior to 2025' : date;
+      const withDate = (who) => [who, displayDate].filter(Boolean).join(' · ');
       const metaLine = swapText({
         primary: withDate(author.primary),
         alt: author.alt ? withDate(author.alt) : '',
@@ -532,7 +537,7 @@ function switchTab(year) {
     selectedContent.classList.add('active');
   }
 
-  console.log(`📑 탭 전환: ${year}년`);
+  console.log(`📑 탭 전환: ${year}`);
 }
 
 // 전역 함수로 노출
