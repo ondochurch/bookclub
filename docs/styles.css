@@ -272,11 +272,11 @@ h1.page-title {
   margin: -0.4rem 0 1.4rem;
 }
 
-/* ---------- 표지 그리드 (홈 · 신청 페이지) ---------- */
+/* ---------- 표지 그리드 (홈 · 신청 페이지 · 과거 도서) ---------- */
 .cover-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1.8rem 1.4rem;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1.6rem 1.1rem;
   margin-bottom: 2rem;
 }
 
@@ -449,21 +449,24 @@ a.cover-card:hover .t { color: var(--accent); }
 .cover-card .t {
   display: block;
   font-family: var(--serif);
-  font-size: 0.92rem;
+  font-size: 0.88rem;
   font-weight: 600;
-  line-height: 1.45;
+  line-height: 1.4;
   text-wrap: pretty;
 }
 
 .cover-card .a {
   display: block;
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   color: var(--muted);
   margin-top: 0.15rem;
 }
 
-@media (max-width: 40rem) {
-  .cover-grid { grid-template-columns: repeat(2, 1fr); gap: 1.4rem 1rem; }
+@media (max-width: 52rem) {
+  .cover-grid { grid-template-columns: repeat(3, 1fr); gap: 1.4rem 1rem; }
+}
+@media (max-width: 34rem) {
+  .cover-grid { grid-template-columns: repeat(2, 1fr); gap: 1.2rem 0.8rem; }
 }
 
 /* 홈에서는 한 줄짜리 책장으로 — 표지가 세로를 다 먹으면 아래 메뉴가 안 보인다.
