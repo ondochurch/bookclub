@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>2025년 이전 도서 - 온도교회 사명자반 북클럽</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Noto+Serif+KR:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=12">
+  <link rel="icon" type="image/png" href="assets/favicon.png">
+  <link rel="apple-touch-icon" href="assets/favicon.png">
+  <!-- PapaParse CSV 파싱 라이브러리 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+  <!-- 북클럽 데이터 로더 -->
+  <script src="bookclub-data.js?v=12"></script>
+</head>
+<body data-page-type="past-books">
+
+  <div class="frame">
+
+    <header class="topbar">
+      <a href="index.html" class="wordmark">
+        <img class="mark mark-light" src="assets/ondo-wordmark.svg" alt="" aria-hidden="true" width="1864" height="478">
+        <img class="mark mark-dark" src="assets/ondo-wordmark-dark.svg" alt="" aria-hidden="true" width="1864" height="478">
+        <span class="sr-only">온도교회 사명자반 북클럽</span>
+      </a>
+      <nav class="topnav">
+        <a href="index.html">← 홈</a>
+        <a href="summary.html">최신 목록</a>
+        <a href="https://www.ondochurch.org/" target="_blank">온도교회</a>
+      </nav>
+    </header>
+
+    <p class="kicker">사명자반 북클럽 아카이브</p>
+    <h1 class="page-title">2025년 이전 도서</h1>
+    <p class="lede">2025년 이전에 함께 읽고 나눈 32권의 북클럽 도서입니다. 표지를 클릭하시면 개별 책 상세 페이지로 이동합니다.</p>
+
+    <div class="tabs-container">
+      <div class="tabs">
+        <button class="tab-button active" id="tab-btn-grid" onclick="switchPastView('grid')">표지로 보기 (32권)</button>
+        <button class="tab-button" id="tab-btn-list" onclick="switchPastView('list')">상세 목록으로 보기</button>
+      </div>
+    </div>
+
+    <div id="tab-pane-grid" class="tab-content active" style="margin-top: 2rem;">
+      <div id="past-books-grid" class="cover-grid">
+        <!-- 표지 그리드가 스프레드시트에서 자동으로 로드됩니다 -->
+      </div>
+    </div>
+
+    <div id="tab-pane-list" class="tab-content" style="margin-top: 1rem;">
+      <div id="past-books-list" class="books">
+        <!-- 상세 목록이 스프레드시트에서 자동으로 로드됩니다 -->
+      </div>
+    </div>
+
+    <footer>
+      <span>온도교회 사명자반 북클럽</span>
+      <a href="https://www.ondochurch.org/" target="_blank">온도교회 웹사이트 방문하기 →</a>
+    </footer>
+
+  </div>
+
+  <script>
+    function switchPastView(view) {
+      const btnGrid = document.getElementById('tab-btn-grid');
+      const btnList = document.getElementById('tab-btn-list');
+      const paneGrid = document.getElementById('tab-pane-grid');
+      const paneList = document.getElementById('tab-pane-list');
+      if (view === 'grid') {
+        btnGrid.classList.add('active');
+        btnList.classList.remove('active');
+        paneGrid.classList.add('active');
+        paneList.classList.remove('active');
+      } else {
+        btnGrid.classList.remove('active');
+        btnList.classList.add('active');
+        paneGrid.classList.remove('active');
+        paneList.classList.add('active');
+      }
+    }
+  </script>
+
+</body>
+</html>

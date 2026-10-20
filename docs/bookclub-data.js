@@ -371,8 +371,15 @@ async function loadBookList() {
   const books = await fetchBookMetadata();
   if (!books.length) return;
 
-  console.log(`📖 총 ${books.length}권의 책 발견`);
-  renderBookList(books);
+  // 2025년 이전 도서는 별도 페이지(past-books.html)에서 다루므로 summary.html에서는 제외
+  const currentBooks = books.filter(b => {
+    const sem = (b['학기'] || b['semester'] || '').trim();
+    const dt = (b['날짜'] || b['date'] || '').trim();
+    return !sem.includes('이전') && !dt.includes('이전');
+  });
+
+  console.log(`📖 총 ${currentBooks.length}권의 책 발견`);
+  renderBookList(currentBooks);
 }
 
 function extractYear(dateString) {
@@ -542,6 +549,77 @@ function switchTab(year) {
 
 // 전역 함수로 노출
 window.loadBookList = loadBookList;
+
+// ========================================
+// 2025년 이전 도서 아카이브 페이지 로딩
+// ========================================
+async function loadPastBooks() {
+  console.log('📚 2025년 이전 도서 로딩 중...');
+
+  const books = await fetchBookMetadata();
+  if (!books.length) return;
+
+  const pastBooks = books.filter(b => {
+    const sem = (b['학기'] || b['semester'] || '').trim();
+    const dt = (b['날짜'] || b['date'] || '').trim();
+    return sem.includes('이전') || dt.includes('이전');
+  });
+
+  console.log(`📖 2025년 이전 도서 ${pastBooks.length}권 발견`);
+
+  // 1. 표지 그리드 채우기
+  const grid = document.getElementById('past-books-grid');
+  if (grid) {
+    grid.innerHTML = cardsForShelfHTML(pastBooks);
+  }
+
+  // 2. 상세 목록 채우기
+  const list = document.getElementById('past-books-list');
+  if (list) {
+    list.innerHTML = '';
+    pastBooks.forEach(book => {
+      const bookId = book['책ID'] || book['book_id'] || '';
+      const title = titlePair(book);
+      const author = authorPair(book);
+      const description = bookDesc(book);
+      const status = book['상태'] || book['status'] || '토론 완료';
+      const date = book['날짜'] || book['date'] || '';
+
+      if (!bookId || !title.primary) return;
+
+      const bookCard = document.createElement('a');
+      bookCard.href = `book.html?id=${encodeURIComponent(bookId)}`;
+      bookCard.className = 'book-entry';
+
+      const statusClass = status.includes('완료') ? 'status-done' : 'status-active';
+      const youthTag = isYouthBook(book)
+        ? `<span class="status status-youth">${prefersEnglish() ? 'Youth' : '유스'}</span>`
+        : '';
+
+      const displayDate = prefersEnglish() && date === '2025년 이전' ? 'Prior to 2025' : date;
+      const withDate = (who) => [who, displayDate].filter(Boolean).join(' · ');
+      const metaLine = swapText({
+        primary: withDate(author.primary),
+        alt: author.alt ? withDate(author.alt) : '',
+      });
+
+      bookCard.innerHTML = `
+        <div class="book-cover">${coverMarkup(book, title.primary)}</div>
+        <div class="book-main">
+          <h3>${swapText(title)}</h3>
+          ${metaLine ? `<p class="book-meta">${metaLine}</p>` : ''}
+          ${description ? `<p class="desc">${escapeHtml(description)}</p>` : ''}
+          <div class="status-row">
+            ${youthTag}
+            <span class="status ${statusClass}">${escapeHtml(status)}</span>
+          </div>
+        </div>
+      `;
+      list.appendChild(bookCard);
+    });
+  }
+}
+window.loadPastBooks = loadPastBooks;
 
 // ========================================
 // 표지 목록 (index.html 홈, register.html 신청 페이지)
@@ -992,5 +1070,8 @@ document.addEventListener('DOMContentLoaded', function() {
   } else if (document.body.getAttribute('data-page-type') === 'summary') {
     console.log('🚀 자동 초기화: 요약 페이지 감지됨');
     loadBookList();
+  } else if (document.body.getAttribute('data-page-type') === 'past-books') {
+    console.log('🚀 자동 초기화: 2025년 이전 도서 페이지 감지됨');
+    loadPastBooks();
   }
 });
