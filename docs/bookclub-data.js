@@ -655,6 +655,15 @@ function youthBookmarkHTML() {
   );
 }
 
+// 이미 읽은 책(토론 완료)인지 확인
+function isBookRead(row) {
+  const status = pick(row, ['상태', 'status']).trim();
+  if (status.includes('완료')) return true;
+  if (status === '준비중') return false;
+  // 빈 값인 경우 기본적으로 토론 완료로 취급
+  return true;
+}
+
 // 새 학기 표시용 NEW 배지. 직접 만든 도형이라 외부 라이선스·저작자 표시 의무가 없다.
 // (전에 쓰던 The Noun Project 아이콘은 CC BY라 푸터 크레딧이 필요했다.)
 //
@@ -674,15 +683,16 @@ const NEW_ICON =
 // opts.isNew: 이 묶음의 표지에 새 학기 배지를 단다.
 function cardsForShelfHTML(rows, opts) {
   const o = opts || {};
-  // 배지는 .shot 바깥에 둔다 — .shot은 hover 때 rotateY(180deg)로 돌아가는 면이라
-  // 그 안에 넣으면 배지까지 같이 뒤집혀 거울상이 되거나 뒷면으로 숨는다.
-  const badge = o.isNew ? `<span class="new-badge" aria-label="NEW">${NEW_ICON}</span>` : '';
   return rows.map(function (row, i) {
     const place = (i === 0 && o.startTrack) ? ` style="grid-column:${o.startTrack}"` : '';
     const title = titlePair(row);
     const author = authorPair(row);
     const bookId = row['책ID'] || row['book_id'] || '';
     const youthBadge = isYouthBook(row) ? youthBookmarkHTML() : '';
+    // 새 학기 배지는 아직 읽지 않은(준비중) 책에만 달고, 이미 읽은 책(토론 완료)에서는 제거한다
+    const badge = (o.isNew && !isBookRead(row))
+      ? `<span class="new-badge" aria-label="NEW">${NEW_ICON}</span>`
+      : '';
 
     // 책ID가 있으면 토론 기록 페이지로 넘어가는 링크로 만든다
     const open = bookId
