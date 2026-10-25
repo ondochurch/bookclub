@@ -485,11 +485,10 @@ function renderBookList(books) {
       bookCard.href = `book.html?id=${encodeURIComponent(bookId)}`;
       bookCard.className = 'book-entry';
 
-      // 상태 문구에 "완료"가 있으면 정보색, 아니면 강조색(진행 중)으로 매핑
-      const statusClass = status.includes('완료') ? 'status-done' : 'status-active';
       const youthTag = isYouthBook(book)
         ? `<span class="status status-youth">${prefersEnglish() ? 'Youth' : '유스'}</span>`
         : '';
+      const statusTag = statusTagHTML(book);
 
       // 저자 · 날짜는 제목 아래 한 줄로 (한글 이름이 길어도 깨지지 않도록).
       // 날짜는 판본과 무관하지만, 두 벌을 같은 칸에 포개려면 한쪽에만 텍스트 노드를
@@ -509,7 +508,7 @@ function renderBookList(books) {
           ${description ? `<p class="desc">${escapeHtml(description)}</p>` : ''}
           <div class="status-row">
             ${youthTag}
-            <span class="status ${statusClass}">${escapeHtml(status)}</span>
+            ${statusTag}
           </div>
         </div>
       `;
@@ -594,10 +593,10 @@ async function loadPastBooks() {
       bookCard.href = `book.html?id=${encodeURIComponent(bookId)}`;
       bookCard.className = 'book-entry';
 
-      const statusClass = status.includes('완료') ? 'status-done' : 'status-active';
       const youthTag = isYouthBook(book)
         ? `<span class="status status-youth">${prefersEnglish() ? 'Youth' : '유스'}</span>`
         : '';
+      const statusTag = statusTagHTML(book);
 
       const displayDate = prefersEnglish() && date === '2025년 이전' ? 'Prior to 2025' : date;
       const withDate = (who) => [who, displayDate].filter(Boolean).join(' · ');
@@ -614,7 +613,7 @@ async function loadPastBooks() {
           ${description ? `<p class="desc">${escapeHtml(description)}</p>` : ''}
           <div class="status-row">
             ${youthTag}
-            <span class="status ${statusClass}">${escapeHtml(status)}</span>
+            ${statusTag}
           </div>
         </div>
       `;
@@ -655,13 +654,59 @@ function youthBookmarkHTML() {
   );
 }
 
+// 진행중 도서용 제비꼬리 책갈피 배지 (표지 우상단)
+function progressBookmarkHTML() {
+  const label = prefersEnglish() ? 'READING' : '진행중';
+  const cls = prefersEnglish() ? 'progress-badge is-en' : 'progress-badge';
+  return (
+    `<span class="${cls}" aria-label="${label}">`
+    + '<svg viewBox="0 0 46 54" aria-hidden="true">'
+    + '<path d="M2,0 H44 V52 L23,40 L2,52 Z" fill="currentColor"/>'
+    + `<text x="23" y="21" text-anchor="middle" dominant-baseline="central">${label}</text>`
+    + '</svg>'
+    + '</span>'
+  );
+}
+
+// 현재 읽는 중인 책(진행중)인지 확인
+function isBookInProgress(row) {
+  const status = pick(row, ['상태', 'status']).trim();
+  return status.includes('진행');
+}
+
+// 아직 읽기 전인 준비중 도서인지 확인
+function isBookUpcoming(row) {
+  const status = pick(row, ['상태', 'status']).trim();
+  return status.includes('준비');
+}
+
 // 이미 읽은 책(토론 완료)인지 확인
 function isBookRead(row) {
   const status = pick(row, ['상태', 'status']).trim();
+  if (status.includes('진행')) return false;
+  if (status.includes('준비')) return false;
   if (status.includes('완료')) return true;
-  if (status === '준비중') return false;
   // 빈 값인 경우 기본적으로 토론 완료로 취급
   return true;
+}
+
+// 상태 태그 HTML (목록 및 상세 페이지용)
+function statusTagHTML(row) {
+  const status = pick(row, ['상태', 'status']).trim();
+  const isEn = prefersEnglish();
+  if (status.includes('진행')) {
+    return `<span class="status status-in-progress">${isEn ? 'In Progress' : '진행중'}</span>`;
+  }
+  if (status.includes('준비')) {
+    return `<span class="status status-upcoming">${isEn ? 'Upcoming' : '준비중'}</span>`;
+  }
+  if (status.includes('완료')) {
+    return `<span class="status status-done">${isEn ? 'Completed' : '토론 완료'}</span>`;
+  }
+  if (status) {
+    return `<span class="status status-done">${escapeHtml(status)}</span>`;
+  }
+  return `<span class="status status-done">${isEn ? 'Completed' : '토론 완료'}</span>`;
 }
 
 // 새 학기 표시용 NEW 배지. 직접 만든 도형이라 외부 라이선스·저작자 표시 의무가 없다.
@@ -689,8 +734,9 @@ function cardsForShelfHTML(rows, opts) {
     const author = authorPair(row);
     const bookId = row['책ID'] || row['book_id'] || '';
     const youthBadge = isYouthBook(row) ? youthBookmarkHTML() : '';
-    // 새 학기 배지는 아직 읽지 않은(준비중) 책에만 달고, 이미 읽은 책(토론 완료)에서는 제거한다
-    const badge = (o.isNew && !isBookRead(row))
+    const progressBadge = isBookInProgress(row) ? progressBookmarkHTML() : '';
+    // 새 학기 배지는 준비중인 책에만 달고, 진행중이거나 이미 읽은 책(토론 완료)에서는 제거한다
+    const badge = (o.isNew && isBookUpcoming(row))
       ? `<span class="new-badge" aria-label="NEW">${NEW_ICON}</span>`
       : '';
 
@@ -715,7 +761,7 @@ function cardsForShelfHTML(rows, opts) {
 
     return `
       ${open}
-        <div class="shot">${coverMarkup(row, title.primary)}</div>${youthBadge}${badge}
+        <div class="shot">${coverMarkup(row, title.primary)}</div>${youthBadge}${progressBadge}${badge}
         <div class="meta">${meta}</div>
       ${close}`;
   }).join('');
@@ -1022,9 +1068,14 @@ function populateBookPage(bookMetadata) {
     coverContainer.innerHTML = coverMarkup(bookMetadata, title);
   }
 
-  // 유스 도서인 경우 상태 태그 표시
+  // 상태 태그 표시 (유스 도서 태그 + 진행/완료/준비 상태 태그)
+  const youthTag = isYouthBook(bookMetadata)
+    ? `<span class="status status-youth">${prefersEnglish() ? 'Youth' : '유스'}</span>`
+    : '';
+  const statusTag = statusTagHTML(bookMetadata);
+
   let statusRow = document.getElementById('book-status-row');
-  if (isYouthBook(bookMetadata)) {
+  if (youthTag || statusTag) {
     if (!statusRow) {
       statusRow = document.createElement('div');
       statusRow.id = 'book-status-row';
@@ -1035,7 +1086,7 @@ function populateBookPage(bookMetadata) {
         descElem.parentNode.insertBefore(statusRow, descElem);
       }
     }
-    statusRow.innerHTML = `<span class="status status-youth">${prefersEnglish() ? 'Youth' : '유스'}</span>`;
+    statusRow.innerHTML = `${youthTag}${statusTag}`;
   } else if (statusRow) {
     statusRow.remove();
   }

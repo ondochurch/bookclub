@@ -356,6 +356,39 @@ h1.page-title {
   letter-spacing: 0.3px;
 }
 
+/* 진행중 도서 표시. 제비꼬리 모양 책갈피 리본으로 우측 상단에 배치한다.
+   좌측 상단의 .youth-badge와 충돌하지 않고, 준비중 도서의 .new-badge를 대체한다.
+   .shot의 형제로 두어 3D 회전 시 뒤집히지 않는다. */
+.progress-badge {
+  position: absolute;
+  top: -0.3rem;
+  right: 0.35rem;
+  z-index: 2;
+  width: 1.65rem;
+  height: 1.95rem;
+  color: var(--accent);
+  pointer-events: none;
+  filter:
+    drop-shadow(0 0 1.5px var(--paper))
+    drop-shadow(0 0 1.5px var(--paper))
+    drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
+}
+
+.progress-badge svg { width: 100%; height: 100%; display: block; }
+
+.progress-badge text {
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: 11.5px;
+  letter-spacing: -0.4px;
+  fill: var(--paper);
+}
+
+.progress-badge.is-en text {
+  font-size: 8px;
+  letter-spacing: 0.2px;
+}
+
 .cover-card .shot {
   box-shadow: var(--shadow);
   background: var(--paper-2);
@@ -720,14 +753,43 @@ a.cover-card:hover .t { color: var(--accent); }
 }
 
 .status {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
   font-size: 0.75rem;
   font-weight: 700;
   padding: 0.15rem 0.5rem;
+  border-radius: 2px;
   border: 1px solid currentColor;
+  line-height: 1.4;
 }
-.status-done   { color: var(--accent-2); }
-.status-active { color: var(--accent); }
+.status-done   { color: var(--accent-2); border-color: var(--accent-2); }
+.status-active { color: var(--accent); border-color: var(--accent); }
+.status-upcoming {
+  color: var(--muted);
+  border-color: var(--rule);
+}
+.status-in-progress {
+  color: var(--paper);
+  background: var(--accent);
+  border-color: var(--accent);
+  gap: 0.35rem;
+}
+.status-in-progress::before {
+  content: '';
+  display: inline-block;
+  width: 0.42rem;
+  height: 0.42rem;
+  border-radius: 50%;
+  background-color: var(--paper);
+  box-shadow: 0 0 3px rgba(255, 255, 255, 0.8);
+  animation: pulse-dot 1.8s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.35; transform: scale(0.7); }
+}
+
 .status-youth {
   color: var(--paper);
   background: var(--youth);

@@ -325,8 +325,30 @@ Books read by the youth group are marked in the metadata spreadsheet with `group
    - In `renderBookList()`, render `<span class="status status-youth">${prefersEnglish() ? 'Youth' : '유스'}</span>` next to the completion `.status` inside a `.status-row` flex wrapper (`display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap`).
    - In `populateBookPage()`, display the `.status-youth` tag in the `.book-head` metadata block (e.g. alongside `#page-subtitle` or `#book-date`) when `isYouthBook(bookMetadata)` is true.
    - Styled as a solid inverted stamp (`color: var(--paper); background: var(--youth); border-color: var(--youth)`) so it stands apart from the outlined `.status-done` tag sitting right next to it.
+
+### The "In Progress" (`진행중`) badge and status tag
+
+Books currently being read and discussed are marked in the metadata spreadsheet with `status = 진행중` (Column J). They are visually distinguished across the site:
+
+1. **Detection helpers (`bookclub-data.js`)**:
+   ```javascript
+   function isBookInProgress(row) {
+     const status = pick(row, ['상태', 'status']).trim();
+     return status.includes('진행');
+   }
+   ```
+2. **Semester shelves (`index.html`, `index-en.html`, `register.html`) — `.progress-badge` bookmark ribbon**:
+   - Drawn in-house as an inline swallowtail bookmark SVG (`viewBox="0 0 46 54"`, `<path d="M2,0 H44 V52 L23,40 L2,52 Z" fill="currentColor"/>`) with a live `<text x="23" y="21" text-anchor="middle" dominant-baseline="central">` element (`진행중` on `lang="ko"`, `READING` on `lang="en"` with `.is-en`).
+   - Placed at the **top-right** of `.cover-card` (`top: -0.3rem; right: 0.35rem; z-index: 2; width: 1.65rem; height: 1.95rem; color: var(--accent)`), separated from cover art by the same double `--paper` `drop-shadow` outline.
+   - **Replaces the `.new-badge`** on active books (upcoming books with `status = 준비중` retain the rosette `NEW` badge).
+   - If a book is both a youth book and in progress, it carries the blue `.youth-badge` on the top-left and the terracotta `.progress-badge` on the top-right.
+3. **Summary list (`summary.html`) & Book detail (`book.html`) — `.status-in-progress` live tag**:
+   - Styled with a solid accent background and a pulsing live dot:
+     `color: var(--paper); background: var(--accent); border-color: var(--accent);` with a `pulse-dot` CSS animation.
+   - Displays `진행중` (`In Progress` in English).
+   - Displayed in `#book-status-row` on `book.html` and in `.status-row` on `summary.html` and `past-books.html`.
 4. **Cache-busting reminder**:
-   - After editing `styles.css` and `bookclub-data.js`, bump `?v=N` in all 8 HTML files referencing `styles.css` and all 5 HTML files referencing `bookclub-data.js`.
+   - After editing `styles.css` and `bookclub-data.js`, bump `?v=N` in all 9 HTML files referencing `styles.css` and all 6 HTML files referencing `bookclub-data.js`.
 
 ### Bilingual book data, and the page-turn cover hover
 
